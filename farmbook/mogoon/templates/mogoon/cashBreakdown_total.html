@@ -1,0 +1,163 @@
+{% extends 'mogoon/base.html' %}
+
+
+{% load static %}
+
+
+<title>{% block title %}Cash Breakdown Total{% endblock %}</title>
+
+<link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
+{% block body %}
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-8 d-none d-lg-flex">
+        <div class="container-fluid text-right card bg-secondary card-dark mx-2 px-2 my-2 py-2">
+            <h2 class="text-center bg-dark text-warning">Cash Breakdown Total</h2>
+            <h3 class="text-center bg-dark text-warning">Cash Breakdown</h3>
+            <div class="border p-3">
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'employee-details' %}">Go To
+                    Emp-Details</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-cashBreakdown_create' %}">Go
+                    To Cash Breakdown Create</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
+
+
+                <form>
+                    <div>
+                        <label>Amount</label>
+                        <input type="number" name="amount"/>
+                    </div>
+                    <div>
+                        <label>One Thousand</label>
+                        <input type="number" name="One_th"/>
+                    </div>
+                    <div>
+                        <label>Five Hundred</label>
+                        <input type="number" name="Five_hu"/>
+                    </div>
+                    <div>
+                        <label>Two Hundred</label>
+                        <input type="number" name="Two_hu"/>
+                    </div>
+                    <div>
+                        <label>One Hundred</label>
+                        <input type="number" name="One_hu"/>
+                    </div>
+                    <div>
+                        <label>Fifties</label>
+                        <input type="number" name="Fifties_sh"/>
+                    </div>
+                    <div>
+                        <label>Forties</label>
+                        <input type="number" name="Forties_sh"/>
+                    </div>
+                    <div>
+                        <label>Twenties</label>
+                        <input type="number" name="Twenties_sh"/>
+                    </div>
+                    <div>
+                        <label>Tens</label>
+                        <input type="number" name="Tens_sh"/>
+                    </div>
+                    <div>
+                        <label>Fives</label>
+                        <input type="number" name="Fives_sh"/>
+                    </div>
+                    <div>
+                        <label>Ones</label>
+                        <input type="number" name="Ones_sh"/>
+                    </div>
+                    <div>
+                        <p>Amount: <span id="amount_total">0</span></p>
+                        <p>Total One Thousand: <span id="One_thousands_total">0</span></p>
+                        <p>Total Five Hundred: <span id="Five_hundreds_total">0</span></p>
+                        <p>Total Two Hundred: <span id="Two_hundreds_total">0</span></p>
+                        <p>Total One Hundred: <span id="One_hundreds_total">0</span></p>
+                        <p>Total Fifties: <span id="Fifties_total">0</span></p>
+                        <p>Total Forties: <span id="Forties_total">0</span></p>
+                        <p>Total Twenties: <span id="Twenties_total">0</span></p>
+                        <p>Total Tens: <span id="Tens_total">0</span></p>
+                        <p>Total Fives: <span id="Fives_total">0</span></p>
+                        <p>Total Ones: <span id="Ones_total">0</span></p>
+                        <hr/>
+                        <p>Grand Total: <span id="total">0</span></p>
+                    </div>
+                </form>
+
+                <script>
+                          // Calculate and display the totals for each denomination
+                          const amount = document.querySelector("input[name='amount']");
+                          const One_th = document.querySelector("input[name='One_th']");
+                          const Five_hu = document.querySelector("input[name='Five_hu']");
+                          const Two_hu = document.querySelector("input[name='Two_hu']");
+                          const One_hu = document.querySelector("input[name='One_hu']");
+                          const Fifties_sh = document.querySelector("input[name='Fifties_sh']");
+                          const Forties_sh = document.querySelector("input[name='Forties_sh']");
+                          const Twenties_sh = document.querySelector("input[name='Twenties_sh']");
+                          const Tens_sh = document.querySelector("input[name='Tens_sh']");
+                          const Fives_sh = document.querySelector("input[name='Fives_sh']");
+                          const Ones_sh = document.querySelector("input[name='Ones_sh']");
+                          const One_thousands_total = document.querySelector("#One_thousands_total");
+                          const Five_hundreds_total = document.querySelector("#Five_hundreds_total");
+                          const Two_hundreds_total = document.querySelector("#Two_hundreds_total");
+                          const One_hundreds_total = document.querySelector("#One_hundreds_total");
+                          const Fifties_total = document.querySelector("#Fifties_total");
+                          const Forties_total = document.querySelector("#Forties_total");
+                          const Twenties_total = document.querySelector("#Twenties_total");
+                          const Tens_total = document.querySelector("#Tens_total");
+                          const Fives_total = document.querySelector("#Fives_total");
+                          const Ones_total = document.querySelector("#Ones_total");
+                          const total = document.querySelector("#total");
+
+                          // Event Listeners
+                          amount.addEventListener("change", calculateTotals);
+                          One_th.addEventListener("change", calculateTotals);
+                          Five_hu.addEventListener("change", calculateTotals);
+                          Two_hu.addEventListener("change", calculateTotals);
+                          One_hu.addEventListener("change", calculateTotals);
+                          Fifties_sh.addEventListener("change", calculateTotals);
+                          Forties_sh.addEventListener("change", calculateTotals);
+                          Twenties_sh.addEventListener("change", calculateTotals);
+                          Tens_sh.addEventListener("change", calculateTotals);
+                          Fives_sh.addEventListener("change", calculateTotals);
+                          Ones_sh.addEventListener("change", calculateTotals);
+
+      // Calculate totals
+      function calculateTotals() {
+                        const amount_total = amount.value * 1;
+                        const one_thousand_total = One_th.value * 1000;
+                        const five_hundred_total = Five_hu.value * 500;
+                        const two_hundred_total = Two_hu.value * 200;
+                        const one_hundred_total = One_hu.value * 100;
+                        const fifties_total = Fifties_sh.value * 50;
+                        const forties_total = Forties_sh.value * 40;
+                        const twenties_total = Twenties_sh.value * 20;
+                        const tens_total = Tens_sh.value * 10;
+                        const fives_total = Fives_sh.value * 5;
+                        const ones_total = Ones_sh.value * 1;
+                        const grand_total = one_thousand_total + five_hundred_total + two_hundred_total
+                        + one_hundred_total + fifties_total + forties_total + twenties_total + tens_total
+                        + fives_total + ones_total;
+
+                        amount_total.innerHTML = amount_total;
+                        One_thousands_total.innerHTML = one_thousand_total;
+                        Five_hundreds_total.innerHTML = five_hundred_total;
+                        Two_hundreds_total.innerHTML = two_hundred_total;
+                        One_hundreds_total.innerHTML = one_hundred_total;
+                        Fifties_total.innerHTML = fifties_total;
+                        Forties_total.innerHTML = forties_total;
+                        Twenties_total.innerHTML = twenties_total;
+                        Tens_total.innerHTML = tens_total;
+                        Fives_total.innerHTML = fives_total;
+                        Ones_total.innerHTML = ones_total;
+                        total.innerHTML = grand_total;
+
+                        }
+
+
+
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock  %}

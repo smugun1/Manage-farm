@@ -1,0 +1,77 @@
+{% extends 'mogoon/base.html' %}
+
+{% include 'Purple/update.html' %}
+
+{% include 'Purple/delete.html' %}
+
+{% load static %}
+
+
+<title>{% block title %}Purple Tea Table{% endblock %}</title>
+
+<link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
+
+{% block body %}
+<div class="container-fluid text-right card bg-secondary card-dark mx-0 px-0 my-0 py-0">
+    <h2 class="text-center bg-dark text-warning">Crop_data</h2>
+    <h3 class="text-center bg-dark text-warning">Purple Tea Table</h3>
+    <div class="border p-3">
+        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-purple_update' %}">Add</a>
+        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
+        <form action="" method="POST">
+            {% csrf_token %}
+
+        </form>
+
+
+        <table class="table id=Pupletea align-middle text-warning bg-dark">
+
+            <tr>
+                <th>Crop Data</th>
+                <th>Plucking Date</th>
+                <th>Crop Today</th>
+                <th>Crop Todate</th>
+                <th>Plucker Numbers</th>
+                <th>Total Pluckers</th>
+                <th>Plucking Average</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+
+            {% for data in crop_data %}
+
+            <tr>
+                <td>{{data.crop_data}}</td>
+                <td>{{data.plucking_date}}</td>
+                <td>{{data.crop_today}}</td>
+                <td>{{data.crop_todate}}</td>
+                <td>{{data.plucker_numbers}}</td>
+                <td>{{data.total_pluckers}}</td>
+                <td>{% widthratio data.crop_today data.plucker_numbers 1 %}</td>
+                <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                       href="{% url 'purple-update' data.id %}">Edit</a></td>
+                <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                       href="{% url 'purple-delete' data.id %}">Delete</a></td>
+            </tr>
+            {% endfor %}
+
+
+            <td>Totals/Ave</td>
+            <td></td>
+            <td>{{cs_todate.all_sum}}</td>
+            <td>{{cs_todate.all_sum}}</td>
+            <td>{{ ps_numbers.all_count }}</td>
+            <td>{{ts_pluckers.pl_total}}</td>
+            <td>{% widthratio cs_todate.all_sum ps_numbers.all_quantity 1 %}</td>
+            <br>
+            <br>
+            <tr>
+                <td>Total Purple Tea</td>
+                <td></td>
+                <td></td>
+                <td>#{{ Purpletea.crop_todate }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

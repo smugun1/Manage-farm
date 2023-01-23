@@ -1,0 +1,21 @@
+
+
+{% block content %}
+<div class="border p-3">
+    <div class="card-body bg-secondary">
+        <h4>Update Task</h4>
+        <hr>
+        <div class="alert alert-info">
+            <p>Update record here!</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-info bg-warning" type="submit" value="Edit">
+            <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'mogoon-crop_table' %}">Return</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

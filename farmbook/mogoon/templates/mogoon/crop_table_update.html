@@ -1,0 +1,184 @@
+{% extends 'mogoon/base.html' %}
+
+
+{% load static %}
+
+{% block title %}Crop Data Tables Update{% endblock %}
+
+{% block body %}
+<br>
+<div class="row">
+    <div class="col">
+        <div class="row g-0 d-flex align-items-center">
+            <div class="col-lg-4 d-none d-lg-flex">
+                <div class="container fluid bg-info text-warning" style="width: 25rem;">
+                    <div class="card card bg-dark text-right" style="width: 23rem;">
+                        <h2 class="text-center text-warning">Crop Table Update</h2>
+                        <h3 class="text-center text-warning">Greentea Update</h3>
+                        <form action="{% url 'mogoon-crop_create' %}" method="POST">
+                            {% csrf_token %}
+
+                            {{ form }}
+
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput2" class="form-label"><strong>Green Tea</strong></label>
+                                <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput2"
+                                        name="crop_data">
+                                    <option selected disabled>choose option</option>
+                                    <option value="Greentea">Green Tea</option>
+                                    <option value=""></option>
+                                </select>
+
+                                <label for="formGroupExampleInput" class="form-label"><strong>Plucking
+                                    Date</strong></label>
+                                <input style="height:40px;width:300px" type="datetime-local" class="form-control"
+                                       id="formGroupExampleInput" placeholder="plucking_date" name="plucking_date">
+
+                                <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop
+                                        Today</strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput3"
+                                           placeholder="crop_today" name="crop_today" value="">
+                                </div>
+                                <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop Todate</strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput4"
+                                           placeholder="crop_todate" name="crop_todate" value="{{crop_todate.all_sum}}"
+                                           readonly>
+                                </div>
+                                <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Plucker
+                                        Numbers</strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput5"
+                                           placeholder="plucker_numbers" name="plucker_number"
+                                           value="{{plucker_numbers.all_count}}">
+                                </div>
+                                 <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total Plucker
+                                    </strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput6"
+                                           placeholder="total_pluckers" name="total_pluckers"
+                                           value="{{total_pluckers.pl_total}}" readonly>
+                                </div>
+                                <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Plucking
+                                        Average</strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput7"
+                                           placeholder="plucking_average" name="plucking_average"
+                                           value="{{plucking_average}}">
+                                </div>
+                                <div class="col-sm col-sm">
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total
+                                        Crop</strong></label>
+                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                           id="formGroupExampleInput8"
+                                           placeholder="total_crop" name="total_crop"
+                                           value="{{total_crop.total_sum}}">
+                                </div>
+
+                                <div class="container my-3">
+                                    <button class="btn btn-primary" type="submit" value="Update" name="update"
+                                            typeof="hover">Submit
+                                    </button>
+                                    <a class="btn btn-warning bg-success btn-info block-lg"
+                                       href="{% url 'mogoon-crop_table' %}">Return</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--            <div class="col">-->
+<!--                <div class="row g-0 d-flex align-items-right">-->
+
+<!--                    <div class="container fluid bg-info text-warning" style="width: 25rem;">-->
+<!--                        <div class="card card bg-dark text-right" style="width: 23rem;">-->
+<!--                            <h2 class="text-center text-warning">Crop Table Update</h2>-->
+<!--                            <h3 class="text-center text-warning">Purpletea Update</h3>-->
+
+<!--                            <form action="{% url 'mogoon-purple_create' %}" method="POST">-->
+<!--                                {% csrf_token %}-->
+<!--                                -->
+<!--                                {{ form }}-->
+
+<!--                                <div class="col-sm col-sm">-->
+<!--                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                        Data</strong></label>-->
+<!--                                    <select style="height:40px;width:300px" class="form-control"-->
+<!--                                            id="formGroupExampleInput8"-->
+<!--                                            name="crop_data">-->
+<!--                                        <option selected disabled>choose option</option>-->
+<!--                                        <option value="Greentea">Green Tea</option>-->
+<!--                                        <option value="Purpletea">Purple Tea</option>-->
+<!--                                    </select>-->
+
+<!--                                    <label for="formGroupExampleInput" class="form-label"><strong>Plucking Date</strong></label>-->
+<!--                                    <input style="height:40px;width:300px" type="datetime-local" class="form-control"-->
+<!--                                           id="formGroupExampleInput9" placeholder="plucking_date" name="plucking_date">-->
+
+<!--                                    <div class="col-sm col-sm">-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                            Today</strong></label>-->
+<!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
+<!--                                               id="formGroupExampleInput10"-->
+<!--                                               placeholder="crop_today" name="crop_today">-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm col-sm">-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                            Todate</strong></label>-->
+<!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
+<!--                                               id="formGroupExampleInput11"-->
+<!--                                               placeholder="crop_todate" name="crop_todate"-->
+<!--                                               value="{{crop_todate.all_sum}}" readonly>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm col-sm">-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Plucker-->
+<!--                                            Numbers</strong></label>-->
+<!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
+<!--                                               id="formGroupExampleInput12"-->
+<!--                                               placeholder="plucker_numbers" name="plucker_number">-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm col-sm">-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Plucking-->
+<!--                                            Average</strong></label>-->
+<!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
+<!--                                               id="formGroupExampleInput13"-->
+<!--                                               placeholder="plucking_average" name="plucking_average"-->
+<!--                                               value="{% widthratio data.crop_today data.plucker_numbers 1 %}">-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm col-sm">-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Total-->
+<!--                                            Crop</strong></label>-->
+<!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
+<!--                                               id="formGroupExampleInput14"-->
+<!--                                               placeholder="total_crop" name="total_crop" value="">-->
+<!--                                    </div>-->
+
+<!--                                    <div class="container my-3">-->
+<!--                                        <button class="btn btn-primary" type="submit" value="Update" name="update"-->
+<!--                                                typeof="hover">Submit-->
+<!--                                        </button>-->
+<!--                                        <a class="btn btn-warning bg-success btn-info block-lg"-->
+<!--                                           href="{% url 'mogoon-purple' %}">Return</a>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </form>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
+{% endblock %}

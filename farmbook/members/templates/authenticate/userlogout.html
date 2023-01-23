@@ -1,0 +1,61 @@
+{% extends 'mogoon/base.html' %}
+
+{% load static %}
+
+{% block body %}
+<h1>User Logout Page</h1>
+
+<section class=" text-center text-lg-start">
+    <style>
+    .rounded-t-5 {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .rounded-tr-lg-0 {
+        border-top-right-radius: 0;
+      }
+
+      .rounded-bl-lg-5 {
+        border-bottom-left-radius: 0.5rem;
+      }
+    }
+    </style>
+    <div class="card mb-3">
+        <div class="row g-0 d-flex align-items-center">
+            <div class="col-lg-4 d-none d-lg-flex">
+                <img src="/static/images/slide 41.jpg/" class="d-block w-100 h-60" alt="...
+                w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"/>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-body py-5 px-md-5">
+                    <!-- Email input -->
+                    <h3>You have been logged out, Sign in again</h3>
+                    <div>
+<!--                        <input type="submit" value="Submit">-->
+                        <a class="btn btn-info hover block-lg" href="{% url 'login' %}">Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-flex">
+                <img src="/static/images/slide 34.jpg/" class="d-block w-100 h-60" alt="...
+                w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"/>
+            </div>
+
+        </div>
+    </div>
+</section>
+<div class="row">
+    <div class="col-md-6">
+       <img src="/static/images/slide 38.jpg/" class="d-block w-100 h-30" alt="...
+                w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"/>
+    </div>
+    <div class="col-md-6">
+       <img src="/static/images/slide 29.jpg/" class="d-block w-100 h-30" alt="...
+                w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"/>
+    </div>
+    </div>
+
+{% endblock %}
+

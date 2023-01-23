@@ -1,0 +1,62 @@
+{% extends 'mogoon/base.html' %}
+
+{% include 'Employee/update.html' %}
+
+{% include 'Employee/delete.html' %}
+
+{% load static %}
+
+<title>{% block title %}Title{% endblock %}</title>
+
+<link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
+{% block body %}
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-10 d-none d-lg-flex">
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-0 my-4 py-4">
+            <h2 class="text-center bg-dark text-warning">Employee List</h2>
+            <h3 class="text-center bg-dark text-warning">Employee Record</h3>
+            <div class="border p-3">
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'employee-details' %}">Update</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-cashBreakdown_total' %}">Go
+                    To Cash Breakdown Total</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>National Identity</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Salary</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for employee in employee_list %}
+                    <tr>
+                        <td>{{ employee.national_identity }}</td>
+                        <td>{{ employee.name }}</td>
+                        <td>{{ employee.age }}</td>
+                        <td>{{ employee.gender }}</td>
+                        <td>{{ employee.department }}</td>
+                        <td>{{ employee.position }}</td>
+                        <td>{{ employee.salary }}</td>
+                        <td>
+                            <a class="btn btn-info btn-block bg-primary btn btn-info"
+                               href="{% url 'employee-edit' employee.id %}">Edit</a>
+                            <a class="btn btn-info btn-block bg-danger btn btn-info"
+                               href="{% url 'employee-delete' employee.id %}">Delete</a>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+        {% endblock %}

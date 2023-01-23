@@ -1,0 +1,127 @@
+   {% extends "mogoon/base.html" %}
+
+
+{% load static %}
+
+{% block title %}Cash Breakdown Table Update{% endblock %}
+
+{% block body %}
+
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-8 d-none d-lg-flex">
+        <div class="container fluid bg-dark text-light" style="width: 30rem;">
+            <div class="card card bg-warning text-right" style="width: 25rem;">
+                <h2 class="text-center text-dark">Cash Breakdown Table</h2>
+                <h3 class="text-center text-dark">Cash Breakdown Update</h3>
+                <form action="{% url 'mogoon-cashBreakdown_create' %}" method="POST">
+                    {% csrf_token %}
+                    {{ form }}
+
+
+                    <label for="formGroupExampleInput1" class="form-label"><strong>Cash Breakdown
+                        Date</strong></label>
+                    <input style="height:40px;width:300px" type="datetime-local" class="form-control"
+                           id="formGroupExampleInput1" placeholder="cashBreakdown_date" name="cashBreakdown_date">
+
+                    <div class="row g-3">
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput3" class="form-label"><strong>Amount
+                            </strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="1000001"
+                                   class="form-control" id="formGroupExampleInput3" placeholder="amount"
+                                   name="amount" value="{{amount.amount}}">
+                        </div>
+
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput4"
+                                   class="form-label"><strong>One_Thousands</strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="10001"
+                                   class="form-control" id="formGroupExampleInput4" placeholder="One_thousands"
+                                   name="One_thousands"
+                                   value="{{One_th}}">
+                        </div>
+
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput5"
+                                   class="form-label"><strong>Five_hundreds</strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="10001"
+                                   class="form-control" id="formGroupExampleInput5" placeholder="Five_hundreds"
+                                   name="Five_hundreds" value="{{Five_hu}}">
+                        </div>
+
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput6"
+                                   class="form-label"><strong>Two_hundreds</strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="10001"
+                                   class="form-control" id="formGroupExampleInput6" placeholder="Two_hundreds"
+                                   name="Two_hundreds" value="{{Two_hu}}">
+                        </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput7"
+                                   class="form-label"><strong>One_hundreds</strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="10001"
+                                   class="form-control" id="formGroupExampleInput7" placeholder="One_hundreds"
+                                   name="One_hundreds" value="{{One_hu}}">
+                        </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput8"
+                                   class="form-label"><strong>Fifties</strong></label>
+                            <input style="height:40px;width:300px" type="number" min="0" max="1001"
+                                   class="form-control" id="formGroupExampleInput8" placeholder="Fifties"
+                                   name="Fifties" value="{{Fifties_sh}}">
+
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput9"
+                                       class="form-label"><strong>Forties</strong></label>
+                                <input style="height:40px;width:300px" type="number" min="0" max="1001"
+                                       class="form-control" id="formGroupExampleInput9" placeholder="Forties"
+                                       name="Forties" value="{{Forties_sh}}">
+                            </div>
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput10"
+                                       class="form-label"><strong>Twenties</strong></label>
+                                <input style="height:40px;width:300px" type="number" min="0" max="1001"
+                                       class="form-control"
+                                       id="formGroupExampleInput10" placeholder="Twenties"
+                                       name="Twenties" value="{{Twenties_sh}}">
+                            </div>
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput11"
+                                       class="form-label"><strong>Tens</strong></label>
+                                <input style="height:40px;width:300px" type="number" min="0" max="101"
+                                       class="form-control" id="formGroupExampleInput11"
+                                       placeholder="Tens" name="Tens" value="{{Tens_sh}}">
+                            </div>
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput12"
+                                       class="form-label"><strong>Fives
+                                </strong></label>
+                                <input style="height:40px;width:300px" type="number" min="0" max="101"
+                                       class="form-control" id="formGroupExampleInput12" placeholder="Fives"
+                                       name="Fives" value="{{Fives_sh}}">
+                            </div>
+                            <div class="col-sm col-sm">
+                                <label for="formGroupExampleInput13"
+                                       class="form-label"><strong>Ones
+                                </strong></label>
+                                <input style="height:40px;width:300px" type="number" min="0" max="11"
+                                       class="form-control" id="formGroupExampleInput13" placeholder="Ones"
+                                       name="Ones" value="{{Ones_sh}}">
+                            </div>
+
+                            <div class="container my-3">
+                                <button class="btn btn-info" type="submit" value="Update" name="update"
+                                        typeof="hover">Submit
+                                </button>
+                                <a class="btn btn-warning bg-success btn-info block-lg"
+                                   href="{% url 'cash_breakdown_create' %}">Return</a>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

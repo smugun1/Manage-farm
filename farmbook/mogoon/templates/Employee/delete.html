@@ -1,0 +1,22 @@
+{% load static %}
+{% block content %}
+<div class="card mb-3">
+    <div class="row g-0 d-flex align-items-center">
+        <div class="border p-3">
+            <h4>Delete Task</h4>
+            <hr>
+            <div class="alert alert-danger">
+                <p>Are you sure you want to delete {{ item }} ?</p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-warning" typeof="hover"><a href="{% url 'employee-list' %}">Cancel</a>
+                </button>
+                <button class="btn btn-danger" typeof="hover" type="submit">Confirm</button>
+
+            </form>
+        </div>
+        </div>
+    </div>
+        {% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'mogoon/base.html' %}
+
+{% include 'Fertilizer/update.html' %}
+
+{% include 'Fertilizer/delete.html' %}
+
+{% load static %}
+
+
+<title>{% block title %}Fertilizer Table {% endblock %}</title>
+
+<link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
+
+{% block body %}
+<div class="container-fluid text-right card bg-secondary card-dark mx-0 px-0 my-0 py-0">
+    <h2 class="text-center bg-dark text-warning">Fertilizer</h2>
+    <h3 class="text-center bg-dark text-warning">Fertilizer Table</h3>
+
+    <div class="border p-3">
+        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-fertilizer_table_update' %}">Add</a>
+        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
+        <form action="" method="POST">
+            {% csrf_token %}
+        </form>
+
+        <hr>
+        <table class="table align-middle text-warning bg-dark">
+
+            <tr>
+                <th>Fertilizer</th>
+                <th>Fertilizer_Applied Date</th>
+                <th>Fertilizer Amount</th>
+                <th>Fertilizer Labour Rate</th>
+                <th>Fertilizer Labour</th>
+                <th>Fertilizer Labour Cost</th>
+                <th>Fertilizer Price</th>
+                <th>Fertilizer Cost</th>
+                <th>Fertilizer Total Cost</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            {% for data in fertilizer %}
+            <tr>
+                <td>{{data.fertilizer}}</td>
+                <td>{{data.fertilizer_applied}}</td>
+                <td>{{data.fertilizer_amt}}</td>
+                <td>{{data.fertilizer_labour_rate}}</td>
+                <td>{{data.fertilizer_labour}}</td>
+                <td>{% widthratio data.fertilizer_labour 1 data.fertilizer_labour_rate %}</td>
+                <td>{{data.fertilizer_price}}</td>
+                <td>{% widthratio data.fertilizer_price 1 data.fertilizer_amt %}</td>
+                <td>{{ data.fertilizer_labour_cost|add:data.fertilizer_cost }}</td>
+                <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                       href="{% url 'fertilizer-update' data.id %}">Edit</a></td>
+                <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                       href="{% url 'fertilizer-delete' data.id %}">Delete</a></td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

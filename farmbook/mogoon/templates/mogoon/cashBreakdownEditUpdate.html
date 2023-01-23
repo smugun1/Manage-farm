@@ -1,0 +1,101 @@
+{% extends "mogoon/base.html" %}
+
+
+{% load static %}
+
+{% block title %}Cash Breakdown Table Update{% endblock %}
+
+{% block body %}
+
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-8 d-none d-lg-flex">
+        <div class="container fluid bg-dark text-light" style="width: 30rem;">
+            <div class="card card bg-warning text-right" style="width: 25rem;">
+                <h2 class="text-center text-dark">Cash Breakdown Table</h2>
+                <h3 class="text-center text-dark">Cash Breakdown Update</h3>
+
+                <form method="post" action="{% url 'mogoon-cashBreakdown_edit' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="cashBreakdown_date">CashBreakdown Date</label>
+                        <input type="date" class="form-control" name="cashBreakdown_date" id="cashBreakdown_date"
+                               placeholder="CashBreakdown Date">
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" class="form-control" name="amount" id="amount" placeholder="Amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="One_thousands">One Thousands</label>
+                        <input type="number" class="form-control" name="One_thousands" id="One_thousands"
+                               placeholder="One Thousands">
+                    </div>
+                    <div class="form-group">
+                        <label for="Five_hundreds">Five Hundreds</label>
+                        <input type="number" class="form-control" name="Five_hundreds" id="Five_hundreds"
+                               placeholder="Five Hundreds">
+                    </div>
+                    <div class="form-group">
+                        <label for="Two_hundreds">Two Hundreds</label>
+                        <input type="number" class="form-control" name="Two_hundreds" id="Two_hundreds"
+                               placeholder="Two Hundreds">
+                    </div>
+                    <div class="form-group">
+                        <label for="One_hundreds">One Hundreds</label>
+                        <input type="number" class="form-control" name="One_hundreds" id="One_hundreds"
+                               placeholder="One Hundreds">
+                    </div>
+                    <div class="form-group">
+                        <label for="Fifties">Fifties</label>
+                        <input type="number" class="form-control" name="Fifties" id="Fifties" placeholder="Fifties">
+                    </div>
+                    <div class="form-group">
+                        <label for="Forties">Forties</label>
+                        <input type="number" class="form-control" name="Forties" id="Forties" placeholder="Forties">
+                    </div>
+                    <div class="form-group">
+                        <label for="Twenties">Twenties</label>
+                        <input type="number" class="form-control" name="Twenties" id="Twenties" placeholder="Twenties">
+                    </div>
+                    <div class="form-group">
+                        <label for="Tens">Tens</label>
+                        <input type="number" class="form-control" name="Tens" id="Tens" placeholder="Tens">
+                    </div>
+                    <div class="form-group">
+                        <label for="Fives">Fives</label>
+                        <input type="number" class="form-control" name="Fives" id="Fives" placeholder="Fives">
+                    </div>
+                    <div class="form-group">
+                        <label for="Ones">Ones</label>
+                        <input type="number" class="form-control" name="Ones" id="Ones" placeholder="Ones">
+                    </div>
+                    <div class="form-group">
+                        <label for="total">Total</label>
+                        <input type="number" class="form-control" name="total" id="total" placeholder="Total" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <script>
+    function updateTotal() {
+        let total = 0;
+        total += document.getElementById('One_thousands').value * 1000;
+        total += document.getElementById('Five_hundreds').value * 500;
+        total += document.getElementById('Two_hundreds').value * 200;
+        total += document.getElementById('One_hundreds').value * 100;
+        total += document.getElementById('Fifties').value * 50;
+        total += document.getElementById('Forties').value * 40;
+        total += document.getElementById('Twenties').value * 20;
+        total += document.getElementById('Tens').value * 10;
+        total += document.getElementById('Fives').value * 5;
+        total += document.getElementById('Ones').value * 1;
+        document.getElementById('total').value = total;
+    }
+
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

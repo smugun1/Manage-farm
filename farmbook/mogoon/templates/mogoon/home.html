@@ -1,0 +1,80 @@
+{% extends 'mogoon/base.html' %}
+
+{% load static %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+
+
+<div class="row">
+    <div class="col-md-3 px-3">
+        <img src="/static/images/slide 17.jpg" class="d-block w-100 h-60" alt="...">
+        <br>
+        <img src="/static/images/slide 18.jpg" class="d-block w-100 h-60" alt="...">
+        <br>
+        <img src="/static/images/slide 33.jpg" class="d-block w-100 h-60" alt="...">
+    </div>
+    <div class="col-md-6">
+        <div class="container fluid bg-dark text-warning" style="width: 60rem;">
+            <h1 class="text-center">Home Page</h1>
+            <p class="text-center"><strong><em> This is the reports home page </em></strong></p>
+            <div class="alert alert-warning alert-dismissible fade show my=0 mb=0" role="alert">
+                <h1><strong>Welcome visitor!</strong></h1> <h2>Are you here for the first time? </h2>
+                <h3>Click on the login or signin at the top right of the navbar.</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </div>
+            <form class="was-validated">
+                <div class="mb-3">
+                    <label for="validationTextarea" class="form-label">Daily report Comment</label>
+                    <textarea class="form-control" id="validationTextarea"
+                              placeholder="Enter comments on farm activities"
+                              required></textarea>
+                    <div class="invalid-feedback text-primary">
+                        Please enter comments on farm activities.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="validationTextarea" class="form-label">Visitors Name</label>
+                    <textarea class="form-control" id="validationTextarea1" placeholder="Enter Name"
+                              required></textarea>
+                    <label for="validationTextarea" class="form-label">Visitors Comments</label>
+                    <textarea class="form-control" id="validationTextarea2"
+                              placeholder="Enter Visitors comments "
+                              required></textarea>
+                    <div class="invalid-feedback text-primary">
+                        Please enter comments on farm activities.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <select class="form-select" required aria-label="select example">
+                        <option value="">Open this select menu</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                    <div class="invalid-feedback text-primary">Example invalid select feedback</div>
+                </div>
+                <div class="mb-3">
+                    <input type="file" class="form-control" aria-label="file example" required>
+                    <div class="invalid-feedback text-primary">Example invalid form file feedback</div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-info text-danger" type="submit">Submit form</button>
+                </div>
+            </form>
+        </div>
+        <div>
+    </div>
+    </div>
+    <div class="col-md-3 px-3">
+        <img src="/static/images/slide 20.jpg" class="d-block w-100 h-60" alt="...">
+        <br>
+        <img src="/static/images/slide 21.jpg" class="d-block w-100 h-60" alt="...">
+        <br>
+        <img src="/static/images/slide 44.jpg" class="d-block w-100 h-60" alt="...">
+    </div>
+</div>
+    {% endblock %}
