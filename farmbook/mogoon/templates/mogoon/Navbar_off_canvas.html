@@ -1,5 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark"
-     style=" background-color: rgba(13, 70, 10, 1);">
+<nav class="navbar bg-light fixed-top" style=" background-color: rgba(13, 70, 10, 1);">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">ManageFarm</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar"
@@ -22,13 +21,12 @@
                         <ul class="navbar-nav">
                             {% if user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="{% url 'employee-details' %}">Employee
-                                Details</a></li>
+
                             <li class="nav-item"><a class="nav-link active" href="{% url 'employee-list' %}">Employee
                                 List</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="{% url 'employee-update' %}">Employee
+                            <li class="nav-item"><a class="nav-link active" href="">Employee
                                 Update</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-crop_table' %}">Green
+                            <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-green_table' %}">Green
                                 Table</a></li>
                             <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-purple' %}">Purple
                                 Table</a></li>
@@ -38,13 +36,6 @@
                                 Table</a></li>
                             <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-fertilizer_table' %}">Fertilizer
                                 Table</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-cashBreakdown' %}">Cash
-                                Breakdown Table</a></li>
-                            <li class="nav-item"><a class="nav-link active"
-                                                    href="{% url 'mogoon-cashBreakdown_total' %}">Cash Breakdown
-                                Total</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="{% url 'cash_breakdown_create' %}">Cash
-                                Breakdown Create</a></li>
 
                             {% endif %}
                         </ul>

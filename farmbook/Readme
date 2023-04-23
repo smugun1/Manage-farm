@@ -1,0 +1,13 @@
+Tea crop
+The code consists of three views for a web application that manages data for crops.
+
+The first view, CropTable, retrieves data from the Crop model using Crop.objects.all(). It also calculates some values based on the data retrieved from the model, such as crop_today, crop_todate, plucker_numbers, total_pluckers, plucking_average, and total_crop. These values are then passed to a template mogoon/crop_table.html using a context dictionary context. The never_cache decorator is used to ensure that the view does not cache its response.
+
+The second view, CropTableUpdate, also retrieves data from the Crop model, but it calculates the values of crop_today, crop_todate, plucker_numbers, total_pluckers, plucking_average, and total_crop differently. It handles cases where the database is empty or where some of the values retrieved are of type None. The calculated values are then passed to a template mogoon/crop_table_update.html using a context dictionary context. The never_cache decorator is used to ensure that the view does not cache its response.
+
+The third view, mogoonCropCreate, is used to create a new record in the Crop model. It handles POST requests sent from a form that collects data for the new record. The data is extracted from the request.POST dictionary, and the Crop model is updated accordingly. The view then redirects to a different page using the redirect function. The login_required decorator is used to ensure that only authenticated users can access this view. The never_cache decorator is used to ensure that the view does not cache its response.
+
+Kandojobs(Side jobs outside the core business)
+This is a view for the Kandojobs table in the Mogoon application. This view contains all the data from the Kandojobs table and displays it in a table format. The view also calculates the total pruned bushes, total chemical amount, total weeding labour number, pruning cost, weeding labour and weeding cost. The view also contains functions to update the table by recalculating the totals and costs. The view also contains a create function that allows user to input data into the table.
+Fertilizer
+This page is used to create a new fertilizer record in the database. The code takes in the input from the form fields and stores them in the Fertilizer model in the database. Once the data is saved, the page redirects to the fertilizer table page to display the newly created record.

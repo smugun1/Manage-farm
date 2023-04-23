@@ -17,7 +17,8 @@
     <h3 class="text-center bg-dark text-warning">Fertilizer Table</h3>
 
     <div class="border p-3">
-        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-fertilizer_table_update' %}">Add</a>
+        <a class="btn btn-warning bg-primary btn-info block-lg"
+           href="{% url 'mogoon-fertilizer_table_update' %}">Add</a>
         <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
         <form action="" method="POST">
             {% csrf_token %}
@@ -49,7 +50,7 @@
                 <td>{% widthratio data.fertilizer_labour 1 data.fertilizer_labour_rate %}</td>
                 <td>{{data.fertilizer_price}}</td>
                 <td>{% widthratio data.fertilizer_price 1 data.fertilizer_amt %}</td>
-                <td>{{ data.fertilizer_labour_cost|add:data.fertilizer_cost }}</td>
+                <td>{{ data.fertilizer_labour_cost|add:data.fertilizer_total_cost }}</td>
                 <td><a class="btn btn-info btn-block bg-primary btn btn-info"
                        href="{% url 'fertilizer-update' data.id %}">Edit</a></td>
                 <td><a class="btn btn-info btn-block bg-danger btn btn-info"
@@ -67,7 +68,38 @@
                 <td>#</td>
                 <td>#</td>
             </tr>
+            {% for row in farm_data %}
+            {% for i in "012345678" %}
+
+            {% endfor %}
+            <tr>
+                <td>{{ row.field }}</td>
+                <td>{{ row.crop }}</td>
+                <td>{{ row.area }}</td>
+                <td>{{ row.date|date:"Y-m-d" }}</td>
+                <td>{{ row.harvest }}</td>
+                <td>{{ row.pesticides }}</td>
+                <td>{{ row.weed_control }}</td>
+                <td>{{ row.fertilizer }}</td>
+                <td>{{ row.comments }}</td>
+                <td>{% widthratio fertilizer_sum.4 1 fertilizer_sum.3 %}</td>
+                <td>{% widthratio fertilizer_sum.5 1 fertilizer_sum.3 %}</td>
+                <td>{% widthratio fertilizer_sum.6 1 fertilizer_sum.3 %}</td>
+                <td>{% widthratio fertilizer_sum.7 1 fertilizer_sum.3 %}</td>
+                <td>{% widthratio fertilizer_sum.8 1 fertilizer_sum.3 %}</td>
+            </tr>
+            {% endfor %}
+
+
         </table>
     </div>
 </div>
 {% endblock %}
+
+
+
+
+
+
+
+

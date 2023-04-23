@@ -1,0 +1,131 @@
+{% extends 'mogoon/base.html' %}
+
+{% load static %}
+
+{% block title %} Reports {% endblock %}
+
+{% block body %}
+
+
+<style>
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+
+
+
+    }
+
+    .container {
+        border-radius: 15px;
+        margin: none;
+        z-index: 1;
+
+
+    }
+    body {
+        background-image: url("slide 6.jpg");
+        font-family: Arial, sans-serif;
+        color: #333;
+        font-weight: bold;
+
+    h1 {
+        color: #0066cc;
+        border-bottom: 2px solid #0066cc;
+        padding-bottom: 10px;
+        font-weight: bold;
+
+    }
+    p {
+        line-height: 1.5;
+        color: gold;
+        font-weight: bold;
+
+    }
+    button {
+        color: lime;
+        background-color: cyan;
+        width: 100%;
+        padding-bottom: 20px;
+        border-radius: 20px;
+        align-text: center;
+        align-items: center;
+        font-weight: 10px;
+        flex-wrap: flex;
+
+    }
+
+</style>
+
+<div class="container fluid style=width: 120rem height: 100">
+    <div class="">
+
+        <div class="texts">
+            <div class="container fluid bg-dark text-warning" style="width: 100rem;">
+                <h1 class="text-center">The brief farm reports Page, enter the daily briefs below</h1>
+                <p class="text-center"><strong><em> This is the farm reports page </em></strong></p>
+
+                <form class="was-validated">
+                    <div class="mb-3">
+                        <label for="validationTextarea" class="form-label">Daily report Comment</label>
+                        <textarea class="form-control" id="validationTextarea"
+                                  placeholder="Enter comments on farm activities"
+                                  required></textarea>
+                        <div class="invalid-feedback text-light">
+                            Please enter comments on farm activities.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="validationTextarea" class="form-label">Visitors Name</label>
+                        <textarea class="form-control" id="validationTextarea1" placeholder="Enter Name"
+                                  required></textarea>
+                        <label for="validationTextarea" class="form-label">Visitors Comments</label>
+                        <textarea class="form-control" id="validationTextarea2"
+                                  placeholder="Enter Visitors comments "
+                                  required></textarea>
+                        <div class="invalid-feedback text-light">
+                            Please enter comments on farm activities.
+                        </div>
+                        <div class="mb-3">
+                            <label for="validationTextarea" class="form-label">Farm report</label>
+                            <textarea class="form-control" id="validationTextarea3" placeholder="Enter Farm report"
+                                      required></textarea>
+                            <label for="validationTextarea" class="form-label">Farm Requirements</label>
+                            <textarea class="form-control" id="validationTextarea4"
+                                      placeholder="Enter Requirement "
+                                      required></textarea>
+                            <div class="invalid-feedback text-light">
+                                Please enter comments on farm activities.
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <select class="form-select" required aria-label="select example">
+                                <option value="">Open this select menu</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                                <option value="4">Four</option>
+                                <option value="5">Five</option>
+                                <option value="6">Six</option>
+                                <option value="7">Seven</option>
+                            </select>
+                            <div class="invalid-feedback text-light">Example invalid select feedback</div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="file" class="form-control" aria-label="file example" required>
+                            <div class="invalid-feedback text-light">Example invalid form file feedback</div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-warning text-danger" type="submit">SUBMIT FORM</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

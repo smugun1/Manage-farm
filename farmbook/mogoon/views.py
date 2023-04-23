@@ -1,13 +1,16 @@
 import datetime
+from decimal import Decimal
+
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
-from django.db.models import Sum, F, Count
+from django.db.models import Sum, F, Count, Avg, FloatField
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.cache import never_cache
+
 from . import models
-from .forms import TaskForms, UpdateTaskForm, UpdateFertilizerForm, UpdateKandojobsForm, \
-    UpdateMilkForm, UpdateCashBreakdownForm, CashBreakdownForm, EmployeeForm
+from .forms import TaskForms, UpdateTaskForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
+    UpdateMilkForm, EmployeeForm, EmployeeDetailsForm
 from .models import *
 
 
@@ -23,28 +26,14 @@ def Home(request):
     return render(request, 'mogoon/home.html', context)
 
 
+@login_required(login_url='login')
 @never_cache
-def Employee_details(request):
-    if request.method == "POST":
-        employee_form = EmployeeForm(request.POST)
-        if employee_form.is_valid():
-            national_identity = employee_form.cleaned_data['national_identity']
-            name = employee_form.cleaned_data['name']
-            age = employee_form.cleaned_data['age']
-            gender = employee_form.cleaned_data['gender']
-            department = employee_form.cleaned_data['department']
-            position = employee_form.cleaned_data['position']
-            salary = employee_form.cleaned_data['salary']
-
-            employee = Employee(national_identity=national_identity, name=name, age=age, gender=gender,
-                                department=department, position=position, salary=salary)
-            employee.save()
-
-            messages.success(request, 'Employee details are successfully saved.')
-            return redirect('/employee-e_list')
-    else:
-        employee_form = EmployeeForm()
-    return render(request, 'mogoon/employee_details.html', {'employee_form': employee_form})
+def Reports(request):
+    context = {
+        "name": {"Reports Farm Page"},
+        'form': TaskForms
+    }
+    return render(request, 'mogoon/reports.html', context)
 
 
 def Employee_list(request):
@@ -52,210 +41,265 @@ def Employee_list(request):
     return render(request, 'mogoon/employee_list.html', {'employee_list': employee_list})
 
 
-def Employee_update(request):
-    employee_update = Employee.objects.all()
-    return render(request, 'mogoon/employee_update.html', {'employee_update': employee_update})
+@never_cache
+def Employee_update(request, pk):
+    employee_list = Employee.objects.all()
+    employee = Employee.objects.get(id=pk)
+    date_employed = models.DateTimeField()
+    salary = Employee.objects.aggregate(sal_count=Count('salary'))
+    total = Employee.objects.aggregate(sal_total=Sum('salary'))
+    form = EmployeeForm(instance=employee)
+    if salary.get('sal_count') is None:
+        salary['sal_count'] = 0
+    else:
+        salary = Employee.objects.aggregate(sal_count=Count('salary'))
 
+    if total.get('sal_total') is None:
+        total['sal_total'] = 0
+    else:
+        total = Employee.objects.aggregate(sal_total=Sum('salary'))
 
-# @login_required(login_url='login')
-def Employee_edit(request, pk):
-    employee = get_object_or_404(Employee, id=pk)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = EmployeeForm(request.POST, instance=employee)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Employee details are successfully updated.')
-            return redirect('/employee-e_list')
-    else:
-        form = EmployeeForm(instance=employee)
-    return render(request, 'Employee/update.html', {'form': form, 'employee': employee})
-
-
-# @login_required(login_url='login')
-def Employee_delete(request, pk):
-    employee = get_object_or_404(Employee, id=pk)
-    if request.method == "POST":
-        employee.delete()
-        messages.success(request, 'Employee details are successfully deleted.')
-        return redirect('/employee-e_details')
-    context = {
-        'item': employee,
-    }
-    return render(request, 'Employee/delete.html', context)
+            return redirect('employee-details', pk=pk)
+    context = {'form': form}
+    return render(request, 'mogoon/employee_details_update.html', context)
 
 
 @never_cache
-def CropTable(request):
-    data = Crop.objects.all()
+def Employee_details(request):
+    employee = Employee.objects.all()
+    date_employed = models.DateTimeField()
+    salary = Employee.objects.aggregate(sal_count=Count('salary'))
+    total = Employee.objects.aggregate(sal_total=Sum('salary'))
+
+    if request.method == "POST":
+        employee_form = EmployeeForm(request.POST)
+        if employee_form.is_valid():
+            # Create or update Employee object
+            date_employed = employee_form.cleaned_data['date_employed']
+            national_identity = employee_form.cleaned_data['national_identity']
+            employee, created = Employee.objects.update_or_create(date_employed=date_employed,
+                                                                  national_identity=national_identity,
+                                                                  defaults=employee_form.cleaned_data)
+
+            # Show appropriate message based on whether object was created or updated
+            if created:
+                messages.success(request, 'Employee details are successfully saved.')
+            else:
+                messages.success(request, 'Employee details are successfully updated.')
+
+            return redirect('employee-list')
+    else:
+        employee_form = EmployeeForm()
+
+    return render(request, 'mogoon/employee_details_update.html',
+                  {'employee_form': employee_form, 'employee': employee, 'date_employed': date_employed,
+                   'salary': salary, 'total': total})
+
+
+def Employee_create(request):
+    employee_list = Employee.objects.all()
+    return render(request, 'mogoon/employee_create.html', {'employee_list': employee_list})
+
+
+@never_cache
+def GreenTable(request):
+    data = Green.objects.all()
     plucking_date = models.DateTimeField()
-    crop_today = Crop.objects.aggregate(all_count=Count('crop_today'))
-    crop_todate = Crop.objects.aggregate(all_sum=Sum('crop_today'))
-    plucker_numbers = Crop.objects.aggregate(all_count=Count('plucker_numbers'))
-    total_pluckers = Crop.objects.aggregate(pl_total=Sum('plucker_numbers'))
-    plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
-    total_crop = Crop.objects.aggregate(total_sum=Sum('crop_todate'))
+    green_today = Green.objects.aggregate(all_count=Count('green_today'))
+    green_todate_result = Green.objects.aggregate(all_sum=Sum('green_today'))
+    total_pluckers_result = Green.objects.aggregate(pl_total=Sum('plucker_numbers'))
+    plucker_numbers = Green.objects.aggregate(all_count=Count('plucker_numbers'))
+    plucking_average = Green.objects.aggregate(pl_ave=Avg(F('green_todate') / F('total_pluckers')))
+
+    green_todate = green_todate_result['all_sum'] if green_todate_result['all_sum'] is not None else 0
+    total_pluckers = total_pluckers_result['pl_total'] if total_pluckers_result['pl_total'] is not None else 1
+    plucking_average = Green.objects.aggregate(pl_ave=Avg('green_todate', output_field=FloatField()))[
+        'pl_ave'] if total_pluckers != 0 else 0
+
+    total_green = Green.objects.aggregate(total_sum=Sum('green_todate'))
 
     context = {
-        "crop_data": data,
+        "green_data": data,
         "plucking_date": plucking_date,
-        "c_today": crop_today,
-        "c_todate": crop_todate,
+        "c_today": green_today,
+        "c_todate": green_todate,
         "p_numbers": plucker_numbers,
         "t_pluckers": total_pluckers,
         "p_average": plucking_average,
-        "t_crop": total_crop,
-
+        "t_green": total_green,
     }
-    return render(request, 'mogoon/crop_table.html', context)
+    return render(request, 'mogoon/green_table.html', context)
 
 
-# raise Exception("I want to know value" + str("Crop Table"))
+"""What changed in the code?
+
+The code was changed to match the template. The code was modified to include the data from the green model and to 
+calculate the necessary values to display on the template. The code was also modified to handle scenarios where the 
+database is empty and the values are returned as None. This was done by checking the value of the all_sum key in the 
+green_todate dictionary and setting it to 0 if it is of type None. This allows the template to display the 0 value 
+instead of None. Other changes include adding variables for plucker_numbers, total_pluckers, plucking_average and 
+total_green. These variables are used to calculate the necessary values to display on the template. """
+
 
 @login_required(login_url='login')
 @never_cache
-def CropTableUpdate(request):
-    crop_today = Crop.objects.count()
-    # get the current crop_todate value
-    crop_todate = Crop.objects.aggregate(all_sum=Sum('crop_today'))
-    # the crop_todate variable is a dictionary with a key value pair, the key is all_sum as set above,
+def GreenTableUpdate(request):
+    green_today = Green.objects.count()
+    # get the current green_todate value
+    green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
+    # the green_todate variable is a dictionary with a key value pair, the key is all_sum as set above,
     # when the database is empty the value of all_sum is set to python type called None, to cater for this scenario
-    # get the value of the all_sum and check if it is nul as shown below, when null is set to type None and not type
+    # get the value of the all_sum and check if it is null as shown below, when null is set to type None and not type
     # Null
-    if crop_todate.get('all_sum') is None:
+    if green_todate.get('all_sum') is None:
         # if the value is of type None set the value to zero because this value is used later for additions and a none
         # type cannot be added to the int type
-        crop_todate['all_sum'] = 0
+        green_todate['all_sum'] = 0
         # this value appears in the form as 0 instead of 'None'
     else:
-        # if it has an actual value get the crop_todate and pass it to the templates via the context, this value
+        # if it has an actual value get the green_todate and pass it to the templates via the context, this value
         # appears in the form
-        crop_todate = Crop.objects.aggregate(all_sum=Sum('crop_today'))
-    plucker_numbers = Crop.objects.aggregate(all_count=Count('plucker_numbers'))
-    total_pluckers = Crop.objects.aggregate(pl_total=Sum('plucker_numbers'))
+        green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
+    plucker_numbers = Green.objects.aggregate(all_count=Count('plucker_numbers'))
+    total_pluckers = Green.objects.aggregate(pl_total=Sum('plucker_numbers'))
     if total_pluckers.get('pl_total') is None:
         total_pluckers['pl_total'] = 0
     else:
-        total_pluckers = Crop.objects.aggregate(pl_total=Sum('plucker_numbers'))
-    plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
-    if plucking_average is None:
+        total_pluckers = Green.objects.aggregate(pl_total=Sum('plucker_numbers'))
+
+    if total_pluckers.get('pl_total') == 0:
         plucking_average = 0
     else:
-        plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
+        plucking_average = Green.objects.aggregate(pl_ave=Avg('green_todate') / total_pluckers.get('pl_total'))
+        plucking_average = plucking_average.get('pl_ave') if total_pluckers.get('pl_total') != 0 else 0
 
-    total_crop = Crop.objects.aggregate(total_sum=Sum('crop_todate'))
-    if total_crop.get('total_sum') is None:
-        total_crop['total_sum'] = 0
+    total_green = Green.objects.aggregate(total_sum=Sum('green_todate'))
+    if total_green.get('total_sum') is None:
+        total_green['total_sum'] = 0
     else:
-        total_crop = Crop.objects.aggregate(total_sum=Sum('crop_todate'))
+        total_green = Green.objects.aggregate(total_sum=Sum('green_todate'))
 
     context = {
-        "crop_today": crop_today,
-        "crop_todate": crop_todate,
+        "green_today": green_today,
+        "green_todate": green_todate,
         "plucker_numbers": plucker_numbers,
         "total_pluckers": total_pluckers,
         "plucking_average": plucking_average,
-        "total_crop": total_crop,
+        "total_green": total_green,
 
     }
-    return render(request, 'mogoon/crop_table_update.html', context)
+    return render(request, 'mogoon/green_table_update.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def mogoonCropCreate(request):
+def mogoonGreenCreate(request):
     if request.method == "POST":
-        # this function saves a new record from the notes form. The crop_todate is the crop todate gotten from the
-        # form(that was passed from the notes function) plus the crop today entered in the form.
-        # Initially the crop to date is zero when the dta base is empty. the new crop to date will be zero plus the crop
-        # today entered in the form, this addition is inserted and saved in the database as crop todate as shown below.
+        # this function saves a new record from the notes form. The green_todate is the green todate gotten from the
+        # form(that was passed from the notes function) plus the green today entered in the form. Initially the green
+        # to date is zero when the dta base is empty. the new green to date will be zero plus the green today entered
+        # in the form, this addition is inserted and saved in the database as green todate as shown below.
         plucking_date = request.POST['plucking_date']
-        crop_data = request.POST['crop_data']
-        crop_today = request.POST['crop_today']
-        # Initially request.POST['crop_today'] is a string, it has to be wrapped with an int for purpose of addition
-        crop_todate = int(request.POST['crop_todate']) + int(crop_today)
+        green_data = request.POST['green_data']
+        green_today = request.POST['green_today']
+        # Initially request.POST['green_today'] is a string, it has to be wrapped with an int for purpose of addition
+        green_todate = int(request.POST['green_todate']) + int(green_today)
         plucker_numbers = request.POST['plucker_number']
         total_pluckers = request.POST['total_pluckers']
-        plucking_average = request.POST['plucking_average']
-        total_crop = request.POST['total_crop']
+        plucking_average = float(request.POST['plucking_average'])
+        total_green = request.POST['total_green']
 
-        insert = Crop(plucking_date=plucking_date, crop_data=crop_data, crop_today=crop_today, crop_todate=crop_todate,
-                      plucker_numbers=plucker_numbers, total_pluckers=total_pluckers, plucking_average=plucking_average,
-                      total_crop=total_crop)
+        insert = Green(plucking_date=plucking_date, green_data=green_data, green_today=green_today,
+                       green_todate=green_todate,
+                       plucker_numbers=plucker_numbers, total_pluckers=total_pluckers,
+                       plucking_average=plucking_average,
+                       total_green=total_green)
         insert.save()
 
-    return redirect('/crop_table')
+    return redirect('/green_table')
 
 
 @never_cache
-def CropPurpleTable(request):
-    data = CropP.objects.all()
+def PurpleTable(request):
+    data = Purple.objects.all()
     plucking_date = models.DateTimeField()
-    crop_today = CropP.objects.count()
-    crop_todate = CropP.objects.aggregate(all_sum=Sum('crop_today'))
-    plucker_numbers = CropP.objects.aggregate(all_count=Count('plucker_numbers'))
-    total_pluckers = CropP.objects.aggregate(pl_total=Sum('plucker_numbers'))
-    plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
-    total_crop = CropP.objects.aggregate(total_sum=Sum('crop_todate'))
+    purple_today = Purple.objects.aggregate(all_count=Count('purple_today'))
+    purple_todate_result = Purple.objects.aggregate(all_sum=Sum('purple_today'))
+    total_pluckers_result = Purple.objects.aggregate(pl_total=Sum('plucker_numbers'))
+    plucker_numbers = Purple.objects.aggregate(all_count=Count('plucker_numbers'))
+    plucking_average = Purple.objects.aggregate(pl_ave=Avg(F('purple_todate') / F('total_pluckers')))
 
+    purple_todate = purple_todate_result['all_sum'] if purple_todate_result['all_sum'] is not None else 0
+    total_pluckers = total_pluckers_result['pl_total'] if total_pluckers_result['pl_total'] is not None else 1
+    plucking_average = Purple.objects.aggregate(pl_ave=Avg('purple_todate', output_field=FloatField()))[
+        'pl_ave'] if total_pluckers != 0 else 0
+
+    total_purple = Purple.objects.aggregate(total_sum=Sum('purple_todate'))
     context = {
-        "crop_data": data,
+        "purple_data": data,
         "plucking_date": plucking_date,
-        "cs_today": crop_today,
-        "cs_todate": crop_todate,
+        "cs_today": purple_today,
+        "cs_todate": purple_todate,
         "ps_numbers": plucker_numbers,
         "ts_total": total_pluckers,
         "ps_average": plucking_average,
-        "t_crop": total_crop,
+        "t_purple": total_purple,
 
     }
     return render(request, 'mogoon/purple_tea.html', context)
 
 
-# raise Exception("I want to know value" + str("Crop Table"))
+# raise Exception("I want to know value" + str("purple Table"))
 
 @login_required(login_url='login')
 @never_cache
-def CropPurpleTableUpdate(request):
-    # get the current crop_todate value
-    crop_todate = CropP.objects.aggregate(all_sum=Sum('crop_today'))
-
-    # the crop_todate variable is a dictionary with a key value pair, the key is all_sum as set above,
+def PurpleTableUpdate(request):
+    purple_today = Purple.objects.count()
+    # get the current purple_todate value
+    purple_todate = Purple.objects.aggregate(all_sum=Sum('purple_today'))
+    # the purple_todate variable is a dictionary with a key value pair, the key is all_sum as set above,
     # when the database is empty the value of all_sum is set to python type called None, to cater for this scenario
-    # get the value of the all_sum and check if it is nul as shown below, when null is set to type None and not type
+    # get the value of the all_sum and check if it is null as shown below, when null is set to type None and not type
     # Null
-    if crop_todate.get('all_sum') is None:
+    if purple_todate.get('all_sum') is None:
         # if the value is of type None set the value to zero because this value is used later for additions and a none
         # type cannot be added to the int type
-        crop_todate['all_sum'] = 0
+        purple_todate['all_sum'] = 0
         # this value appears in the form as 0 instead of 'None'
     else:
-        # if it has an actual value get the crop_todate and pass it to the templates via the context, this value
+        # if it has an actual value get the purple_todate and pass it to the templates via the context, this value
         # appears in the form
-        crop_todate = CropP.objects.aggregate(all_sum=Sum('crop_today'))
-
-    plucker_numbers = CropP.objects.aggregate(all_count=Count('plucker_numbers'))
-    total_pluckers = CropP.objects.aggregate(pl_total=Sum('plucker_numbers'))
+        purple_todate = Purple.objects.aggregate(all_sum=Sum('purple_today'))
+    plucker_numbers = Purple.objects.aggregate(all_count=Count('plucker_numbers'))
+    total_pluckers = Purple.objects.aggregate(pl_total=Sum('plucker_numbers'))
     if total_pluckers.get('pl_total') is None:
         total_pluckers['pl_total'] = 0
     else:
-        total_pluckers = CropP.objects.aggregate(pl_total=Sum('plucker_numbers'))
-    plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
-    if plucking_average is None:
+        total_pluckers = Purple.objects.aggregate(pl_total=Sum('plucker_numbers'))
+
+    if total_pluckers.get('pl_total') == 0:
         plucking_average = 0
     else:
-        plucking_average = crop_todate.get('all_sum') // total_pluckers.get('pl_total')
+        plucking_average = Purple.objects.aggregate(pl_ave=Avg('purple_todate') / total_pluckers.get('pl_total'))
+        plucking_average = plucking_average.get('pl_ave') if total_pluckers.get('pl_total') != 0 else 0
 
-    total_crop = CropP.objects.aggregate(total_sum=Sum('crop_todate'))
-    if total_crop.get('total_sum') is None:
-        total_crop['total_sum'] = 0
+    total_purple = Purple.objects.aggregate(total_sum=Sum('purple_todate'))
+    if total_purple.get('total_sum') is None:
+        total_purple['total_sum'] = 0
     else:
-        total_crop = CropP.objects.aggregate(total_sum=Sum('crop_todate'))
+        total_purple = Purple.objects.aggregate(total_sum=Sum('purple_todate'))
+
     context = {
-        "crop_todate": crop_todate,
-        "plucker_numbers": total_pluckers,
+        "purple_today": purple_today,
+        "purple_todate": purple_todate,
+        "plucker_numbers": plucker_numbers,
         "total_pluckers": total_pluckers,
         "plucking_average": plucking_average,
-        "total_crop": total_crop,
+        "total_purple": total_purple,
 
     }
     return render(request, 'mogoon/purple_tea_update.html', context)
@@ -263,25 +307,28 @@ def CropPurpleTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def CropPurpleCreate(request):
+def PurpleCreate(request):
     if request.method == "POST":
-        # this function saves a new record from the notes form. The crop_todate is the crop todate gotten from the
-        # form(that was passed from the notes function) plus the crop today entered in the form.
-        # Initially the crop to date is zero when the dta base is empty. the new crop to date will be zero plus the crop
-        # today entered in the form, this addition is inserted and saved in the database as crop todate as shown below.
+        # this function saves a new record from the notes form. The purple_todate is the purple todate gotten from
+        # the form(that was passed from the notes function) plus the purple today entered in the form. Initially the
+        # purple to date is zero when the dta base is empty. the new purple to date will be zero plus the purple
+        # today entered in the form, this addition is inserted and saved in the database as purple todate as shown
+        # below.
         plucking_date = request.POST['plucking_date']
-        crop_data = request.POST['crop_data']
-        crop_today = request.POST['crop_today']
-        # Initially request.POST['crop_today'] is a string, it has to be wrapped with an int for purpose of addition
-        crop_todate = int(request.POST['crop_todate']) + int(crop_today)
-        plucker_numbers = request.POST['plucker_numbers']
-        total_pluckers = request.POST.get('total_pluckers')
-        plucking_average = request.POST['plucking_average']
-        total_crop = request.POST['total_crop']
+        purple_data = request.POST['purple_data']
+        purple_today = request.POST['purple_today']
+        # Initially request.POST['purple_today'] is a string, it has to be wrapped with an int for purpose of addition
+        purple_todate = int(request.POST['purple_todate']) + int(purple_today)
+        plucker_numbers = request.POST['plucker_number']
+        total_pluckers = request.POST['total_pluckers']
+        plucking_average = float(request.POST['plucking_average'])
+        total_purple = request.POST['total_purple']
 
-        insert = CropP(plucking_date=plucking_date, crop_data=crop_data, crop_today=crop_today,
-                       crop_todate=crop_todate, plucker_numbers=plucker_numbers, total_pluckers=total_pluckers,
-                       plucking_average=plucking_average, total_crop=total_crop)
+        insert = Purple(plucking_date=plucking_date, purple_data=purple_data, purple_today=purple_today,
+                        purple_todate=purple_todate,
+                        plucker_numbers=plucker_numbers, total_pluckers=total_pluckers,
+                        plucking_average=plucking_average,
+                        total_purple=total_purple)
         insert.save()
 
     return redirect('/purple_table')
@@ -290,43 +337,36 @@ def CropPurpleCreate(request):
 @never_cache
 def KandojobsTable(request):
     data = Kandojobs.objects.all()
-    pruning_done = models.DateTimeField()
-    pruned_block_No = models.IntegerField()
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
-    pruning_rate = models.DecimalField()
-    pruning_cost = pruned_bushes.get('pr_count') * F('pruning_rate')
-    weeding_done = models.DateTimeField()
-    chemical_name = models.CharField()
-    block_No = models.IntegerField()
-    cost_per_lit = models.DecimalField()
-    weeding_chem_amt = Kandojobs.objects.aggregate(wc_amt=Count('weeding_chem_amt'))
-    total_chem_amt = Kandojobs.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
-    weeding_labour_number = Kandojobs.objects.aggregate(w_sum=Count('weeding_labour_number'))
-    total_weeding_labour_number = Kandojobs.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-    weeding_labour_rate = models.DecimalField()
-    weeding_labour = weeding_labour_number.get('w_sum') * F('weeding_labour_rate')
-    weeding_cost = (total_chem_amt.get('tc_sum') * F(cost_per_lit)) + weeding_labour
+    pruning_rate = Decimal(request.GET.get('pruning_rate', 0))
+    pruning_cost = pruned_bushes.get('pr_count') * pruning_rate
+    weeding_chem_amt = Kandojobs.objects.aggregate(wc_sum=Sum('weeding_chem_amt'))
+    total_chem_amt = weeding_chem_amt.get('wc_sum', 0) or 0
+    kandojob = Kandojobs.objects.first()
+    cost_per_lit = kandojob.cost_per_lit if kandojob else 0
+    if kandojob:
+        cost_per_lit = kandojob.cost_per_lit
+    else:
+        cost_per_lit = 0
+    weeding_labour_number = Kandojobs.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
+    total_weeding_labour_number = weeding_labour_number.get('wl_sum', 0) or 0
+    weeding_labour_rate = Decimal(request.GET.get('weeding_labour_rate', 0))
+    weeding_labour = total_weeding_labour_number * weeding_labour_rate
+    weeding_cost = (total_chem_amt * cost_per_lit) + weeding_labour
 
     context = {
         "kandojobs": data,
-        "p_done": pruning_done,
-        "p_b_No": pruned_block_No,
-        "p_bushes": pruned_bushes,
-        "tp_bushes": total_pruned_bushes,
-        "p_rate": pruning_rate,
-        "p_cost": pruning_cost,
-        "w_done": weeding_done,
-        "c_name": chemical_name,
-        "b_No": block_No,
-        "c_p_lit": cost_per_lit,
-        "w_c_amt": weeding_chem_amt,
-        "tc_amt": total_chem_amt,
-        "wl_number": weeding_labour_number,
-        "twl_number": total_weeding_labour_number,
-        "wl_rate": weeding_labour_rate,
-        "w_labour": weeding_labour,
-        "w_cost": weeding_cost,
+        "pr_count": pruned_bushes.get('pr_count', 0),
+        "pr_sum": total_pruned_bushes.get('pr_sum', 0),
+        "pruning_rate": pruning_rate,
+        "pruning_cost": pruning_cost,
+        "total_chem_amt": total_chem_amt,
+        "cost_per_lit": cost_per_lit,
+        "total_weeding_labour_number": total_weeding_labour_number,
+        "weeding_labour_rate": weeding_labour_rate,
+        "weeding_labour": weeding_labour,
+        "weeding_cost": weeding_cost,
     }
     return render(request, 'mogoon/kandojobs_table.html', context)
 
@@ -541,9 +581,9 @@ def MilkTableUpdate(request):
 def mogoonMilkCreate(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The milk_todate is the Milk todate gotten from the
-        # form(that was passed from the notes function) plus the Milk today entered in the form.
-        # Initially the crop to date is zero when the dta base is empty. the new Milk to date will be zero plus the crop
-        # today entered in the form, this addition is inserted and saved in the database as crop todate as shown below.
+        # form(that was passed from the notes function) plus the Milk today entered in the form. Initially the green
+        # to date is zero when the dta base is empty. the new Milk to date will be zero plus the green today entered
+        # in the form, this addition is inserted and saved in the database as green todate as shown below.
         milking_done = request.POST['milking_done']
         milk_today = request.POST['milk_today']
         milk_todate = int(request.POST['milk_todate']) + int(milk_today)
@@ -651,390 +691,43 @@ def mogoonFertilizerCreate(request):
         return redirect('/fertilizer_table')
 
 
-@never_cache
-def CashBreakdownTable(request):
-    # calculate the change from each denomination
-    note = CashBreakdown.objects.all()
-    cashBreakdown_date = models.DateTimeField()
-    amount = CashBreakdown.objects.aggregate(Sum('amount'))
-    One_thousands = 0
-    Five_hundreds = 0
-    Two_hundreds = 0
-    One_hundreds = 0
-    Fifties = 0
-    Forties = 0
-    Twenties = 0
-    Tens = 0
-    Fives = 0
-    Ones = 0
-    if amount['amount__sum'] is not None:
-        One_thousands = amount['amount__sum'] // 1000
-        Five_hundreds = amount['amount__sum'] // 1000 // 500
-        Two_hundreds = amount['amount__sum'] // 1000 // 500 // 200
-        One_hundreds = amount['amount__sum'] // 1000 // 500 // 200 // 100
-        Fifties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50
-        Forties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40
-        Twenties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20
-        Tens = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10
-        Fives = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5
-        Ones = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5 // 1
-
-    context = {
-        "cashBreakdown": note,
-        "cashBreakdown_date": cashBreakdown_date,
-        "amount": amount,
-        "One_thousands": One_thousands,
-        "Five_hundreds": Five_hundreds,
-        "Two_hundreds": Two_hundreds,
-        "One_hundreds": One_hundreds,
-        "Fifties": Fifties,
-        "Forties": Forties,
-        "Twenties": Twenties,
-        "Tens": Tens,
-        "Fives": Fives,
-        "Ones": Ones,
-
-    }
-    return render(request, 'mogoon/cashBreakdown_table.html', context)
-
-
-def CashBreakdownUpdate(request):
-    amount = CashBreakdown.objects.aggregate(Sum('amount'))
-    if not amount:
-        amount = 0
-    else:
-        amount = CashBreakdown.objects.aggregate(Sum('amount'))
-    One_thousands = amount['amount__sum'] // 1000 if amount['amount__sum'] else 0
-    Five_hundreds = amount['amount__sum'] // 1000 // 500 if amount['amount__sum'] else 0
-    Two_hundreds = amount['amount__sum'] // 1000 // 500 // 200 if amount['amount__sum'] else 0
-    One_hundreds = amount['amount__sum'] // 1000 // 500 // 200 // 100 if amount['amount__sum'] else 0
-    Fifties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 if amount['amount__sum'] else 0
-    Forties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 if amount['amount__sum'] else 0
-    Twenties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 if amount['amount__sum'] else 0
-    Tens = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 if amount['amount__sum'] else 0
-    Fives = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5 if amount[
-        'amount__sum'] else 0
-    Ones = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5 // 1 if amount[
-        'amount__sum'] else 0
-
-    context = {
-        "note": CashBreakdown,
-        "amount": amount,
-        "One_th": One_thousands,
-        "Five_hu": Five_hundreds,
-        "Two_hu": Two_hundreds,
-        "One_hu": One_hundreds,
-        "Fifties_sh": Fifties,
-        "Forties_sh": Forties,
-        "Twenties_sh": Twenties,
-        "Tens_sh": Tens,
-        "Fives_sh": Fives,
-        "Ones_sh": Ones,
-
-    }
-
-    return render(request, 'mogoon/cash_breakdown_update.html', context)
-
-
-@never_cache
-def CashBreakdownCreate(request):
-    if request.method == "POST":
-        cashBreakdown_date = request.POST['cashBreakdown_date']
-        amount = request.POST['amount']
-        One_thousands = request.POST['One_thousands']
-        Five_hundreds = request.POST['Five_hundreds']
-        Two_hundreds = request.POST['Two_hundreds']
-        One_hundreds = request.POST['One_hundreds']
-        Fifties = request.POST['Fifties']
-        Forties = request.POST['Forties']
-        Twenties = request.POST['Twenties']
-        Tens = request.POST['Tens']
-        Fives = request.POST['Fives']
-        Ones = request.POST['Ones']
-
-        insert = CashBreakdown(cashBreakdown_date=cashBreakdown_date, amount=amount, One_thousands=One_thousands,
-                               Five_hundreds=Five_hundreds, Two_hundreds=Two_hundreds, One_hundreds=One_hundreds,
-                               Fifties=Fifties, Forties=Forties, Twenties=Twenties, Tens=Tens, Fives=Fives, Ones=Ones)
-        insert.save()
-    return redirect('/cashBreakdown_table')
-
-
-def CashBreakdownTotal(request):
-    # calculate the change from each denomination
-    note = CashBreakdown.objects.all()
-    cashBreakdown_date = models.DateTimeField()
-    amount = CashBreakdown.objects.aggregate(Sum('amount'))
-    One_thousands = amount['amount__sum'] // 1000
-    One_thousands_total = One_thousands * 1000
-    Five_hundreds = amount['amount__sum'] // 1000 // 500
-    Five_hundreds_total = Five_hundreds * 500
-    Two_hundreds = amount['amount__sum'] // 1000 // 500 // 200
-    Two_hundreds_total = Two_hundreds * 200
-    One_hundreds = amount['amount__sum'] // 1000 // 500 // 200 // 100
-    One_hundreds_total = One_hundreds * 100
-    Fifties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50
-    Fifties_total = Fifties * 50
-    Forties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40
-    Forties_total = Forties * 40
-    Twenties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20
-    Twenties_total = Twenties * 20
-    Tens = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10
-    Tens_total = Tens * 10
-    Fives = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5
-    Fives_total = Fives * 5
-    Ones = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5 // 1
-    Ones_total = Ones * 1
-
-    context = {
-        "cashBreakdown": note,
-        "cashBreakdown_date": cashBreakdown_date,
-        "amount": amount,
-        "One_thousands": One_thousands,
-        "One_thousands_total": One_thousands_total,
-        "Five_hundreds": Five_hundreds,
-        "Five_hundreds_total": Five_hundreds_total,
-        "Two_hundreds": Two_hundreds,
-        "Two_hundreds_total": Two_hundreds_total,
-        "One_hundreds": One_hundreds,
-        "One_hundreds_total": One_hundreds_total,
-        "Fifties": Fifties,
-        "Fifties_total": Fifties_total,
-        "Forties": Forties,
-        "Forties_total": Forties_total,
-        "Twenties": Twenties,
-        "Twenties_total": Twenties_total,
-        "Tens": Tens,
-        "Tens_total": Tens_total,
-        "Fives": Fives,
-        "Fives_total": Fives_total,
-        "Ones": Ones,
-        "Ones_total": Ones_total,
-
-    }
-
-    return render(request, 'mogoon/cashBreakdown_total.html', context)
-
-
-def CashBreakdownEdit(request):
-    # calculate the change from each denomination
-    note = CashBreakdown.objects.all()
-    cashBreakdown_date = models.DateTimeField()
-    amount = CashBreakdown.objects.aggregate(Sum('amount'))
-
-    if amount['amount__sum'] is not None:
-        One_thousands = amount['amount__sum'] // 1000
-        One_thousands_total = One_thousands * 1000
-        Five_hundreds = amount['amount__sum'] // 1000 // 500
-        Five_hundreds_total = Five_hundreds * 500
-        Two_hundreds = amount['amount__sum'] // 1000 // 500 // 200
-        Two_hundreds_total = Two_hundreds * 200
-        One_hundreds = amount['amount__sum'] // 1000 // 500 // 200 // 100
-        One_hundreds_total = One_hundreds * 100
-        Fifties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50
-        Fifties_total = Fifties * 50
-        Forties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40
-        Forties_total = Forties * 40
-        Twenties = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20
-        Twenties_total = Twenties * 20
-        Tens = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10
-        Tens_total = Tens * 10
-        Fives = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5
-        Fives_total = Fives * 5
-        Ones = amount['amount__sum'] // 1000 // 500 // 200 // 100 // 50 // 40 // 20 // 10 // 5 // 1
-        Ones_total = Ones * 1
-    else:
-        One_thousands = 0
-        One_thousands_total = 0
-        Five_hundreds = 0
-        Five_hundreds_total = 0
-        Two_hundreds = 0
-        Two_hundreds_total = 0
-        One_hundreds = 0
-        One_hundreds_total = 0
-        Fifties = 0
-        Fifties_total = 0
-        Forties = 0
-        Forties_total = 0
-        Twenties = 0
-        Twenties_total = 0
-        Tens = 0
-        Tens_total = 0
-        Fives = 0
-        Fives_total = 0
-        Ones = 0
-        Ones_total = 0
-
-    context = {
-        "cashBreakdown": note,
-        "cashBreakdown_date": cashBreakdown_date,
-        "amount": amount,
-        "One_thousands": One_thousands,
-        "One_thousands_total": One_thousands_total,
-        "Five_hundreds": Five_hundreds,
-        "Five_hundreds_total": Five_hundreds_total,
-        "Two_hundreds": Two_hundreds,
-        "Two_hundreds_total": Two_hundreds_total,
-        "One_hundreds": One_hundreds,
-        "One_hundreds_total": One_hundreds_total,
-        "Fifties": Fifties,
-        "Fifties_total": Fifties_total,
-        "Forties": Forties,
-        "Forties_total": Forties_total,
-        "Twenties": Twenties,
-        "Twenties_total": Twenties_total,
-        "Tens": Tens,
-        "Tens_total": Tens_total,
-        "Fives": Fives,
-        "Fives_total": Fives_total,
-        "Ones": Ones,
-        "Ones_total": Ones_total,
-
-    }
-    return render(request, 'mogoon/cash_breakdown_update.html', context)
-
-
-@never_cache
-def CashBreakdownEditCreate(request):
-    if request.method == "POST":
-        cashBreakdown_date = request.POST['cashBreakdown_date']
-        amount = request.POST['amount']
-        One_thousands = request.POST['One_thousands']
-        Five_hundreds = request.POST['Five_hundreds']
-        Two_hundreds = request.POST['Two_hundreds']
-        One_hundreds = request.POST['One_hundreds']
-        Fifties = request.POST['Fifties']
-        Forties = request.POST['Forties']
-        Twenties = request.POST['Twenties']
-        Tens = request.POST['Tens']
-        Fives = request.POST['Fives']
-        Ones = request.POST['Ones']
-
-        insert = CashBreakdown(cashBreakdown_date=cashBreakdown_date, amount=amount, One_thousands=One_thousands,
-                               Five_hundreds=Five_hundreds, Two_hundreds=Two_hundreds, One_hundreds=One_hundreds,
-                               Fifties=Fifties, Forties=Forties, Twenties=Twenties, Tens=Tens, Fives=Fives, Ones=Ones)
-        insert.save()
-    return redirect('/cashBreakdown_updateEdit')
-
-
-def CashBreakdown_update(request):
-    if request.method == 'POST':
-        form = CashBreakdownForm(request.POST)
-        if form.is_valid():
-            amount = form.cleaned_data['amount']
-            results = []
-            denominations = [1000, 500, 200, 100, 50, 40, 20, 10, 5, 1]
-            for denomination in denominations:
-                count = amount // denomination
-                amount = amount % denomination
-                results.append({
-                    'amount': denomination,
-                    'count': count
-                })
-            return render(request, 'mogoon/cash_breakdown_create_table.html', {'results': results})
-    else:
-        form = CashBreakdownForm()
-    return render(request, 'mogoon/cash_breakdown_update.html', {'form': form})
-
-
-def CashBreakdown_create(request):
-    if request.method == 'POST':
-        form = CashBreakdownForm(request.POST)
-        if form.is_valid():
-            cashBreakdown = form.save()
-            cashBreakdown.save()
-            messages.success(request, 'Cash Breakdown successfully created')
-            return redirect('cash_breakdown_create')
-    else:
-        form = CashBreakdownForm()
-    return render(request, 'mogoon/cash_breakdown_create_table.html', {'form': form})
-
-
-def calculateTotals(request):
-    amount = request.POST.get('amount', 0)
-    One_th = request.POST.get('One_th', 0)
-    Five_hu = request.POST.get('Five_hu', 0)
-    Two_hu = request.POST.get('Two_hu', 0)
-    One_hu = request.POST.get('One_hu', 0)
-    Fifties_sh = request.POST.get('Fifties_sh', 0)
-    Forties_sh = request.POST.get('Forties_sh', 0)
-    Twenties_sh = request.POST.get('Twenties_sh', 0)
-    Tens_sh = request.POST.get('Tens_sh', 0)
-    Fives_sh = request.POST.get('Fives_sh', 0)
-    Ones_sh = request.POST.get('Ones_sh', 0)
-
-    one_thousand_total = int(One_th) * 1000
-    five_hundred_total = int(Five_hu) * 500
-    two_hundred_total = int(Two_hu) * 200
-    one_hundred_total = int(One_hu) * 100
-    fifties_total = int(Fifties_sh) * 50
-    forties_total = int(Forties_sh) * 40
-    twenties_total = int(Twenties_sh) * 20
-    tens_total = int(Tens_sh) * 10
-    fives_total = int(Fives_sh) * 5
-    ones_total = int(Ones_sh) * 1
-
-    amount_total = amount * 1
-    grand_total = one_thousand_total + five_hundred_total + two_hundred_total + one_hundred_total + fifties_total \
-                  + forties_total + twenties_total + tens_total + fives_total + ones_total
-
-    context = {
-        'amount_total': amount_total,
-        'One_thousands_total': one_thousand_total,
-        'Five_hundreds_total': five_hundred_total,
-        'Two_hundreds_total': two_hundred_total,
-        'One_hundreds_total': one_hundred_total,
-        'Fifties_total': fifties_total,
-        'Forties_total': forties_total,
-        'Twenties_total': twenties_total,
-        'Tens_total': tens_total,
-        'Fives_total': fives_total,
-        'Ones_total': ones_total,
-        'total': grand_total
-    }
-
-    return render(request, 'mogoon/cashBreakdown_total.html', context)
-
-
-def calculate_coin_totals(amount, One_th, Five_hu, Two_hu, One_hu, Fifties_sh, Forties_sh, Twenties_sh, Tens_sh,
-                          Fives_sh, Ones_sh):
-    one_thousand_total = One_th.value * 1000
-    five_hundred_total = Five_hu.value * 500
-    two_hundred_total = Two_hu.value * 200
-    one_hundred_total = One_hu.value * 100
-    fifties_total = Fifties_sh.value * 50
-    forties_total = Forties_sh.value * 40
-    twenties_total = Twenties_sh.value * 20
-    tens_total = Tens_sh.value * 10
-    fives_total = Fives_sh.value * 5
-    ones_total = Ones_sh.value * 1
-    total = one_thousand_total + five_hundred_total + two_hundred_total + one_hundred_total + fifties_total + forties_total + twenties_total + tens_total + fives_total + ones_total
-
-    return {
-        'amount': amount.value,
-        'One_thousand': One_th.value,
-        'Five_hundred': Five_hu.value,
-        'Two_hundred': Two_hu.value,
-        'One_hundred': One_hu.value,
-        'Fifties': Fifties_sh.value,
-        'Forties': Forties_sh.value,
-        'Twenties': Twenties_sh.value,
-        'Tens': Tens_sh.value,
-        'Fives': Fives_sh.value,
-        'Ones': Ones_sh.value,
-        'total': total
-    }
-
-
 # CRUD functionality for the tables
+@login_required(login_url='login')
+def Employee_edit(request, pk):
+    employee = get_object_or_404(Employee, id=pk)
+    if request.method == "POST":
+        form = EmployeeForm(request.POST, instance=employee)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Employee details are successfully updated.')
+            return redirect('/employee-e_list')
+    else:
+        form = EmployeeForm(instance=employee)
+    return render(request, 'Employee/update.html', {'form': form, 'employee': employee})
+
+
+@login_required(login_url='login')
+def Employee_delete(request, pk):
+    employee = get_object_or_404(Employee, id=pk)
+    if request.method == "POST":
+        employee.delete()
+        messages.success(request, 'Employee details are successfully deleted.')
+        return redirect('/employee-e_details')
+    context = {
+        'item': employee,
+    }
+    return render(request, 'Employee/delete.html', context)
+
+
 @login_required(login_url='login')
 @never_cache
 def update(request, pk):
-    data = Crop.objects.get(id=pk)
+    data = Green.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateTaskForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/crop_table')
+            return redirect('/green_table')
 
     else:
         form = UpdateTaskForm(instance=data)
@@ -1043,21 +736,21 @@ def update(request, pk):
         'form': form, 'UpdateTaskForm': UpdateTaskForm,
 
     }
-    return render(request, 'Crop_data/update.html', context)
+    return render(request, 'Green/update.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
 def delete(request, pk):
-    data = Crop.objects.get(id=pk)
+    data = Green.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/crop_table')
+        return redirect('/green_table')
 
     context = {
         'item': data,
     }
-    return render(request, 'Crop_data/delete.html', context)
+    return render(request, 'Green/delete.html', context)
 
 
 @login_required(login_url='login')
@@ -1165,18 +858,18 @@ def M_delete(request, pk):
 @login_required(login_url='login')
 @login_required
 def P_update(request, pk):
-    data = CropP.objects.get(id=pk)
+    data = Purple.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateTaskForm(request.POST, instance=data)
+        form = UpdatePurpleForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/purple_table')
 
     else:
-        form = UpdateTaskForm(instance=data)
+        form = UpdatePurpleForm(instance=data)
 
     context = {
-        'form': form, 'UpdateTaskForm': UpdateTaskForm,
+        'form': form, 'UpdatePurpleForm': UpdatePurpleForm,
 
     }
     return render(request, 'Purple/update.html', context)
@@ -1185,7 +878,7 @@ def P_update(request, pk):
 @login_required(login_url='login')
 @login_required
 def P_delete(request, pk):
-    data = CropP.objects.get(id=pk)
+    data = Purple.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
         return redirect('/purple_table')
@@ -1194,65 +887,3 @@ def P_delete(request, pk):
         'item': data,
     }
     return render(request, 'Purple/delete.html', context)
-
-
-@never_cache
-def C_update(request, pk):
-    note = CashBreakdown.objects.get(id=pk)
-    if request.method == 'POST':
-        form = UpdateCashBreakdownForm(request.POST, instance=note)
-        if form.is_valid():
-            form.save()
-            return redirect('/cashBreakdown_table')
-
-    else:
-        form = UpdateCashBreakdownForm(instance=note)
-
-    context = {
-        'form': form, 'UpdateCashBreakdownForm': UpdateCashBreakdownForm,
-
-    }
-    return render(request, 'cashBreakdown/update.html', context)
-
-
-@never_cache
-def C_delete(request, pk):
-    note = CashBreakdown.objects.get(id=pk)
-    if request.method == 'POST':
-        note.delete()
-        return redirect('/cashBreakdown_table')
-
-    context = {
-        'item': note,
-    }
-    return render(request, 'cashBreakdown/delete.html', context)
-
-
-def R_update(request, pk):
-    note = CashBreakdown.objects.get(id=pk)
-    if request.method == 'POST':
-        form = UpdateCashBreakdownForm(request.POST, instance=note)
-        if form.is_valid():
-            form.save()
-            return redirect('/mogoon-cashBreakdown_edit')
-
-    else:
-        form = UpdateCashBreakdownForm(instance=note)
-
-    context = {
-        'form': form, 'UpdateCashBreakdownForm': UpdateCashBreakdownForm,
-
-    }
-    return render(request, 'cashBreakdown_edit/Edit_update.html', context)
-
-
-def R_delete(request, pk):
-    note = CashBreakdown.objects.get(id=pk)
-    if request.method == 'POST':
-        note.delete()
-        return redirect('/mogoon-cashBreakdown_edit')
-
-    context = {
-        'item': note,
-    }
-    return render(request, 'cashBreakdown_edit/Edit_delete.html', context)

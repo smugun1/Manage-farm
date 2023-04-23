@@ -1,29 +1,22 @@
 <nav class="navbar navbar-expand-lg navbar-dark"
-     style=" background-color: rgba(13, 70, 10, 1);">
+     style=" background-color: rgba(13, 70, 10, 1);" xmlns="http://www.w3.org/1999/html">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'employee-details' %}">Employee Details</a>
-                </li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'reports' %}">Reports</a></li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'employee-list' %}">Employee List</a></li>
-                <li class="nav-item"><a class="nav-link active" href=""></a>
-                </li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-crop_table' %}">Green Table</a>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-green_table' %}">Green Table</a>
                 </li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-purple' %}">Purple Table</a></li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-kandojobs_table' %}">Kandojobs
-                    Table</a></li>
+                Table</a></li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-milk_table' %}">Milk Table</a></li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-fertilizer_table' %}">Fertilizer
-                    Table</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-cashBreakdown' %}">Cash Breakdown
-                    Table</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-cashBreakdown_total' %}">Cash
-                    Breakdown Total</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'cash_breakdown_create' %}">Cash Breakdown
-                    Create</a></li>
+                Table</a></li>
 
                 {% endif %}
             </ul>

@@ -3,7 +3,7 @@
 
 {% load static %}
 
-{% block title %}Crop Data Tables Update{% endblock %}
+{% block title %}Green Data Tables Update{% endblock %}
 
 {% block body %}
 <br>
@@ -13,9 +13,9 @@
             <div class="col-lg-4 d-none d-lg-flex">
                 <div class="container fluid bg-info text-warning" style="width: 25rem;">
                     <div class="card card bg-dark text-right" style="width: 23rem;">
-                        <h2 class="text-center text-warning">Crop Table Update</h2>
+                        <h2 class="text-center text-warning">Green Table Update</h2>
                         <h3 class="text-center text-warning">Greentea Update</h3>
-                        <form action="{% url 'mogoon-crop_create' %}" method="POST">
+                        <form action="{% url 'mogoon-green_create' %}" method="POST">
                             {% csrf_token %}
 
                             {{ form }}
@@ -23,29 +23,29 @@
                             <div class="col-sm col-sm">
                                 <label for="formGroupExampleInput2" class="form-label"><strong>Green Tea</strong></label>
                                 <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput2"
-                                        name="crop_data">
+                                        name="green_data">
                                     <option selected disabled>choose option</option>
                                     <option value="Greentea">Green Tea</option>
-                                    <option value=""></option>
+                                    <option value="Green Tea">Green Tea</option>
                                 </select>
 
                                 <label for="formGroupExampleInput" class="form-label"><strong>Plucking
                                     Date</strong></label>
                                 <input style="height:40px;width:300px" type="datetime-local" class="form-control"
-                                       id="formGroupExampleInput" placeholder="plucking_date" name="plucking_date">
+                                       id="formGroupExampleInput" placeholder="plucking_date" name="plucking_date" value="plucking_date">
 
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>green
                                         Today</strong></label>
                                     <input style="height:40px;width:300px" type="text" class="form-control"
                                            id="formGroupExampleInput3"
-                                           placeholder="crop_today" name="crop_today" value="">
+                                           placeholder="green_today" name="green_today" value="">
                                 </div>
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop Todate</strong></label>
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>green Todate</strong></label>
                                     <input style="height:40px;width:300px" type="text" class="form-control"
                                            id="formGroupExampleInput4"
-                                           placeholder="crop_todate" name="crop_todate" value="{{crop_todate.all_sum}}"
+                                           placeholder="green_todate" name="green_todate" value="{{green_todate.all_sum}}"
                                            readonly>
                                 </div>
                                 <div class="col-sm col-sm">
@@ -74,11 +74,11 @@
                                 </div>
                                 <div class="col-sm col-sm">
                                     <label for="formGroupExampleInput2" class="form-label"><strong>Total
-                                        Crop</strong></label>
+                                        green</strong></label>
                                     <input style="height:40px;width:300px" type="text" class="form-control"
                                            id="formGroupExampleInput8"
-                                           placeholder="total_crop" name="total_crop"
-                                           value="{{total_crop.total_sum}}">
+                                           placeholder="total_green" name="total_green"
+                                           value="{{total_green.total_sum}}">
                                 </div>
 
                                 <div class="container my-3">
@@ -86,7 +86,7 @@
                                             typeof="hover">Submit
                                     </button>
                                     <a class="btn btn-warning bg-success btn-info block-lg"
-                                       href="{% url 'mogoon-crop_table' %}">Return</a>
+                                       href="{% url 'mogoon-green_table' %}">Return</a>
                                 </div>
                             </div>
                         </form>
@@ -102,7 +102,7 @@
 
 <!--                    <div class="container fluid bg-info text-warning" style="width: 25rem;">-->
 <!--                        <div class="card card bg-dark text-right" style="width: 23rem;">-->
-<!--                            <h2 class="text-center text-warning">Crop Table Update</h2>-->
+<!--                            <h2 class="text-center text-warning">green Table Update</h2>-->
 <!--                            <h3 class="text-center text-warning">Purpletea Update</h3>-->
 
 <!--                            <form action="{% url 'mogoon-purple_create' %}" method="POST">-->
@@ -111,11 +111,11 @@
 <!--                                {{ form }}-->
 
 <!--                                <div class="col-sm col-sm">-->
-<!--                                    <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                    <label for="formGroupExampleInput2" class="form-label"><strong>green-->
 <!--                                        Data</strong></label>-->
 <!--                                    <select style="height:40px;width:300px" class="form-control"-->
 <!--                                            id="formGroupExampleInput8"-->
-<!--                                            name="crop_data">-->
+<!--                                            name="green_data">-->
 <!--                                        <option selected disabled>choose option</option>-->
 <!--                                        <option value="Greentea">Green Tea</option>-->
 <!--                                        <option value="Purpletea">Purple Tea</option>-->
@@ -126,19 +126,19 @@
 <!--                                           id="formGroupExampleInput9" placeholder="plucking_date" name="plucking_date">-->
 
 <!--                                    <div class="col-sm col-sm">-->
-<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>green-->
 <!--                                            Today</strong></label>-->
 <!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
 <!--                                               id="formGroupExampleInput10"-->
-<!--                                               placeholder="crop_today" name="crop_today">-->
+<!--                                               placeholder="green_today" name="green_today">-->
 <!--                                    </div>-->
 <!--                                    <div class="col-sm col-sm">-->
-<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Crop-->
+<!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>green-->
 <!--                                            Todate</strong></label>-->
 <!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
 <!--                                               id="formGroupExampleInput11"-->
-<!--                                               placeholder="crop_todate" name="crop_todate"-->
-<!--                                               value="{{crop_todate.all_sum}}" readonly>-->
+<!--                                               placeholder="green_todate" name="green_todate"-->
+<!--                                               value="{{green_todate.all_sum}}" readonly>-->
 <!--                                    </div>-->
 <!--                                    <div class="col-sm col-sm">-->
 <!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Plucker-->
@@ -153,14 +153,14 @@
 <!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
 <!--                                               id="formGroupExampleInput13"-->
 <!--                                               placeholder="plucking_average" name="plucking_average"-->
-<!--                                               value="{% widthratio data.crop_today data.plucker_numbers 1 %}">-->
+<!--                                               value="{% widthratio data.green_today data.plucker_numbers 1 %}">-->
 <!--                                    </div>-->
 <!--                                    <div class="col-sm col-sm">-->
 <!--                                        <label for="formGroupExampleInput2" class="form-label"><strong>Total-->
-<!--                                            Crop</strong></label>-->
+<!--                                            green</strong></label>-->
 <!--                                        <input style="height:40px;width:300px" type="text" class="form-control"-->
 <!--                                               id="formGroupExampleInput14"-->
-<!--                                               placeholder="total_crop" name="total_crop" value="">-->
+<!--                                               placeholder="total_green" name="total_green" value="">-->
 <!--                                    </div>-->
 
 <!--                                    <div class="container my-3">-->

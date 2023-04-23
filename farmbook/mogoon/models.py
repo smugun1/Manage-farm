@@ -4,45 +4,60 @@ from django.db import models
 
 
 # Create your models here.
+
+
 class Employee(models.Model):
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    DEPARTMENT_CHOICES = (('Adm', 'Administration'),
+                          ('Sec', 'Security'), ('Mangt', 'Management'), ('Field', 'Field'), ('Off', 'Office'),
+                          ('Other', ''))
+    POSITION_CHOICES = (
+        ('Dir', 'Director'), ('Mng', 'Manager'), ('Acct', 'Accountant'), ('Sup', 'Supervisor'), ('Clk', 'Clerk'),
+        ('plk', 'Plucker'), ('Dairy', 'DairyWorker'), ('Kando', 'Kando Worker'), ('Cook', 'Cook'),
+        ('grd', 'Guard'))
+    date_employed = models.DateTimeField(auto_now_add=False, blank=False)
     national_identity = models.CharField(max_length=20)
     name = models.CharField(max_length=100)
     age = models.IntegerField()
-    gender = models.CharField(max_length=7)
-    department = models.CharField(max_length=100)
-    position = models.CharField(max_length=100)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, )
+    department = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, )
+    position = models.CharField(max_length=100, choices=POSITION_CHOICES, )
     salary = models.IntegerField()
+    total = models.IntegerField()
 
     def __str__(self):
         return self.name
 
 
-class Crop(models.Model):
+class Green(models.Model):
     plucking_date = models.DateTimeField(auto_now_add=False, blank=False)
-    crop_data = models.CharField(max_length=50, default=False)
-    crop_today = models.IntegerField()
-    crop_todate = models.IntegerField(null=True, blank=True)
+    green_data = models.CharField(max_length=50, default=False)
+    green_today = models.IntegerField()
+    green_todate = models.IntegerField(null=True, blank=True)
     plucker_numbers = models.IntegerField()
     total_pluckers = models.IntegerField(null=True, blank=True)
     plucking_average = models.IntegerField(null=True, blank=True)
-    total_crop = models.IntegerField(null=True, blank=True)
+    total_green = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.crop_data)
+        return str(self.green_data)
 
 
-class CropP(models.Model):
+class Purple(models.Model):
     plucking_date = models.DateTimeField(auto_now_add=False, blank=False)
-    crop_data = models.CharField(max_length=50, default=False)
-    crop_today = models.IntegerField()
-    crop_todate = models.IntegerField(null=True, blank=True)
+    purple_data = models.CharField(max_length=50, default=False)
+    purple_today = models.IntegerField()
+    purple_todate = models.IntegerField(null=True, blank=True)
     plucker_numbers = models.IntegerField()
     total_pluckers = models.IntegerField(null=True, blank=True)
     plucking_average = models.IntegerField(null=True, blank=True)
-    total_crops = models.IntegerField(null=True, blank=True)
+    total_purple = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.crop_data)
+        return str(self.purple_data)
 
 
 class Kandojobs(models.Model):
@@ -50,7 +65,7 @@ class Kandojobs(models.Model):
     pruned_block_No = models.IntegerField()
     pruned_bushes = models.IntegerField()
     total_pruned_bushes = models.IntegerField(name=None, default=None)
-    pruning_rate = models.DecimalField(max_digits=4, decimal_places=2, default=None)
+    pruning_rate = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
     pruning_cost = models.DecimalField(max_digits=8, decimal_places=2)
     weeding_done = models.DateTimeField(auto_now_add=False, default=None)
     chemical_name = models.CharField(max_length=100, default=None)
@@ -102,22 +117,7 @@ class Milk(models.Model):
         return str(self.milk_today)
 
 
-class CashBreakdown(models.Model):
-    cashBreakdown_date = models.DateTimeField(auto_now_add=False)
-    amount = models.DecimalField(decimal_places=2, max_digits=8)
-    One_thousands = models.IntegerField(choices=list(zip(range(0, 100001), range(0, 100001))))
-    Five_hundreds = models.IntegerField(choices=list(zip(range(0, 101), range(0, 101))))
-    Two_hundreds = models.IntegerField(choices=list(zip(range(0, 101), range(0, 101))))
-    One_hundreds = models.IntegerField(choices=list(zip(range(0, 101), range(0, 101))))
-    Fifties = models.IntegerField(choices=list(zip(range(0, 101), range(0, 101))))
-    Forties = models.IntegerField(choices=list(zip(range(0, 11), range(0, 11))))
-    Twenties = models.IntegerField(choices=list(zip(range(0, 11), range(0, 11))))
-    Tens = models.IntegerField(choices=list(zip(range(0, 11), range(0, 11))))
-    Fives = models.IntegerField(choices=list(zip(range(0, 11), range(0, 11))))
-    Ones = models.IntegerField(choices=list(zip(range(0, 11), range(0, 11))))
 
-    def __str__(self):
-        return str(self.cashBreakdown_date)
 
 
 class Profile:
