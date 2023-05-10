@@ -7,90 +7,97 @@
 {% load static %}
 
 
-<title>{% block title %}Kandojobs Table{% endblock %}</title>
+<title>{% block title %}Kando Jobs{% endblock %}</title>
 
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 
 {% block body %}
-<div class="container-fluid text-right card bg-secondary card-dark mx-0 px-0 my-0 py-0">
-    <h2 class="text-center bg-dark text-warning">Kandojobs</h2>
-    <h3 class="text-center bg-dark text-warning">Kandojobs Table</h3>
-    <div class="border p-3">
-        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-kandojobs_table_update'%}">Add</a>
-        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
-        <form action="" method="POST">
-            {% csrf_token %}
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
+            <h2 class="text-center bg-dark text-warning">Kando Jobs</h2>
+            <div class="border p-3">
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-kandojobs_table_update'%}">Add</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <form action="" method="POST">
+                    {% csrf_token %}
 
-        </form>
+                </form>
 
-        <hr>
-        <h3 class="text-center bg-dark text-warning">Pruning Table</h3>
-        <table class="table align-middle text-warning bg-dark">
-            <tr>
-                <th>Kandojobs</th>
-                <th>Pruning Date</th>
-                <th>Pruned Block No.</th>
-                <th>Pruned Bushes</th>
-                <th>Total pruned bushes</th>
-                <th>Pruning Rate</th>
-                <th>Pruning Cost</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
+                <hr>
+                <h3 class="text-center bg-dark text-warning">Pruning Table</h3>
+                <table class="table align-middle text-warning bg-dark">
+                    <tr>
+                        <th>Kandojobs</th>
+                        <th>Pruning Date</th>
+                        <th>Pruned Block No.</th>
+                        <th>Pruned Bushes</th>
+                        <th>Total pruned bushes</th>
+                        <th>Pruning Rate</th>
+                        <th>Pruning Cost</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
 
-            {% for data in kandojobs %}
+                    {% for data in kandojobs %}
 
-            <tr>
-                <td>{{data.kandojobs}}</td>
-                <td>{{data.pruning_done}}</td>
-                <td>{{data.pruned_block_No}}</td>
-                <td>{{data.pruned_bushes}}</td>
-                 <td>{{data.total_pruned_bushes|add:data.pruned_bushes}}</td>
-                <td>{{data.pruning_rate}}</td>
-                <td>{% widthratio data.pruned_bushes 1 data.pruning_rate %}</td>
-                <td><a class="btn btn-info btn-block bg-primary btn btn-info" href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
-                <td><a class="btn btn-info btn-block bg-danger btn btn-info" href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
-            </tr>
+                    <tr>
+                        <td>{{data.kandojobs}}</td>
+                        <td>{{data.pruning_done}}</td>
+                        <td>{{data.pruned_block_No}}</td>
+                        <td>{{data.pruned_bushes}}</td>
+                        <td>{{data.total_pruned_bushes|add:data.pruned_bushes}}</td>
+                        <td>{{data.pruning_rate}}</td>
+                        <td>{% widthratio data.pruned_bushes 1 data.pruning_rate %}</td>
+                        <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                               href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
+                        <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                               href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
+                    </tr>
 
-            {% endfor %}
-        </table>
-        <h3 class="text-center bg-dark text-warning">Weeding Table</h3>
-        <table class="table align-middle text-warning bg-dark">
-            <tr>
-                <th>Weeding Date</th>
-                <th>Chemical Name</th>
-                <th>Block No.</th>
-                <th>Cost Per Liter</th>
-                <th>Chemical amount</th>
-                <th>Total Chem Amount</th>
-                <th>Weeding Labour Number</th>
-                <th>Total weeding Labour Number</th>
-                <th>Weeding Labour Rate</th>
-                <th>Weeding Labour</th>
-                <th>Weeding Cost</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
+                    {% endfor %}
+                </table>
+                <h3 class="text-center bg-dark text-warning">Weeding Table</h3>
+                <table class="table align-middle text-warning bg-dark">
+                    <tr>
+                        <th>Weeding Date</th>
+                        <th>Chemical Name</th>
+                        <th>Block No.</th>
+                        <th>Cost Per Liter</th>
+                        <th>Chemical amount</th>
+                        <th>Total Chem Amount</th>
+                        <th>Weeding Labour Number</th>
+                        <th>Total weeding Labour Number</th>
+                        <th>Weeding Labour Rate</th>
+                        <th>Weeding Labour</th>
+                        <th>Weeding Cost</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
 
-            {% for data in kandojobs %}
+                    {% for data in kandojobs %}
 
-            <tr>
-                <td>{{data.weeding_done}}</td>
-                <td>{{data.chemical_name}}</td>
-                <td>{{data.block_No}}</td>
-                <td>{{data.cost_per_lit}}</td>
-                <td>{{data.weeding_chem_amt}}</td>
-                <td>{{data.total_chem_amt|add:data.weeding_chem_amt}}</td>
-                <td>{{data.weeding_labour_number}}</td>
-                <td>{{data.total_weeding_labour_number|add:data.weeding_labour_number}}</td>
-                <td>{{data.weeding_labour_rate}}</td>
-                <td>{{data.weeding_labour}}</td>
-                <td>{{data.weeding_cost}}</td>
-                <td><a class="btn btn-info btn-block bg-primary btn btn-info" href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
-                <td><a class="btn btn-info btn-block bg-danger btn btn-info" href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
-            </tr>
-            {% endfor %}
-        </table>
+                    <tr>
+                        <td>{{data.weeding_done}}</td>
+                        <td>{{data.chemical_name}}</td>
+                        <td>{{data.block_No}}</td>
+                        <td>{{data.cost_per_lit}}</td>
+                        <td>{{data.weeding_chem_amt}}</td>
+                        <td>{{data.total_chem_amt|add:data.weeding_chem_amt}}</td>
+                        <td>{{data.weeding_labour_number}}</td>
+                        <td>{{data.total_weeding_labour_number|add:data.weeding_labour_number}}</td>
+                        <td>{{data.weeding_labour_rate}}</td>
+                        <td>{{data.weeding_labour}}</td>
+                        <td>{{data.weeding_cost}}</td>
+                        <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                               href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
+                        <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                               href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

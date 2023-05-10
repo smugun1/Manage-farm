@@ -5,8 +5,9 @@
 
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link active" href=""></a></li>
                 <li class="nav-item"><a class="nav-link active" href="{% url 'reports' %}">Reports</a></li>
+
                 <li class="nav-item"><a class="nav-link active" href="{% url 'employee-list' %}">Employee List</a></li>
 
                 <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-green_table' %}">Green Table</a>
@@ -25,10 +26,11 @@
     <div>
         <ul class="navbar-nav">
             {% if not user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link active" href="{% url 'signup' %}">SignUp</a></li>
+
             <li class="nav-item"><a class="nav-link active" href="{% url 'login' %}">Login</a></li>
 
             {% else %}
+             <li class="nav-item"><a class="nav-link active" href="{% url 'signup' %}">SignUp</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'logout' %}">Logout</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'password_reset' %}">ResetPassword</a></li>
             <li class="nav-item"><a class="nav-link active" href="{% url 'profile' %}">Profile</a></li>

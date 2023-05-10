@@ -2,112 +2,105 @@
 
 {% load static %}
 
-<title>Employee Details Update</title>
+<title>Update Employee Form</title>
 
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 {% block body %}
-<div class="row g-4 d-flex align-items-center">
-    <div class="col-lg-10 d-none d-lg-flex">
-        <div class="container fluid bg-dark text-light" style="width: 30rem;">
-            <div class="card card bg-warning text-right" style="width: 25rem;">
-                <div class="container-fluid text-right card bg-secondary card-dark mx-2 px-4 my-2 py-">
-                    <h3 class="text-center bg-dark text-warning">Employee Details Update</h3>
-                    <h4 class="text-center bg-dark text-warning">Employee details Update</h4>
-                    <div class="border p-3">
-                        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 80rem;">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 70rem;">
+                <h2 class="text-center text-warning">Update Employee Form</h2>
+                <form method="POST" action="{% url 'mogoon-employees_create' %}">
+                    {% csrf_token %}
+                    {{ form }}
 
-                        <form action="{% url 'employee-details' %}" method="POST">
-                            {% csrf_token %}
+                    <div class="col-sm col-sm">
+                        <label for="formGroupExampleInput" class="form-label"><strong>Date of Employment</strong></label>
+                        <input style="height:40px;width:700px" type="datetime-local" class="form-control"
+                               id="formGroupExampleInput" placeholder="Date of Employment" name="date_employed" value="">
 
-                             {{ EmployeeForm }}
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Employee's National
+                                Identity No.</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
+                                   id="formGroupExampleInput2"
+                                   placeholder="Employee's National Identity No." name="national_identity" value="">
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                     <label for="formGroupExampleInput" class="form-label"><strong>Date Employed</strong></label>
-                                <input style="height:40px;width:300px" type="datetime-local" class="form-control"
-                                       id="formGroupExampleInput" placeholder="date_employed" name="date_employed" value="">
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput3" class="form-label"><strong>Name of Employee
+                                </strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
+                                   id="formGroupExampleInput3"
+                                   placeholder="Name of Employee" name="name" value="">
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput2" class="form-label"><strong>National Identity</strong></label>
-                                <input style="height:40px;width:300px" type="text" class="form-control"
-                                       id="formGroupExampleInput2"
-                                       placeholder="national_identity" name="national_identity_value" value="">
-                            </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput4" class="form-label"><strong>Age of Employee</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
+                                   id="formGroupExampleInput4"
+                                   placeholder="Age of Employee" name="age" value="">
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput3" class="form-label"><strong>Name</strong></label>
-                                <input style="height:40px;width:300px" type="text" class="form-control"
-                                       id="formGroupExampleInput3"
-                                       placeholder="name" name="name_value" value="">
-                            </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput5" class="form-label"><strong>Gender of Employee</strong></label>
+                            <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput5" name="gender of Employee">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput4" class="form-label"><strong>Age</strong></label>
-                                <input style="height:40px;width:300px" type="text" class="form-control"
-                                       id="formGroupExampleInput4"
-                                       placeholder="age" name="age_value" value="">
-                            </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput6" class="form-label"><strong>Department</strong></label>
+                            <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput6" name="department">
+                                <option value="Administration">Administration</option>
+                                <option value="Security">Security</option>
+                                <option value="Management">Management</option>
+                                <option value="Field">Field</option>
+                                <option value="Office">Office</option>
+                                <option value="Stores">Stores</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput5" class="form-label"><strong>Gender</strong></label>
-                                <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput5">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput7" class="form-label"><strong>Position</strong></label>
+                            <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput7" name="position">
+                                <option value="Guard">Guard</option>
+                                <option value="Plucker">Plucker</option>
+                                <option value="Dairy">Dairy-Worker</option>
+                                <option value="Kando">Kando</option>
+                                <option value="Cook">Cook</option>
+                                <option value="Office">Office-Messanger</option>
+                                <option value="Store">Store-Keeper</option>
+                                <option value="Director">Director</option>
+                                <option value="Est Estate">Estate Worker</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Asst">Asst-Manager</option>
+                                <option value="Accountant">Accountant</option>
+                                <option value="Supervisor">Supervisor</option>
+                                <option value="Clerk">Clerk</option>
+                            </select>
+                        </div>
 
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput6" class="form-label"><strong>Department</strong></label>
-                                <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput6">
-                                    <option value="Adm">Administration</option>
-                                    <option value="Sec">Security</option>
-                                    <option value="Mgt">Management</option>
-                                    <option value="Field">Field</option>
-                                    <option value="Off">Office</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-
-                            <div class="col-sm col-sm">
-                                <label for="formGroupExampleInput7" class="form-label"><strong>Position</strong></label>
-                                <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput7">
-                                    <option value="grd">Guard</option>
-                                    <option value="plk">Plucker</option>
-                                    <option value="Dairy">DairyWorker</option>
-                                    <option value="Kando">Kando</option>
-                                    <option value="Cook">Cook</option>
-                                    <option value="Dir">Director</option>
-                                    <option value="Mng">Manager</option>
-                                    <option value="Acct">Accountant</option>
-                                    <option value="Sup">Supervisor</option>
-                                    <option value="Clk">Clerk</option>
-                                </select>
-                            </div>
-
-                             <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput8" class="form-label"><strong>Salary</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                        <div class="col-sm col-sm">
+                            <label for="formGroupExampleInput8" class="form-label"><strong>Salary of Employee</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput8"
-                                   placeholder="salary" name="salary" value="{{ salary.sal_count}}">
-                            </div>
-                           <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput9" class="form-label"><strong>Total</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
-                                   id="formGroupExampleInput9"
-                                   placeholder="total" name="total" value="{{ total.sal_total }}">
-                            </div>
-                            <div class="container my-3">
-                                    <button class="btn btn-primary" type="submit" value="Update" name="update"
-                                            typeof="hover">Submit
-                                    </button>
-                                    <a class="btn btn-warning bg-success btn-info block-lg"
-                                       href="{% url 'employee-list' %}">Return</a>
-                            </div>
-                            </div>
-                        </form>
+                                   placeholder="salary of Employee" name="salary_total" value="{{ sal_add }}">
+                        </div>
+
+                        <div class="container my-3">
+                            <button class="btn btn-primary" type="submit" value="Update" name="update"
+                                    typeof="hover">Submit
+                            </button>
+                            <a class="btn btn-warning bg-success btn-info block-lg"
+                               href="{% url 'employee-list' %}">Return</a>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+
 {% endblock  %}

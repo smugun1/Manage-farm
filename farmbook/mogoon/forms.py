@@ -1,5 +1,5 @@
 from django import forms
-from .models import Green, Fertilizer, Kandojobs, Milk, Employee, Purple
+from .models import Green, Fertilizer, Kandojobs, Milk, Employee, Purple, Reports
 
 
 class TaskForms(forms.ModelForm):
@@ -11,33 +11,19 @@ class TaskForms(forms.ModelForm):
         fields = '__all__'
 
 
-class EmployeeDetailsForm(forms.ModelForm):
-    content = forms.CharField(label='SimKMN', widget=forms.TextInput(
-        attrs={'placeholder': 'Add task here...'}))
-
+class ReportsForm(forms.ModelForm):
     class Meta:
-        model = Employee
+        model = Reports
         fields = '__all__'
 
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
-        fields = ['date_employed', 'national_identity', 'name', 'age', 'gender', 'department', 'position', 'salary', 'total']
-        label = {
-            'date_employed': 'date_employed',
-            'national_identity': 'National Identity',
-            'name': 'Name',
-            'age': 'Age',
-            'gender': 'Gender',
-            'department': 'Department',
-            'position': 'Position',
-            'salary': 'Salary',
-            'total': 'Total'
-        }
+        fields = '__all__'
 
 
-class TaskForm(forms.ModelForm):
+class UpdateGreenForm(forms.ModelForm):
     content = forms.CharField(label='SimKMN', widget=forms.TextInput(
         attrs={'placeholder': 'Add task here...'}))
 

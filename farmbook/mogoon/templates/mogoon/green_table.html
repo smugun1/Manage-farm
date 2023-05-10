@@ -1,118 +1,79 @@
 {% extends 'mogoon/base.html' %}
 
-{% include 'green_data/update.html' %}
+{% include 'Green/update.html' %}
 
-{% include 'green_data/delete.html' %}
+{% include 'Green/delete.html' %}
 
 {% load static %}
 
 
-<title>{% block title %}Green Table{% endblock %}</title>
+<title>{% block title %}Green Tea{% endblock %}</title>
 
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 
 {% block body %}
-<div class="container-fluid text-right card bg-secondary card-dark mx-0 px-0 my-0 py-0">
-    <h2 class="text-center bg-dark text-warning">Green_data</h2>
-    <h3 class="text-center bg-dark text-warning">Green Tea Table</h3>
-    <div class="border p-3">
-        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-green_table_update' %}">Add</a>
-        <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
-        <form action="" method="POST">
-            {% csrf_token %}
+<div class="row g-4 d-flex align-items-center">
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
+            <h2 class="text-center bg-dark text-warning">Green Tea</h2>
+            <div class="border p-3">
+                <a class="btn btn-warning bg-primary btn-info block-lg"
+                   href="{% url 'mogoon-green_table_update' %}">Add</a>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <form action="" method="POST">
+                    {% csrf_token %}
 
-        </form>
-        <table class="table id=Greentea align-middle text-warning bg-dark">
-            <tr>
-                <th>Green Data</th>
-                <th>Plucking Date</th>
-                <th>Green Today</th>
-                <th>Green Todate</th>
-                <th>Plucker Numbers</th>
-                <th>Total Pluckers</th>
-                <th>Plucking Average</th>
-                <th>Update</th>
-                <th>Delete</th>
-            </tr>
+                </form>
+                <table class="table id=Greentea align-middle text-warning bg-dark">
+                    <tr>
+                        <th>Green Data</th>
+                        <th>Plucking Date</th>
+                        <th>Green Today</th>
+                        <th>Green Todate</th>
+                        <th>Plucker Numbers</th>
+                        <th>Total Pluckers</th>
+                        <th>Plucking Average</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
 
-            {% for data in green_data %}
-            <tr>
-                <td>{{ data.green_data }}</td>
-                <td>{{ data.plucking_date }}</td>
-                <td>{{ data.green_today }}</td>
-                <td>{{ data.green_todate }}</td>
-                <td>{{ data.plucker_numbers }}</td>
-                <td>{{ data.total_pluckers|add:data.plucker_numbers}}</td>
-                <td>{% widthratio data.green_today data.plucker_numbers 1 %}</td>
-                <td>
-                    <a class="btn btn-info btn-block bg-primary btn btn-info"
-                       href="{% url 'green_data-update' data.id %}">Edit</a>
-                </td>
-                <td>
-                    <a class="btn btn-info btn-block bg-danger btn btn-info"
-                       href="{% url 'green_data-delete' data.id %}">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
+                    {% for data in green_data %}
+                    <tr>
+                        <td>{{ data.green_data }}</td>
+                        <td>{{ data.plucking_date }}</td>
+                        <td>{{ data.green_today }}</td>
+                        <td>{{ data.green_todate }}</td>
+                        <td>{{ data.plucker_numbers }}</td>
+                        <td>{{ data.total_pluckers|add:data.plucker_numbers}}</td>
+                        <td>{% widthratio data.green_today data.plucker_numbers 1 %}</td>
+                        <td>
+                            <a class="btn btn-info btn-block bg-primary btn btn-info"
+                               href="{% url 'green_data-update' data.id %}">Edit</a>
+                        </td>
+                        <td>
+                            <a class="btn btn-info btn-block bg-danger btn btn-info"
+                               href="{% url 'green_data-delete' data.id %}">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-            {% with total_green_tea=0 %}{% endwith %}
-            {% for data in green_data %}
-            {% with total_green_tea=total_green_tea|add:data.green_today %}
-            {% endwith %}
-            {% endfor %}
-            <tr>
-                <td>Total Green Tea</td>
-                <td></td>
-                <td></td>
-                <td>{{ total_green_tea }}</td>
-                <td></td>
-
-                {% with total_green_tea=0 %}{% endwith %}
-                {% for data in green_data %}
-                {% with total_green_tea=total_green_tea|add:data.green_today %}
-                {% endwith %}
-                {% endfor %}
-            <tr>
-                <td>Total Green Tea</td>
-                <td>{% with total_plucking_date=0 %}{% endwith %}
+                    {% with green_data=0 %}{% endwith %}
                     {% for data in green_data %}
-                    {% with total_plucking_date=total_plucking_date|add:data.plucking_date %}
+                    {% with green_data=green_data|add:data.green_today %}
                     {% endwith %}
                     {% endfor %}
-                    {{ total_plucking_date }}
-                </td>
-                <td>{% with total_green_today=0 %}{% endwith %}
-                    {% for data in green_data %}
-                    {% with total_green_today=total_green_today|add:data.green_today %}
-                    {% endwith %}
-                    {% endfor %}
-                    {{ total_green_today }}
-                </td>
-                <td>{% with total_green_todate=0 %}{% endwith %}
-                    {% for data in green_data %}
-                    {% with total_green_todate=total_green_todate|add:data.green_todate %}
-                    {% endwith %}
-                    {% endfor %}
-                    {{ total_green_todate }}
-                </td>
-                <td>{% with total_plucker_numbers=0 %}{% endwith %}
-                    {% for data in green_data %}
-                    {% with total_plucker_numbers=total_plucker_numbers|add:data.plucker_numbers %}
-                    {% endwith %}
-                    {% endfor %}
-                    {{ total_plucker_numbers }}
-                </td>
-                <td>{% with total_total_pluckers=0 %}
-                    {% for data in green_data %}
-                    {% with total_total_pluckers=total_total_pluckers|add:data.total_pluckers %}
-                    {% endwith %}
-                    {% endfor %}
-                    {{ total_total_pluckers }}
-                </td>
-                <td></td>
-            </tr>
-            {% endwith %}
-        </table>
+                    <tr>
+                        <td>Total/Ave</td>
+                        <td></td>
+                        <td>{{ c_todate }}</td>
+                        <td>{{ c_todate }}</td>
+                        <td>{{ t_pluckers }}</td>
+                        <td>{{ t_pluckers}}</td>
+                        <td>{{ p_average }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

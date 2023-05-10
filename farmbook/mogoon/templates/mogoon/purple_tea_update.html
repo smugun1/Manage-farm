@@ -3,18 +3,14 @@
 
 {% load static %}
 
-{% block title %}Purple Tea Update{% endblock %}
+{% block title %}Update Purple Tea Form{% endblock %}
 
 {% block body %}
 <br>
-<div class="row">
-    <div class="col">
-        <div class="row g-0 d-flex align-items-center">
-            <div class="col-lg-4 d-none d-lg-flex">
-                <div class="container fluid bg-info text-warning" style="width: 25rem;">
-                    <div class="card card bg-dark text-right" style="width: 23rem;">
-                        <h2 class="text-center text-warning">Purple Tea Update</h2>
-                        <h3 class="text-center text-warning">Purpletea Update</h3>
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 80rem;">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 70rem;">
+                        <h2 class="text-center text-warning">Update Purple Tea Form</h2>
                         <form action="{% url 'mogoon-purple_create' %}" method="POST">
                             {% csrf_token %}
 
@@ -22,62 +18,62 @@
 
                             <div class="col-sm col-sm">
                                 <label for="formGroupExampleInput2" class="form-label"><strong>Purple Tea</strong></label>
-                                <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput2"
+                                <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput2"
                                         name="purple_data">
                                     <option selected disabled>choose option</option>
-                                    <option value="Purpletea">Purple tea</option>
+                                    <option value="Purpletea">Purple_tea</option>
                                     <option value="Purple tea">Purple tea</option>
                                 </select>
 
-                                <label for="formGroupExampleInput" class="form-label"><strong>Plucking
-                                    Date</strong></label>
-                                <input style="height:40px;width:300px" type="datetime-local" class="form-control"
-                                       id="formGroupExampleInput" placeholder="plucking_date" name="plucking_date" value="plucking_date">
+                                <label for="formGroupExampleInput" class="form-label"><strong>
+                                    Date of Plucking</strong></label>
+                                <input style="height:40px;width:700px" type="datetime-local" class="form-control"
+                                       id="formGroupExampleInput" placeholder="Date of Plucking" name="plucking_date" value="plucking_date">
 
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Purple
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Quantity
                                         Today</strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput3"
-                                           placeholder="purple_today" name="purple_today" value="">
+                                           placeholder="Quantity Today" name="purple_today" value="">
                                 </div>
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Purple Todate</strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total Quantity</strong></label>
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput4"
-                                           placeholder="purple_todate" name="purple_todate" value="{{purple_todate.all_sum}}"
+                                           placeholder="Total Quantity" name="purple_todate" value="{{purple_todate.all_sum}}"
                                            readonly>
                                 </div>
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Plucker
-                                        Numbers</strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>No. of Plucker
+                                        </strong></label>
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput5"
-                                           placeholder="plucker_numbers" name="plucker_number"
+                                           placeholder="No. of Plucker" name="plucker_number"
                                            value="{{plucker_numbers.all_count}}">
                                 </div>
                                  <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total Plucker
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total No. of Pluckers
                                     </strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput6"
-                                           placeholder="total_pluckers" name="total_pluckers"
+                                           placeholder="Total No. of Pluckers" name="total_pluckers"
                                            value="{{total_pluckers.pl_total}}" readonly>
                                 </div>
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Plucking
-                                        Average</strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>Mean Per Plucker
+                                        </strong></label>
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput7"
-                                           placeholder="plucking_average" name="plucking_average"
+                                           placeholder="Mean Per Plucker" name="plucking_average"
                                            value="{{plucking_average}}">
                                 </div>
                                 <div class="col-sm col-sm">
-                                    <label for="formGroupExampleInput2" class="form-label"><strong>Total
-                                        Purple</strong></label>
-                                    <input style="height:40px;width:300px" type="text" class="form-control"
+                                    <label for="formGroupExampleInput2" class="form-label"><strong>All Purple leaf
+                                        </strong></label>
+                                    <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput8"
-                                           placeholder="total_purple" name="total_purple"
+                                           placeholder="All Purple leaf" name="total_purple"
                                            value="{{total_purple.total_sum}}">
                                 </div>
 
@@ -92,8 +88,5 @@
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
     </div>
-</div>
 {% endblock %}

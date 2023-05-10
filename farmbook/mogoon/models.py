@@ -4,6 +4,13 @@ from django.db import models
 
 
 # Create your models here.
+class Reports(models.Model):
+    daily_report = models.CharField(max_length=250)
+    visitors_name = models.CharField(max_length=100)
+    visitor_comments = models.CharField(max_length=100)
+    farm_report = models.CharField(max_length=100)
+    farm_requirements = models.CharField(max_length=100)
+    time_stamp = models.DateTimeField(auto_now_add=True)
 
 
 class Employee(models.Model):
@@ -11,22 +18,25 @@ class Employee(models.Model):
         ('M', 'Male'),
         ('F', 'Female'),
     )
-    DEPARTMENT_CHOICES = (('Adm', 'Administration'),
-                          ('Sec', 'Security'), ('Mangt', 'Management'), ('Field', 'Field'), ('Off', 'Office'),
-                          ('Other', ''))
+    DEPARTMENT_CHOICES = (
+        ('Administration', 'Adm'), ('Security', 'Sec'), ('Management', 'Mgt'), ('Field', 'Fld'),
+        ('Office', 'Off'), ('Stores', 'Str'), ('Other', 'Other'),
+    )
+
     POSITION_CHOICES = (
-        ('Dir', 'Director'), ('Mng', 'Manager'), ('Acct', 'Accountant'), ('Sup', 'Supervisor'), ('Clk', 'Clerk'),
-        ('plk', 'Plucker'), ('Dairy', 'DairyWorker'), ('Kando', 'Kando Worker'), ('Cook', 'Cook'),
-        ('grd', 'Guard'))
+        ('Guard', 'Grd'), ('Plucker', 'Plk'), ('Dairy', 'Dairy'), ('Kando', 'Kando'), ('Cook', 'Ck'),
+        ('Office Messanger', 'Off Mgr'), ('Store', 'Str'), ('Director', 'Dir'), ('Estate Worker', 'Est Wkr'),
+        ('Assistant Manager', 'Asst Mgr'), ('Accountant', 'Acct'), ('Supervisor', 'Sup'), ('Clerk', 'Clk'),
+    )
+
     date_employed = models.DateTimeField(auto_now_add=False, blank=False)
-    national_identity = models.CharField(max_length=20)
+    national_identity = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     age = models.IntegerField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, )
     department = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, )
     position = models.CharField(max_length=100, choices=POSITION_CHOICES, )
-    salary = models.IntegerField()
-    total = models.IntegerField()
+    salary_total = models.IntegerField()
 
     def __str__(self):
         return self.name
@@ -115,9 +125,6 @@ class Milk(models.Model):
 
     def __str__(self):
         return str(self.milk_today)
-
-
-
 
 
 class Profile:

@@ -1,28 +1,77 @@
- h1 {
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
 
- color: purple;
+}
 
+table {
+    border-radius: 15px;
+}
+
+.container {
+    border-radius: 15px;
+    margin: none;
+    z-index: 1;
+
+
+    }
+
+ .container-fluid {
+    border-radius: 20px;
  }
 
- h2 {
+  body {
+    background-image: url("slide 6.jpg");
+    font-family: Arial, sans-serif;
+    color: #333;
+    font-weight: bold;
 
- color: blue;
+  h1 {
+    color: #0066cc;
+    border-bottom: 2px solid #0066cc;
+    padding-bottom: 10px;
+    font-weight: bold;
 
- }
+    }
+  p {
+    line-height: 1.5;
+    color: gold;
+    font-weight: bold;
 
- h3 {
+    }
+  .button {
+    color: lime;
+    background-color: cyan;
+    width: 100%;
+    padding-bottom: 20px;
+    border-radius: 20px;
+    align-text: center;
+    align-items: center;
+    font-weight: 10px;
+}
 
- color: red;
 
- }
-  h4 {
 
- color: dark pink;
+     h2 {
 
- }
+     color: blue;
 
- P { font-size: 12pt; }
+     }
 
- p { color: brown; }
+     h3 {
 
- BODY { background-color: beige; }
+     color: red;
+
+     }
+      h4 {
+
+     color: dark pink;
+
+     }
+
+     P { font-size: 12pt; }
+
+     p { color: brown; }
+
+     BODY { background-color: beige; }

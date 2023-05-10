@@ -1,46 +1,46 @@
 from django.urls import path
+
 from . import views
 from .views import *
 
 # from django.conf.urls import patterns, url
+
+
 urlpatterns = [
+    path('', ReportsViewRetrieve, name='reports'),
+    path('reports-update', ReportsViewUpdate, name='reports-update'),
+    path('reports-create', ReportsViewCreate, name='reports-create'),
 
-    path('', Home, name='home'),
-    path('reports/', Reports, name='reports'),
+    path('employee-list/', views.EmployeeViewRetrieve, name='employee-list'),
+    path('employee-list_update/', views.EmployeeViewUpdate, name='employee-list_update'),
+    path('employees_create/', views.EmployeeViewCreate, name='mogoon-employees_create'),
 
-    path('employee-e_details/', views.Employee_details, name='employee-details'),
-    path('employee-e_list/', views.Employee_list, name='employee-list'),
-    path('employee-update/', views.Employee_update, name='employee-update'),
-    path('employee-create/', views.Employee_create, name='employee-create'),
+    path('green_table/', views.GreenViewRetrieve, name='mogoon-green_table'),
+    path('green_table_update/', views.GreenViewUpdate, name='mogoon-green_table_update'),
+    path('green_create/', views.GreenViewCreate, name='mogoon-green_create'),
 
+    path('purple_table/', views.PurpleViewRetrieve, name='mogoon-purple'),
+    path('purple_update/', views.PurpleViewUpdate, name='mogoon-purple_update'),
+    path('purple_create/', views.PurpleViewCreate, name='mogoon-purple_create'),
 
+    path('kandojobs_table/', views.KandojobsViewRetrieve, name='mogoon-kandojobs_table'),
+    path('kandojobs_table_update/', views.KandojobsViewUpdate, name='mogoon-kandojobs_table_update'),
+    path('kandojobs_create/', views.KandojobsViewCreate, name='mogoon-kandojobs_create'),
 
-
-    path('green_table/', views.GreenTable, name='mogoon-green_table'),
-    path('green_table_update/', views.GreenTableUpdate, name='mogoon-green_table_update'),
-    path('green_create/', views.mogoonGreenCreate, name='mogoon-green_create'),
-
-    path('purple_table/', views.PurpleTable, name='mogoon-purple'),
-    path('purple_update/', views.PurpleTableUpdate, name='mogoon-purple_update'),
-    path('purple_create/', views.PurpleCreate, name='mogoon-purple_create'),
-
-    path('kandojobs_table/', views.KandojobsTable, name='mogoon-kandojobs_table'),
-    path('kandojobs_table_update/', views.KandojobsTableUpdate, name='mogoon-kandojobs_table_update'),
-    path('kandojobs_create/', views.mogoonKandojobsCreate, name='mogoon-kandojobs_create'),
-
-    path('fertilizer_table/', views.FertilizerTable, name='mogoon-fertilizer_table'),
-    path('fertilizer_table_update/', views.mogoonFertilizerTableUpdate,
+    path('fertilizer_table/', views.FertilizerViewRetrieve, name='mogoon-fertilizer_table'),
+    path('fertilizer_table_update/', views.FertilizerViewUpdate,
          name='mogoon-fertilizer_table_update'),
-    path('fertilizer_create/', views.mogoonFertilizerCreate, name='mogoon-fertilizer_create'),
+    path('fertilizer_create/', views.FertilizerViewCreate, name='mogoon-fertilizer_create'),
 
+    path('milk_table/', views.MilkViewRetrieve, name='mogoon-milk_table'),
+    path('milk_table_update/', views.MilkViewUpdate, name='mogoon-milk_table_update'),
+    path('milk_create/', views.MilkViewCreate, name='mogoon-milk_create'),
 
+    path('r_update/<str:pk>/', views.R_update, name='reports-edit'),
+    path('r_delete/<str:pk>/', views.R_delete, name='reports-delete'),
 
-    path('milk_table/', views.MilkTable, name='mogoon-milk_table'),
-    path('milk_table_update/', views.MilkTableUpdate, name='mogoon-milk_table_update'),
-    path('milk_create/', views.mogoonMilkCreate, name='mogoon-milk_create'),
-
-    path('employee-u_edit/<int:pk>/', views.Employee_edit, name='employee-edit'),
-    path('employee-d_delete/<int:pk>/', views.Employee_delete, name='employee-delete'),
+    path('e_edit/<int:pk>/', views.Employee_edit, name='employee-edit'),
+    path('e_delete/<int:pk>/', views.Employee_delete, name='employee-delete'),
 
     path('update/<int:pk>/', views.update, name='green_data-update'),
     path('delete/<int:pk>/', views.delete, name='green_data-delete'),
@@ -53,5 +53,20 @@ urlpatterns = [
     path('m_update/<int:pk>/', views.M_update, name='milk-update'),
     path('m_delete/<int:pk>/', views.M_delete, name='milk-delete'),
 
-]
+    path('employee_api/', views.EmployeeListView),
+    path('green_api/', views.GreenListView),
+    path('purple_api/', views.PurpleListView),
+    path('kandojobs_api/', views.KandojobsListCreateView),
+    path('fertilizer_api/', views.FertilizerListView),
+    path('milk_api/', views.MilkListView),
 
+    path('employee_create_api/', views.EmployeeCreateView),
+    path('green_create_api/', views.GreenCreateView),
+    path('purple_create_api/', views.PurpleCreateView),
+    path('kandojobs_create_api/', views.KandojobsCreateView),
+    path('fertilizer_create_api/', views.FertilizerCreateView),
+    path('milk_create_api/', views.MilkCreateView),
+
+    # path('employee_detail_api/<int:pk>/', views.EmployeeDetailView),
+
+]

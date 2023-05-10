@@ -2,148 +2,147 @@
 
 {% load static %}
 
-{% block title %}Kandojobs Table Update{% endblock %}
+{% block title %}Update Kando Jobs Form{% endblock %}
 
 {% block body %}
 
-<div class="row g-0 d-flex align-items-center">
-    <div class="col-lg-4 d-none d-lg-flex">
-        <div class="container fluid bg-info text-warning" style="width: 25rem;">
-            <div class="card card bg-dark text-right" style="width: 23rem;">
-                <h2 class="text-center text-warning">Kandojobs Table Update</h2>
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 80rem;">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 70rem;">
+                <h2 class="text-center text-warning">Update Kando Jobs Form</h2>
                 <form action="{% url 'mogoon-kandojobs_create' %}" method="POST">
                     {% csrf_token %}
                     {{ form }}
                     <div class="container">
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>pruning_done</strong></label>
-                            <input style="height:40px;width:300px" type="datetime-local" class="form-control"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Date of Pruning</strong></label>
+                            <input style="height:40px;width:700px" type="datetime-local" class="form-control"
                                    id="formGroupExampleInput2"
-                                   placeholder="pruning_done" name="pruning_done">
+                                   placeholder="Date of Pruning" name="pruning_done">
                         </div>
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput"
-                                   class="form-label"><strong>pruned_block_No</strong></label>
-                            <input style="height:40px;width:300px" class="form-control"
-                                   id="formGroupExampleInput" placeholder="pruned_block_No"
+                                   class="form-label"><strong>Block No</strong></label>
+                            <input style="height:40px;width:700px" class="form-control"
+                                   id="formGroupExampleInput" placeholder="Block No"
                                    name="pruned_block_No" value="{{pruned_block_No}}">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>pruned_bushes</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Bushes Pruned</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput3"
-                                   placeholder="pruned_bushes" name="pruned_bushes" value="pruned_bushes">
+                                   placeholder="Bushes Pruned" name="pruned_bushes" value="pruned_bushes">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>total_pruned_bushes</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>All Bushes Pruned</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput4"
-                                   placeholder="total_pruned_bushes" name="total_pruned_bushes"
+                                   placeholder="All Bushes Pruned" name="total_pruned_bushes"
                                    value="{{total_pruned_bushes.pr_sum}}">
                         </div>
 
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>pruning_rate</strong></label>
-                             <input style="height:40px;width:300px" type="text" class="form-control"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Cost Per Bush</strong></label>
+                             <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput5"
-                                   placeholder="pruning_rate" name="pruning_rate"
+                                   placeholder="Cost Per Bush" name="pruning_rate"
                                    value="{{pruning_rate.pruning_rate}}">
                         </div>
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>pruning_cost</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Cost of Pruning</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput6"
-                                   placeholder="pruning_cost" name="pruning_cost"
+                                   placeholder="Cost of Pruning" name="pruning_cost"
                                    value="{{ pruning_cost.pruning_cost }}">
                         </div>
                     </div>
                     <div class="container align-items-center">
 
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>weeding_done</strong></label>
-                            <input style="height:40px;width:300px" type="datetime-local" class="form-control"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Weeding Date</strong></label>
+                            <input style="height:40px;width:700px" type="datetime-local" class="form-control"
                                    id="formGroupExampleInput7"
-                                   placeholder="weeding_done" name="weeding_done">
+                                   placeholder="Weeding Date" name="weeding_done">
                         </div>
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>chemical_name</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Type of Chemical</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput8"
-                                   placeholder="chemical_name" name="chemical_name"
+                                   placeholder="Type of Chemical" name="chemical_name"
                                    value="{{chemical_name.chemical_name}}">
                         </div>
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>block_No</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Block Pruned</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput9"
-                                   placeholder="block_No" name="block_No" value="{{block_No.block_No}}">
+                                   placeholder="Block Pruned" name="block_No" value="{{block_No.block_No}}">
                         </div>
 
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>cost_per_lit</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Unit Cost (Lit)</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput10"
-                                   placeholder="cost_per_lit" name="cost_per_lit" value="{{cost_per_lit.cost_per_lit}}">
+                                   placeholder="Unit Cost (Lit)" name="cost_per_lit" value="{{cost_per_lit.cost_per_lit}}">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>weeding_chem_amt</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Quantity of Chemical</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput11"
-                                   placeholder="weeding_chem_amt" name="weeding_chem_amt" value="{{weeding_chemical_amt.weeding_chemical_amt}}">
+                                   placeholder="Quantity of Chemical" name="weeding_chem_amt" value="{{weeding_chemical_amt.weeding_chemical_amt}}">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>total_chem_amt</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Total Quantity</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput12"
-                                   placeholder="total_chem_amt" name="total_chem_amt" value="{{total_chem_amt.tc_sum}}">
+                                   placeholder="Total Quantity" name="total_chem_amt" value="{{total_chem_amt.tc_sum}}">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>weeding_labour_number</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Labour Required</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput13"
-                                   placeholder="weeding_labour_number" name="weeding_labour_number"
+                                   placeholder="Labour Required" name="weeding_labour_number"
                                    value="{{weeding_labour_number.wl_num}}">
                         </div>
 
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>total_weeding_labour_number</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
-                                   id="formGroupExampleInput14" placeholder="total_weeding_labour_number" name="total_weeding_labour_number"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Total Labour Required</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
+                                   id="formGroupExampleInput14" placeholder="Total Labour Required" name="total_weeding_labour_number"
                                    value="{{total_weeding_labour_number.wl_sum}}">
                         </div>
 
                         <div class="col-sm col-sm">
-                            <label for="formGroupExampleInput2" class="form-label"><strong>weeding_labour_rate</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
-                                   id="formGroupExampleInput15" placeholder="weeding_labour_rate" name="weeding_labour_rate"
+                            <label for="formGroupExampleInput2" class="form-label"><strong>Labour cost</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
+                                   id="formGroupExampleInput15" placeholder="Labour cost" name="weeding_labour_rate"
                                    value="{{weeding_labour_rate.weeding_labour_rate}}">
                         </div>
 
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>weeding_labour</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Labour No</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput16"
-                                   placeholder="weeding_labour" name="weeding_labour" value="{{weeding_labour.w_labour}}">
+                                   placeholder="Labour No" name="weeding_labour" value="{{weeding_labour.w_labour}}">
                         </div>
                         <div class="col-sm col-sm">
                             <label for="formGroupExampleInput2"
-                                   class="form-label"><strong>weeding_cost</strong></label>
-                            <input style="height:40px;width:300px" type="text" class="form-control"
+                                   class="form-label"><strong>Cost of weeding</strong></label>
+                            <input style="height:40px;width:700px" type="text" class="form-control"
                                    id="formGroupExampleInput17"
-                                   placeholder="weeding_cost" name="weeding_cost" value="{{weeding_cost.w_cost }}">
+                                   placeholder="Cost of weeding" name="weeding_cost" value="{{weeding_cost.w_cost }}">
                         </div>
                         <div class="container my-3">
                             <button class="btn btn-primary" type="submit" value="Update" name="update"
@@ -158,6 +157,6 @@
             </div>
         </div>
     </div>
-</div>
+
 
     {% endblock %}

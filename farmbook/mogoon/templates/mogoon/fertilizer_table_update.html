@@ -2,30 +2,28 @@
 
 {% load static %}
 
-{% block title %}Fertilizer Table Update{% endblock %}
+{% block title %}Update Fertilizer Form{% endblock %}
 
 {% block body %}
 
 
-<div class="row g-0 d-flex align-items-center">
-    <div class="col-lg-4 d-none d-lg-flex ">
-
-        <div class="container fluid bg-info text-warning" style="width: 25rem;">
-            <div class="card card bg-dark text-right" style="width: 23rem;">
-                <h2 class="text-center text-warning">Fertilizer Table Update</h2>
+    <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 80rem;">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 70rem;">
+                <h2 class="text-center text-warning">Update Fertilizer Form</h2>
                 <form action="{% url 'mogoon-fertilizer_create' %}" method="POST">
                     {% csrf_token %}
                     {{ form }}
 
-
                     <div class="col-sm col-sm">
-                        <label for="formGroupExampleInput2" class="form-label"><strong>fertilizer</strong></label>
-                        <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput1"
+                        <label for="formGroupExampleInput2" class="form-label"><strong>Fertilizer type</strong></label>
+                        <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput1"
                         name="fertilizer">
                           <option selected disabled>choose option</option>
                           <option value="NPK">NPK 25:5:5:2s</option>
                           <option value="NPK">NPK 26:10:5</option>
-                          <option value="SOA">SOA</option>
+                          <option value="CAN">CAN 13:13</option>
+                            <option value="SOA">SOA</option>
                           <option value="Urea">Urea</option>
                           <option value="Manure">Manure</option>
                           <option value="Other">Other</option>
@@ -34,22 +32,22 @@
                     </div>
                     <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_applied</strong></label>
-                        <input style="height:40px;width:300px" type="datetime-local" class="form-control" id="formGroupExampleInput2"
-                               placeholder="fertilizer_applied" name="fertilizer_applied"
+                               class="form-label"><strong>Application Date</strong></label>
+                        <input style="height:40px;width:700px" type="datetime-local" class="form-control" id="formGroupExampleInput2"
+                               placeholder="Application Date" name="fertilizer_applied"
                                value="">
                     </div>
                     <div class="col-sm col-sm">
-                        <label for="formGroupExampleInput2" class="form-label"><strong>fertilizer_amt</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput3"
-                               placeholder="How many bags?" name="fertilizer_amt" value="">
+                        <label for="formGroupExampleInput2" class="form-label"><strong>No. of Bags</strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput3"
+                               placeholder="No. of Bags?" name="fertilizer_amt" value="">
                     </div>
 
 
                     <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_labour_rate</strong></label>
-                        <select style="height:40px;width:300px" class="form-control" id="formGroupExampleInput4"
+                               class="form-label"><strong>Labour Unit Cost</strong></label>
+                        <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput4"
                         name="fertilizer_labour_rate">
                           <option selected disabled>choose option</option>
                           <option value="120">120.00</option>
@@ -62,35 +60,35 @@
 
                     <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_labour</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput5"
-                               placeholder="fertilizer_labour" name="fertilizer_labour" value="">
+                               class="form-label"><strong>Labour No.</strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput5"
+                               placeholder="Labour No." name="fertilizer_labour" value="">
 
                     </div>
                     <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_labour_cost</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput6"
-                               placeholder="fertilizer_labour_cost" name="fertilizer_labour_cost"
+                               class="form-label"><strong>Labour Cost</strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput6"
+                               placeholder="Labour Cost" name="fertilizer_labour_cost"
                                value="{{fertilizer_labour_cost.fertilizer_labour_cost}}">
 
                     </div>
                     <div class="col-sm col-sm">
-                        <label for="formGroupExampleInput2" class="form-label"><strong>fertilizer_price</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput7"
-                               placeholder="fertilizer_price" name="fertilizer_price" value="">
+                        <label for="formGroupExampleInput2" class="form-label"><strong>Price Per Bag </strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput7"
+                               placeholder="Price Per Bag" name="fertilizer_price" value="">
 
                     <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_cost</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput8"
-                               placeholder="fertilizer_cost" name="fertilizer_cost" value="">
+                               class="form-label"><strong>Fertilizer Cost</strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput8"
+                               placeholder="Fertilizer Cost" name="fertilizer_cost" value="">
                     </div>
                         <div class="col-sm col-sm">
                         <label for="formGroupExampleInput2"
-                               class="form-label"><strong>fertilizer_total_cost</strong></label>
-                        <input style="height:40px;width:300px" type="text" class="form-control" id="formGroupExampleInput9"
-                               placeholder="fertilizer_total_cost" name="fertilizer_total_cost"
+                               class="form-label"><strong>All Cost</strong></label>
+                        <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput9"
+                               placeholder="All Cost" name="fertilizer_total_cost"
                                value="{{fertilizer_total_cost.fertilizer_total_cost}}">
                     </div>
                     <div class="container my-3">
@@ -107,6 +105,6 @@
             </div>
         </div>
     </div>
-</div>
+
 
 {% endblock %}

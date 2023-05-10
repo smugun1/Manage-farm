@@ -1,24 +1,26 @@
 {% extends 'mogoon/base.html' %}
 
+{% include 'Employee/update.html' %}
+
+{% include 'Employee/delete.html' %}
+
 {% load static %}
 {% load humanize %}
 
-
-<title>{% block title %}Employee List{% endblock %}</title>
+<title>{% block title %}All Employees{% endblock %}</title>
 
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 
 {% block body %}
 <div class="row g-4 d-flex align-items-center">
-    <div class="col-lg-10 d-none d-lg-flex">
+    <div class="col-lg-12 d-none d-lg-flex">
         <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-0 my-4 py-4">
-            <h2 class="text-center bg-dark text-warning">Employee List</h2>
-            <h3 class="text-center bg-dark text-warning">Employee Record</h3>
+            <h2 class="text-center bg-dark text-warning">All Employees</h2>
             <div class="border p-3">
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'employee-list_update' %}">Add</a>
 
-                <a class="btn btn-warning bg-success btn-info block-lg" href="{% url 'employee-details' %}">Emp-Details</a>
-                <a class="btn btn-warning bg-success btn-info block-lg" href="{% url 'home' %}">Go To Home</a>
-                <table>
+                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <table class="table id=Employee align-middle text-warning bg-dark">
                     <thead>
                     <tr>
                         <th>Date Employed</th>
@@ -29,52 +31,71 @@
                         <th>Department</th>
                         <th>Position</th>
                         <th>Salary</th>
-                        <th>Total</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for employee in employee_list %}
+                    {% for data in employee_data %}
                     <tr>
-                        <td>{{ employee.date_employed }}</td>
-                        <td>{{ employee.national_identity }}</td>
-                        <td>{{ employee.name }}</td>
-                        <td>{{ employee.age }}</td>
-                        <td>{{ employee.gender }}</td>
-                        <td>{{ employee.department }}</td>
-                        <td>{{ employee.position }}</td>
-                        <td>{{ employee.salary }}</td>
-                        <td>{{ employee.total }}</td>
+                        <td>{{ data.date_employed }}</td>
+                        <td>{{ data.national_identity }}</td>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.age }}</td>
+                        <td>{{ data.gender }}</td>
+                        <td>{{ data.department }}</td>
+                        <td>{{ data.position }}</td>
+                        <td>{{ data.salary_total }}</td>
 
 
                         <td>
-                            <a class="btn btn-danger btn-block bg-info text-success btn btn-info"
-                               href="{% url 'employee-edit' employee.id %}">Edit</a>
-                            <a class="btn btn-success btn-block bg-warning text-danger btn btn-info"
-                               href="{% url 'employee-delete' employee.id %}">Delete</a>
+                            <a class="btn btn-light btn-block bg-primary text-dark btn btn-info"
+                               href="{% url 'employee-edit' data.id %}">Edit</a>
+                            <a class="btn btn-light btn-block bg-danger text-dark btn btn-info"
+                               href="{% url 'employee-delete' data.id %}">Delete</a>
                         </td>
                         {% endfor %}
-                    <tr>
-                        <td colspan="7">Total Salary</td>
-                        <td>{{ salary.sal_count|default:"0" }}</td>
-                        <td></td>
-                    <tr>
-                        <td colspan="7">Total Salary</td>
-                        <td>{{ salary.sal_count|default:"0" }}</td>
-                        <td></td>
                     </tr>
+
                     <tr>
-                        <td colspan="8">Total</td>
-                        <td>{{ total.sal_total|default:"0"|floatformat:2 }}</td>
-                        <td>{% if salary.sal_count %}{{ total.sal_total|default:"0"|floatformat:2 }}
-                            {% endif %}
-                        </td>
-                        <td>{% if salary_count.sal_count %}{{
-                            (total.sal_total|default:"0")/salary.sal_count|floatformat:2 }}
-                            {% else %}0
-                            {% endif %}
-                        </td>
-                    </tr>
+                        <td><b>TOTAL Employees</b></td>
+                        <td></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b>
+
+                            {{ sal_add }}
+                        </b></td>
+                        </tr>
+                    <tr>
+                        <td><b>TOTAL</b></td>
+                        <td></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b>
+
+                            {{ salary_sum }}
+                        </b></td>
+                        </tr>
+
+                    <tr>
+                        <td><b>SALARY AVE</b></td>
+                        <td></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b></b></td>
+                        <td><b>
+
+                            {{ salary_avg|floatformat:2 }}
+                        </b></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

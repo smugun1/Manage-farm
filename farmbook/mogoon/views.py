@@ -4,139 +4,199 @@ from decimal import Decimal
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
-from django.db.models import Sum, F, Count, Avg, FloatField
+from django.db.models import Sum, F, Count, Avg, FloatField, Min, ExpressionWrapper
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.timezone import now
 from django.views.decorators.cache import never_cache
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+import logging
+import json
 
 from . import models
-from .forms import TaskForms, UpdateTaskForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
-    UpdateMilkForm, EmployeeForm, EmployeeDetailsForm
+from .forms import TaskForms, UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
+    UpdateMilkForm, EmployeeForm, ReportsForm
 from .models import *
+from .models import Milk
+from .serializer import GreenSerializer, PurpleSerializer, KandojobsSerializer, FertilizerSerializer, MilkSerializer, \
+    EmployeeSerializer
+from rest_framework.views import APIView
+from datetime import datetime
+from pytz import UTC
+
+from .models import Employee
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
-
-@login_required(login_url='login')
-@never_cache
-def Home(request):
-    context = {
-        "name": {"Home Farm Page"},
-        'form': TaskForms
-    }
-    return render(request, 'mogoon/home.html', context)
+class MilkViewSet:
+    pass
 
 
 @login_required(login_url='login')
 @never_cache
-def Reports(request):
+def ReportsViewRetrieve(request):
+    reports = Reports.objects.all()
+
     context = {
-        "name": {"Reports Farm Page"},
-        'form': TaskForms
+
+        "name": {"Reports Page"},
+        'reports': reports,
     }
-    return render(request, 'mogoon/reports.html', context)
+    return render(request, 'mogoon/view_reports.html', context)
 
 
-def Employee_list(request):
-    employee_list = Employee.objects.all()
-    return render(request, 'mogoon/employee_list.html', {'employee_list': employee_list})
+@login_required(login_url='login')
+@never_cache
+def ReportsViewUpdate(request):
+    daily_report = models.CharField()
+    visitors_name = models.CharField()
+    visitor_comments = models.CharField()
+    farm_report = models.CharField()
+    farm_requirements = models.CharField()
+    time_stamp = models.DateTimeField()
+
+    context = {
+
+        "daily_report": daily_report,
+        "visitors_name": visitors_name,
+        "visitor_comments": visitor_comments,
+        "farm_report": farm_report,
+        "farm_requirements": farm_requirements,
+        "time_stamp": time_stamp,
+    }
+    return render(request, 'mogoon/reports_update.html', context)
+
+
+@login_required(login_url='login')
+@never_cache
+def ReportsViewCreate(request):
+    daily_report = request.POST['daily_report']
+    visitors_name = request.POST['visitors_name']
+    visitor_comments = request.POST['visitor_comments']
+    farm_report = request.POST['farm_report']
+    farm_requirements = request.POST['farm_requirements']
+    time_stamp = request.POST['time_stamp']
+
+    insert = Reports(daily_report=daily_report, visitors_name=visitors_name, visitor_comments=visitor_comments,
+                     farm_report=farm_report, farm_requirements=farm_requirements, time_stamp=time_stamp)
+    insert.save()
+
+    return redirect('/reports')
 
 
 @never_cache
-def Employee_update(request, pk):
-    employee_list = Employee.objects.all()
-    employee = Employee.objects.get(id=pk)
-    date_employed = models.DateTimeField()
-    salary = Employee.objects.aggregate(sal_count=Count('salary'))
-    total = Employee.objects.aggregate(sal_total=Sum('salary'))
-    form = EmployeeForm(instance=employee)
-    if salary.get('sal_count') is None:
-        salary['sal_count'] = 0
-    else:
-        salary = Employee.objects.aggregate(sal_count=Count('salary'))
+def EmployeeViewRetrieve(request):
+    # Query all employees from the database
+    employee_data = Employee.objects.all()
 
-    if total.get('sal_total') is None:
-        total['sal_total'] = 0
-    else:
-        total = Employee.objects.aggregate(sal_total=Sum('salary'))
+    # Calculate the total salary of all employees
+    salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
 
-    if request.method == 'POST':
-        form = EmployeeForm(request.POST, instance=employee)
-        if form.is_valid():
-            form.save()
-            return redirect('employee-details', pk=pk)
-    context = {'form': form}
+    # Calculate the sum and average salary of all employees
+    salary_sum = Employee.objects.aggregate(salary_sum=Sum('salary_total'))['salary_sum'] or 0
+    salary_avg = Employee.objects.aggregate(salary_avg=Avg('salary_total'))['salary_avg'] or 0
+
+    # Count the number of employees
+    no_employees = Employee.objects.count()
+
+    # Define the context dictionary with all the data
+    context = {
+        "employee_data": employee_data,
+        "sal_add": salary_total,
+        "salary_sum": salary_sum,
+        "salary_avg": salary_avg,
+        "no_employees": no_employees,
+    }
+
+    # Render the template with the context data
+    return render(request, 'mogoon/employee_list.html', context)
+
+
+@never_cache
+def EmployeeViewUpdate(request):
+    # Query all employees from the database
+    data = Employee.objects.all()
+
+    # Calculate the total salary and Average of all employees
+    salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
+
+    # Calculate the sum and average salary of all employees
+    salary_sum = Employee.objects.aggregate(salary_sum=Sum('salary_total'))['salary_sum'] or 0
+    salary_avg = Employee.objects.aggregate(salary_avg=Avg('salary_total'))['salary_avg'] or 0
+
+    # Count the number of employees
+    total_count = Employee.objects.count()
+
+    context = {
+        'employee_data': data,
+        'sal_add': salary_total,
+        'salary_sum': salary_sum,
+        'salary_avg': salary_avg,
+        'no_employees': total_count,
+    }
+
     return render(request, 'mogoon/employee_details_update.html', context)
 
 
+@login_required(login_url='login')
 @never_cache
-def Employee_details(request):
-    employee = Employee.objects.all()
-    date_employed = models.DateTimeField()
-    salary = Employee.objects.aggregate(sal_count=Count('salary'))
-    total = Employee.objects.aggregate(sal_total=Sum('salary'))
-
+def EmployeeViewCreate(request):
     if request.method == "POST":
-        employee_form = EmployeeForm(request.POST)
-        if employee_form.is_valid():
-            # Create or update Employee object
-            date_employed = employee_form.cleaned_data['date_employed']
-            national_identity = employee_form.cleaned_data['national_identity']
-            employee, created = Employee.objects.update_or_create(date_employed=date_employed,
-                                                                  national_identity=national_identity,
-                                                                  defaults=employee_form.cleaned_data)
+        print(request)
 
-            # Show appropriate message based on whether object was created or updated
-            if created:
-                messages.success(request, 'Employee details are successfully saved.')
-            else:
-                messages.success(request, 'Employee details are successfully updated.')
+        date_employed = request.POST['date_employed']
+        national_identity = request.POST['national_identity']
+        name = request.POST['name']
+        age = request.POST['age']
+        gender = request.POST.get('gender', False)
+        department = request.POST.get('department', False)
+        position = request.POST.get('position', False)
+        salary_total = request.POST['salary_total']
 
-            return redirect('employee-list')
-    else:
-        employee_form = EmployeeForm()
+        insert = Employee(date_employed=date_employed, national_identity=national_identity, name=name, age=age,
+                          gender=gender, department=department, position=position, salary_total=salary_total)
+        insert.save()
 
-    return render(request, 'mogoon/employee_details_update.html',
-                  {'employee_form': employee_form, 'employee': employee, 'date_employed': date_employed,
-                   'salary': salary, 'total': total})
-
-
-def Employee_create(request):
-    employee_list = Employee.objects.all()
-    return render(request, 'mogoon/employee_create.html', {'employee_list': employee_list})
+        return redirect('/employee-list')
 
 
 @never_cache
-def GreenTable(request):
+def GreenViewRetrieve(request):
     data = Green.objects.all()
-    plucking_date = models.DateTimeField()
+    plucking_date = Green._meta.get_field('plucking_date').verbose_name
+
     green_today = Green.objects.aggregate(all_count=Count('green_today'))
     green_todate_result = Green.objects.aggregate(all_sum=Sum('green_today'))
     total_pluckers_result = Green.objects.aggregate(pl_total=Sum('plucker_numbers'))
     plucker_numbers = Green.objects.aggregate(all_count=Count('plucker_numbers'))
-    plucking_average = Green.objects.aggregate(pl_ave=Avg(F('green_todate') / F('total_pluckers')))
-
     green_todate = green_todate_result['all_sum'] if green_todate_result['all_sum'] is not None else 0
     total_pluckers = total_pluckers_result['pl_total'] if total_pluckers_result['pl_total'] is not None else 1
-    plucking_average = Green.objects.aggregate(pl_ave=Avg('green_todate', output_field=FloatField()))[
-        'pl_ave'] if total_pluckers != 0 else 0
 
-    total_green = Green.objects.aggregate(total_sum=Sum('green_todate'))
+    # Calculate the plucking average
+    plucking_average = Green.objects.aggregate(
+        pl_ave=Avg(F('green_today') / F('plucker_numbers'), output_field=models.FloatField())
+    )['pl_ave'] if total_pluckers != 0 else 0
+
+    total_green = Green.objects.aggregate(total_sum=Sum('green_today'))
 
     context = {
         "green_data": data,
         "plucking_date": plucking_date,
-        "c_today": green_today,
+        "c_today": green_today['all_count'],
         "c_todate": green_todate,
-        "p_numbers": plucker_numbers,
+        "p_numbers": plucker_numbers['all_count'],
         "t_pluckers": total_pluckers,
         "p_average": plucking_average,
-        "t_green": total_green,
+        "t_green": total_green['total_sum'],
     }
     return render(request, 'mogoon/green_table.html', context)
 
 
 """What changed in the code?
-
 The code was changed to match the template. The code was modified to include the data from the green model and to 
 calculate the necessary values to display on the template. The code was also modified to handle scenarios where the 
 database is empty and the values are returned as None. This was done by checking the value of the all_sum key in the 
@@ -147,7 +207,7 @@ total_green. These variables are used to calculate the necessary values to displ
 
 @login_required(login_url='login')
 @never_cache
-def GreenTableUpdate(request):
+def GreenViewUpdate(request):
     green_today = Green.objects.count()
     # get the current green_todate value
     green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
@@ -155,6 +215,7 @@ def GreenTableUpdate(request):
     # when the database is empty the value of all_sum is set to python type called None, to cater for this scenario
     # get the value of the all_sum and check if it is null as shown below, when null is set to type None and not type
     # Null
+    plucker_numbers = Green.objects.aggregate(all_count=Count('plucker_numbers'))
     if green_todate.get('all_sum') is None:
         # if the value is of type None set the value to zero because this value is used later for additions and a none
         # type cannot be added to the int type
@@ -164,8 +225,8 @@ def GreenTableUpdate(request):
         # if it has an actual value get the green_todate and pass it to the templates via the context, this value
         # appears in the form
         green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
-    plucker_numbers = Green.objects.aggregate(all_count=Count('plucker_numbers'))
     total_pluckers = Green.objects.aggregate(pl_total=Sum('plucker_numbers'))
+
     if total_pluckers.get('pl_total') is None:
         total_pluckers['pl_total'] = 0
     else:
@@ -174,9 +235,11 @@ def GreenTableUpdate(request):
     if total_pluckers.get('pl_total') == 0:
         plucking_average = 0
     else:
-        plucking_average = Green.objects.aggregate(pl_ave=Avg('green_todate') / total_pluckers.get('pl_total'))
-        plucking_average = plucking_average.get('pl_ave') if total_pluckers.get('pl_total') != 0 else 0
-
+        # plucking_average = Green.objects.aggregate(pl_ave=Avg('green_todate') / total_pluckers.get('pl_total'))
+        plucking_average = Green.objects.aggregate(
+            pl_ave=Avg(F('green_today') / F('plucker_numbers'), output_field=models.FloatField())
+        )['pl_ave'] if total_pluckers != 0 else 0
+    #     plucking_average = plucking_average.get('pl_ave') if total_pluckers.get('pl_total') != 0 else 0
     total_green = Green.objects.aggregate(total_sum=Sum('green_todate'))
     if total_green.get('total_sum') is None:
         total_green['total_sum'] = 0
@@ -197,7 +260,7 @@ def GreenTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def mogoonGreenCreate(request):
+def GreenViewCreate(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The green_todate is the green todate gotten from the
         # form(that was passed from the notes function) plus the green today entered in the form. Initially the green
@@ -224,31 +287,33 @@ def mogoonGreenCreate(request):
 
 
 @never_cache
-def PurpleTable(request):
+def PurpleViewRetrieve(request):
     data = Purple.objects.all()
-    plucking_date = models.DateTimeField()
+    plucking_date = Purple._meta.get_field('plucking_date').verbose_name
+
     purple_today = Purple.objects.aggregate(all_count=Count('purple_today'))
     purple_todate_result = Purple.objects.aggregate(all_sum=Sum('purple_today'))
     total_pluckers_result = Purple.objects.aggregate(pl_total=Sum('plucker_numbers'))
     plucker_numbers = Purple.objects.aggregate(all_count=Count('plucker_numbers'))
-    plucking_average = Purple.objects.aggregate(pl_ave=Avg(F('purple_todate') / F('total_pluckers')))
-
     purple_todate = purple_todate_result['all_sum'] if purple_todate_result['all_sum'] is not None else 0
     total_pluckers = total_pluckers_result['pl_total'] if total_pluckers_result['pl_total'] is not None else 1
-    plucking_average = Purple.objects.aggregate(pl_ave=Avg('purple_todate', output_field=FloatField()))[
-        'pl_ave'] if total_pluckers != 0 else 0
 
-    total_purple = Purple.objects.aggregate(total_sum=Sum('purple_todate'))
+    # Calculate the plucking average
+    plucking_average = Purple.objects.aggregate(
+        pl_ave=Avg(F('purple_today') / F('plucker_numbers'), output_field=models.FloatField())
+    )['pl_ave'] if total_pluckers != 0 else 0
+
+    total_purple = Purple.objects.aggregate(total_sum=Sum('purple_today'))
+
     context = {
         "purple_data": data,
         "plucking_date": plucking_date,
-        "cs_today": purple_today,
-        "cs_todate": purple_todate,
-        "ps_numbers": plucker_numbers,
-        "ts_total": total_pluckers,
-        "ps_average": plucking_average,
-        "t_purple": total_purple,
-
+        "c_today": purple_today['all_count'],
+        "c_todate": purple_todate,
+        "p_numbers": plucker_numbers['all_count'],
+        "t_pluckers": total_pluckers,
+        "p_average": plucking_average,
+        "t_purple": total_purple['total_sum'],
     }
     return render(request, 'mogoon/purple_tea.html', context)
 
@@ -257,7 +322,7 @@ def PurpleTable(request):
 
 @login_required(login_url='login')
 @never_cache
-def PurpleTableUpdate(request):
+def PurpleViewUpdate(request):
     purple_today = Purple.objects.count()
     # get the current purple_todate value
     purple_todate = Purple.objects.aggregate(all_sum=Sum('purple_today'))
@@ -284,8 +349,9 @@ def PurpleTableUpdate(request):
     if total_pluckers.get('pl_total') == 0:
         plucking_average = 0
     else:
-        plucking_average = Purple.objects.aggregate(pl_ave=Avg('purple_todate') / total_pluckers.get('pl_total'))
-        plucking_average = plucking_average.get('pl_ave') if total_pluckers.get('pl_total') != 0 else 0
+        plucking_average = Purple.objects.aggregate(
+            pl_ave=Avg(F('purple_today') / F('plucker_numbers'), output_field=models.FloatField())
+        )['pl_ave'] if total_pluckers != 0 else 0
 
     total_purple = Purple.objects.aggregate(total_sum=Sum('purple_todate'))
     if total_purple.get('total_sum') is None:
@@ -307,7 +373,7 @@ def PurpleTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def PurpleCreate(request):
+def PurpleViewCreate(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The purple_todate is the purple todate gotten from
         # the form(that was passed from the notes function) plus the purple today entered in the form. Initially the
@@ -335,7 +401,7 @@ def PurpleCreate(request):
 
 
 @never_cache
-def KandojobsTable(request):
+def KandojobsViewRetrieve(request):
     data = Kandojobs.objects.all()
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
@@ -373,7 +439,7 @@ def KandojobsTable(request):
 
 @login_required(login_url='login')
 @never_cache
-def KandojobsTableUpdate(request):
+def KandojobsViewUpdate(request):
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
     if total_pruned_bushes.get('pr_sum') is None:
@@ -430,7 +496,7 @@ def KandojobsTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def mogoonKandojobsCreate(request):
+def KandojobsViewCreate(request):
     if request.method == "POST":
         pruning_done = request.POST['pruning_done']
         pruned_block_No = request.POST['pruned_block_No']
@@ -464,44 +530,52 @@ def mogoonKandojobsCreate(request):
 
 
 @never_cache
-def MilkTable(request):
+def MilkViewRetrieve(request):
     data = Milk.objects.all()
-    milking_done = models.DateTimeField()
-    milk_today = Milk.objects.count()
+    milking_done = Milk._meta.get_field('milking_done').verbose_name
+    today = now().date()
+    milk_today = Milk.objects.filter(milking_done__date=today)
+    total = milk_today.aggregate(sum_total=Sum('milk_today'))['sum_total'] if milk_today != 0 else 0
     milk_todate = Milk.objects.aggregate(all_sum=Sum('milk_today'))
-    cows_milked = Milk.objects.count()
-    cow_numbers = Milk.objects.count()
-    milking_average = F(milk_today) / F(cow_numbers)
-    total_milk = Milk.objects.aggregate(total_sum=Sum('milk_todate'))
-    calf_down = datetime.now(tz=pytz.UTC).replace(tzinfo=None)
+    cows_milked = Milk.objects.aggregate(all_sum=Sum('cows_milked'))
+    cow_numbers = Milk.objects.aggregate(all_sum=Sum('cow_numbers'))
+
+    # Calculate the milking average
+    milking_average = Milk.objects.aggregate(
+        ml_ave=Avg(F('milk_today') / F('cows_milked'), output_field=models.FloatField())
+    )['ml_ave'] if cow_numbers != 0 else 0
+
+    total_milk = Milk.objects.aggregate(total_sum=Sum('milk_today'))
+    calf_down = datetime.now(tz=UTC).replace(tzinfo=None)
     today = datetime.utcnow()
     calf_age = today - calf_down
     calf_numbers = Milk.objects.count()
-    vet_cost = models.FloatField()
+    vet_cost = Milk.objects.aggregate(all_sum=Sum('vet_cost'))
     Total_vet_cost = Milk.objects.aggregate(total_cost=Sum('vet_cost'))
 
     context = {
         "Milk": data,
         "m_done": milking_done,
-        "m_today": milk_today,
-        "m_todate": milk_todate,
+        "m_today": total,
+        "m_todate": milk_todate['all_sum'],
         "c_milked": cows_milked,
         "c_numbers": cow_numbers,
         "m_average": milking_average,
-        "t_milk": total_milk,
+        "t_milk": total_milk['total_sum'],
         "today": today,
         "cf_down": calf_down,
         "cf_age": calf_age,
         "cf_numbers": calf_numbers,
         "v_cost": vet_cost,
-        "T_v_cost": Total_vet_cost,
+        "T_v_cost": Total_vet_cost['total_cost'],
     }
+    print(milk_today)
     return render(request, 'mogoon/milk_table.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def MilkTableUpdate(request):
+def MilkViewUpdate(request):
     milk_today = Milk.objects.count()
     # get the current milk_todate value
     milk_todate = Milk.objects.aggregate(all_sum=Sum('milk_today'))
@@ -529,11 +603,15 @@ def MilkTableUpdate(request):
         cow_numbers = 0
     else:
         Milk.objects.count()
-    milking_average = F(milk_today) / F(cow_numbers)
+    milking_average = Milk.objects.aggregate(
+        ml_ave=Avg(F('milk_today') / F('cows_milked'), output_field=models.FloatField())
+    )['ml_ave'] if cow_numbers != 0 else 0
     if milking_average is None:
         milking_average = milking_average
     else:
-        milking_average = F(milk_today) / F(cow_numbers)
+        milking_average = Milk.objects.aggregate(
+            ml_ave=Avg(F('milk_today') / F('cows_milked'), output_field=models.FloatField())
+        )['ml_ave'] if cow_numbers != 0 else 0
     total_milk = Milk.objects.aggregate(total_sum=Sum('milk_todate'))
     if total_milk.get('total_sum') is None:
         total_milk['total_sum'] = 0
@@ -578,7 +656,7 @@ def MilkTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def mogoonMilkCreate(request):
+def MilkViewCreate(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The milk_todate is the Milk todate gotten from the
         # form(that was passed from the notes function) plus the Milk today entered in the form. Initially the green
@@ -607,16 +685,26 @@ def mogoonMilkCreate(request):
 
 
 @never_cache
-def FertilizerTable(request):
+def FertilizerViewRetrieve(request):
     data = Fertilizer.objects.all()
-    fertilizer_applied = models.DateTimeField()
-    fertilizer_amt = Fertilizer.objects.aggregate(ft_amt=Count('fertilizer_amt'))
-    fertilizer_labour_rate = Fertilizer.objects.count()
-    fertilizer_labour = Fertilizer.objects.aggregate(ft_lb=Count('fertilizer_labour'))
-    fertilizer_labour_cost = F(fertilizer_amt) * F(fertilizer_labour_rate)
-    fertilizer_price = models.IntegerField()
-    fertilizer_cost = F(fertilizer_amt) * F(fertilizer_price)
-    fertilizer_total_cost = fertilizer_cost + fertilizer_labour_cost
+    fertilizer_applied = Fertilizer.objects.aggregate(Min('fertilizer_applied'))['fertilizer_applied__min']
+    fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
+    fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))['fertilizer_labour_rate__sum']
+    fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
+    fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))['fertilizer_labour_cost__sum']
+    fertilizer_price = Fertilizer.objects.values('fertilizer_price').aggregate(Sum('fertilizer_price'))[
+        'fertilizer_price__sum']
+    fertilizer_cost = Fertilizer.objects.aggregate(
+        tot_cost=Sum(F('fertilizer_amt') * F('fertilizer_price'))
+    )['tot_cost']
+    fertilizer_total_cost = Fertilizer.objects.aggregate(
+        total_cost=Sum(
+            ExpressionWrapper(
+                F('fertilizer_labour_cost') + (F('fertilizer_amt') * F('fertilizer_price')),
+                output_field=models.FloatField()
+            )
+        )
+    )['total_cost']
 
     context = {
         "fertilizer": data,
@@ -628,33 +716,33 @@ def FertilizerTable(request):
         "f_price": fertilizer_price,
         "f_cost": fertilizer_cost,
         "f_t_cost": fertilizer_total_cost,
-
     }
     return render(request, 'mogoon/fertilizer_table.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def mogoonFertilizerTableUpdate(request):
-    fertilizer_amt = Fertilizer.objects.count()
-    fertilizer_labour_rate = models.DecimalField()
-    fertilizer_labour = models.IntegerField()
-    fertilizer_labour_cost = F(fertilizer_amt) * F(fertilizer_labour_rate)
+def FertilizerViewUpdate(request):
+    fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
+    fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))['fertilizer_labour_rate__sum']
+    fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
+    fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))['fertilizer_labour_cost__sum']
     if fertilizer_labour_cost is None:
         fertilizer_labour_cost = 0
     else:
-        fertilizer_labour_cost = F(fertilizer_amt) * F(fertilizer_labour_rate)
+        fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))[
+            'fertilizer_labour_cost__sum']
     fertilizer_price = models.DecimalField()
     fertilizer_cost = F(fertilizer_amt) * F(fertilizer_price)
     if fertilizer_cost is None:
         fertilizer_cost = 0
     else:
         fertilizer_cost = F(fertilizer_amt) * F(fertilizer_price)
-    fertilizer_total_cost = fertilizer_cost + fertilizer_labour_cost
+    fertilizer_total_cost = F('fertilizer_labour_cost') + fertilizer_cost
     if fertilizer_total_cost is None:
         fertilizer_total_cost = 0
     else:
-        fertilizer_total_cost = fertilizer_cost + fertilizer_labour_cost
+        fertilizer_total_cost = F('fertilizer_labour_cost') + fertilizer_cost
     context = {
         "fertilizer_amt": fertilizer_amt,
         "fertilizer_labour_rate": fertilizer_labour_rate,
@@ -670,7 +758,7 @@ def mogoonFertilizerTableUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def mogoonFertilizerCreate(request):
+def FertilizerViewCreate(request):
     if request.method == "POST":
         fertilizer = request.POST['fertilizer']
         fertilizer_applied = request.POST['fertilizer_applied']
@@ -692,6 +780,62 @@ def mogoonFertilizerCreate(request):
 
 
 # CRUD functionality for the tables
+##########################################################CRUD########################################################
+@login_required(login_url='login')
+@login_required
+def R_update(request, pk):
+    data = Reports.objects.get(id=pk)
+    if request.method == 'POST':
+        form = ReportsForm(request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+            return redirect('/reports')
+
+    else:
+        form = ReportsForm(instance=data)
+
+    context = {
+        'form': form, 'ReportsForm': ReportsForm,
+
+    }
+    return render(request, 'Reports/update.html', context)
+
+
+@login_required(login_url='login')
+@login_required
+def R_delete(request, pk):
+    data = Reports.objects.get(id=pk)
+    if request.method == 'POST':
+        data.delete()
+        return redirect('/reports')
+
+    context = {
+        'item': data,
+    }
+    return render(request, 'Reports/delete.html', context)
+
+
+@login_required(login_url='login')
+@never_cache
+def Employee_update(request, pk):
+    data = Employee.objects.get(id=pk)
+    print(data)
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+            return redirect('/employee_list')
+
+    else:
+        form = EmployeeForm(instance=data)
+
+    context = {
+        'form': form, 'EmployeeForm': EmployeeForm,
+
+    }
+    return render(request, 'mogoon/employee_details_update.html', context)
+
+
 @login_required(login_url='login')
 def Employee_edit(request, pk):
     employee = get_object_or_404(Employee, id=pk)
@@ -700,7 +844,7 @@ def Employee_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Employee details are successfully updated.')
-            return redirect('/employee-e_list')
+            return redirect('/employee-list')
     else:
         form = EmployeeForm(instance=employee)
     return render(request, 'Employee/update.html', {'form': form, 'employee': employee})
@@ -712,7 +856,7 @@ def Employee_delete(request, pk):
     if request.method == "POST":
         employee.delete()
         messages.success(request, 'Employee details are successfully deleted.')
-        return redirect('/employee-e_details')
+        return redirect('/employee-list')
     context = {
         'item': employee,
     }
@@ -724,16 +868,16 @@ def Employee_delete(request, pk):
 def update(request, pk):
     data = Green.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateTaskForm(request.POST, instance=data)
+        form = UpdateGreenForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/green_table')
 
     else:
-        form = UpdateTaskForm(instance=data)
+        form = UpdateGreenForm(instance=data)
 
     context = {
-        'form': form, 'UpdateTaskForm': UpdateTaskForm,
+        'form': form, 'UpdateTaskForm': UpdateGreenForm,
 
     }
     return render(request, 'Green/update.html', context)
@@ -887,3 +1031,204 @@ def P_delete(request, pk):
         'item': data,
     }
     return render(request, 'Purple/delete.html', context)
+
+
+##################################################API FETCH URLS#######################################################
+# API views
+
+
+@api_view(['GET', 'POST'])
+def EmployeeListView(request):
+    if request.method == 'GET':
+        queryset = Employee.objects.all()
+        serializer_class = EmployeeSerializer(queryset, many=True)
+        return Response(serializer_class.data)
+    elif request.method == 'POST':
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def EmployeeCreateView(request):
+    date_employed = request.POST.get('date_employed', False)
+    national_identity = request.POST.get('national_identity', False)
+    name = request.POST.get('name', False)
+    age = request.POST.get('age', False)
+    gender = request.POST.get('gender', False)
+    department = request.POST.get('department', False)
+    position = request.POST.get('position', False)
+    salary_total = request.POST.get('salary_total', False)
+
+    insert = Employee(date_employed=date_employed, national_identity=national_identity, name=name, age=age,
+                      gender=gender, department=department, position=position, salary_total=salary_total)
+    insert.save()
+
+    return Response(status=200)
+
+
+@api_view(['GET'])
+def GreenListView(request):
+    queryset = Green.objects.all()
+    serializer_class = GreenSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def GreenCreateView(request):
+    plucking_date = request.POST['plucking_date']
+    green_data = request.POST['green_data']
+    green_today = request.POST['green_today']
+    # Initially request.POST['green_today'] is a string, it has to be wrapped with an int for purpose of addition
+    green_todate = int(request.POST['green_todate']) + int(green_today)
+    plucker_numbers = request.POST['plucker_number']
+    total_pluckers = request.POST['total_pluckers']
+    plucking_average = float(request.POST['plucking_average'])
+    total_green = request.POST['total_green']
+
+    insert = Green(plucking_date=plucking_date, green_data=green_data, green_today=green_today,
+                   green_todate=green_todate,
+                   plucker_numbers=plucker_numbers, total_pluckers=total_pluckers,
+                   plucking_average=plucking_average,
+                   total_green=total_green)
+    insert.save()
+
+    return Response(status=200)
+
+
+@api_view(['GET'])
+def PurpleListView(request):
+    queryset = Purple.objects.all()
+    serializer_class = PurpleSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def PurpleCreateView(request):
+    plucking_date = request.POST['plucking_date']
+    purple_data = request.POST['purple_data']
+    purple_today = request.POST['purple_today']
+    # Initially request.POST['purple_today'] is a string, it has to be wrapped with an int for purpose of addition
+    purple_todate = int(request.POST['purple_todate']) + int(purple_today)
+    plucker_numbers = request.POST['plucker_number']
+    total_pluckers = request.POST['total_pluckers']
+    plucking_average = float(request.POST['plucking_average'])
+    total_purple = request.POST['total_purple']
+
+    insert = Purple(plucking_date=plucking_date, purple_data=purple_data, purple_today=purple_today,
+                    purple_todate=purple_todate,
+                    plucker_numbers=plucker_numbers, total_pluckers=total_pluckers,
+                    plucking_average=plucking_average,
+                    total_purple=total_purple)
+    insert.save()
+
+    return Response(status=200)
+
+
+@api_view(['GET'])
+def KandojobsListCreateView(request):
+    queryset = Kandojobs.objects.all()
+    serializer_class = KandojobsSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def KandojobsCreateView(request):
+    pruning_done = request.POST['pruning_done']
+    pruned_block_No = request.POST['pruned_block_No']
+    pruned_bushes = request.POST['pruned_bushes']
+    total_pruned_bushes = request.POST['total_pruned_bushes']
+    pruning_rate = request.POST['pruning_rate']
+    pruning_cost = request.POST['pruning_cost']
+    weeding_done = request.POST['weeding_done']
+    chemical_name = request.POST['chemical_name']
+    block_No = request.POST['block_No']
+    cost_per_lit = request.POST['cost_per_lit']
+    weeding_chem_amt = request.POST['weeding_chem_amt']
+    total_chem_amt = request.POST['total_chem_amt']
+    weeding_labour_number = request.POST['weeding_labour_number']
+    total_weeding_labour_number = request.POST['total_weeding_labour_number']
+    weeding_labour_rate = request.POST['weeding_labour_rate']
+    weeding_labour = request.POST['weeding_labour']
+    weeding_cost = request.POST['weeding_cost']
+
+    insert = Kandojobs(pruned_block_No=pruned_block_No, pruned_bushes=pruned_bushes,
+                       total_pruned_bushes=total_pruned_bushes, pruning_done=pruning_done,
+                       pruning_rate=pruning_rate, pruning_cost=pruning_cost, weeding_done=weeding_done,
+                       chemical_name=chemical_name, block_No=block_No, cost_per_lit=cost_per_lit,
+                       weeding_chem_amt=weeding_chem_amt, total_chem_amt=total_chem_amt,
+                       weeding_labour_number=weeding_labour_number, weeding_labour_rate=weeding_labour_rate,
+                       weeding_labour=weeding_labour, total_weeding_labour_number=total_weeding_labour_number,
+                       weeding_cost=weeding_cost)
+
+    insert.save()
+    return Response(status=200)
+
+
+@api_view(['GET'])
+def FertilizerListView(request):
+    queryset = Fertilizer.objects.all()
+    serializer_class = FertilizerSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def FertilizerCreateView(request):
+    milking_done = request.POST['milking_done']
+    milk_today = request.POST['milk_today']
+    milk_todate = int(request.POST['milk_todate']) + int(milk_today)
+    # Initially request.POST['milk_today'] is a string, it has to be wrapped with an int for purpose of addition
+    cows_milked = request.POST['cows_milked']
+    cow_numbers = request.POST['cow_numbers']
+    milking_average = request.POST['milking_average']
+    total_milk = request.POST['total_milk']
+    calf_down = request.POST['calf_down']
+    calf_age = request.POST['calf_age']
+    calf_numbers = request.POST['calf_numbers']
+    vet_cost = request.POST['vet_cost']
+    Total_vet_cost = request.POST['Total_vet_cost']
+
+    insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
+                  cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
+                  total_milk=total_milk, calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
+                  vet_cost=vet_cost, Total_vet_cost=Total_vet_cost)
+    insert.save()
+    return Response(200)
+
+
+@api_view(['GET'])
+def MilkListView(request):
+    queryset = Milk.objects.all()
+    serializer_class = MilkSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def MilkCreateView(request):
+    milking_done = request.POST['milking_done']
+    milk_today = request.POST['milk_today']
+    milk_todate = int(request.POST['milk_todate']) + int(milk_today)
+    # Initially request.POST['milk_today'] is a string, it has to be wrapped with an int for purpose of addition
+    cows_milked = request.POST['cows_milked']
+    cow_numbers = request.POST['cow_numbers']
+    milking_average = request.POST['milking_average']
+    total_milk = request.POST['total_milk']
+    calf_down = request.POST['calf_down']
+    calf_age = request.POST['calf_age']
+    calf_numbers = request.POST['calf_numbers']
+    vet_cost = request.POST['vet_cost']
+    Total_vet_cost = request.POST['Total_vet_cost']
+
+    insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
+                  cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
+                  total_milk=total_milk, calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
+                  vet_cost=vet_cost, Total_vet_cost=Total_vet_cost)
+    insert.save()
+    return Response(200)
+
+##################################################API FETCH URLS#######################################################
+
+
+##################################################API CREATE URLS######################################################
