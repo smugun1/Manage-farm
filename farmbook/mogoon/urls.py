@@ -1,7 +1,11 @@
 from django.urls import path
 
 from . import views
-from .apiViews import EmployeeListCreateAPIView, EmployeeRetrtieveUpdateDestroyAPIView
+from .apiViews import EmployeeListCreateAPIView, EmployeeRetrtieveUpdateDestroyAPIView, ReportsListCreateAPIView, \
+    ReportsRetrtieveUpdateDestroyAPIView, GreenListCreateAPIView, GreenRetrtieveUpdateDestroyAPIView, \
+    PurpleListCreateAPIView, PurpleRetrtieveUpdateDestroyAPIView, KandojobsListCreateAPIView, \
+    KandojobsRetrtieveUpdateDestroyAPIView, MilkListCreateAPIView, MilkRetrtieveUpdateDestroyAPIView, \
+    FertilizerListCreateAPIView, FertilizerRetrtieveUpdateDestroyAPIView
 from .views import *
 
 # from django.conf.urls import patterns, url
@@ -68,7 +72,19 @@ urlpatterns = [
     path('fertilizer_create_api/', views.FertilizerCreateView),
     path('milk_create_api/', views.MilkCreateView),
 
-    path('generics/', EmployeeListCreateAPIView.as_view()),
-    path('generics/<int:pk>/', EmployeeRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-reports/', ReportsListCreateAPIView.as_view()),
+    path('generics-reports/<int:pk>/', ReportsRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-employee/', EmployeeListCreateAPIView.as_view()),
+    path('generics-employee/<int:pk>/', EmployeeRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-green/', GreenListCreateAPIView.as_view()),
+    path('generics-green/<int:pk>/', GreenRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-purple/', PurpleListCreateAPIView.as_view()),
+    path('generics-purple/<int:pk>/', PurpleRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-kandojobs/', KandojobsListCreateAPIView.as_view()),
+    path('generics-kandojobs/<int:pk>/', KandojobsRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-milk/', MilkListCreateAPIView.as_view()),
+    path('generics-milk/<int:pk>/', MilkRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-fertilizer/', FertilizerListCreateAPIView.as_view()),
+    path('generics-fertilizer/<int:pk>/', FertilizerRetrtieveUpdateDestroyAPIView.as_view()),
 
 ]

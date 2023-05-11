@@ -2,7 +2,7 @@ from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
-from .models import Green, Purple, Fertilizer, Kandojobs, Milk, Employee
+from .models import Green, Purple, Fertilizer, Kandojobs, Milk, Employee, Reports
 
 
 # Serializers define the API representation.
@@ -28,6 +28,12 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
+
+
+class ReportsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reports
+        fields = '__all__'
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
