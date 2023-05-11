@@ -18,52 +18,117 @@
   }
 
 
-</style>
 
+</style>
 <div class="row g-4 d-flex align-items-center">
     <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-dark card-dark mx-4 px-4 my-4 py-4">
-                <h1 class="text-center ext-center bg-dark text-warning">Reports Page</h1>
-                <p class="text-center ext-center bg-dark text-warning "><strong><em> This is the home page </em></strong></p>
-                <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'reports-update'%}">Add</a>
-                <div class="alert alert-warning alert-dismissible fade show my=0 mb=0" role="alert">
-                    <h1><strong>Welcome visitor!</strong></h1>
-                    <h2>Are you here for the first time? </h2>
-                    <h3>Click on the login or signin at the top right of the navbar.</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&raquo;</span>
-                    </button>
+        <div class="container-fluid text-warning h-100 d-flex align-items-center justify-content-center"
+             style="width: 100rem; background-color: rgba(13, 70, 10, 1);">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3"
+                 style="width: 100rem;">
+                <div class="container-fluid text-right card bg-dark card-dark mx-4 px-4 my-4 py-4">
+                    <h1 class="text-center ext-center bg-dark text-warning">View Reports Page</h1>
+                    <p class="text-center ext-center bg-dark text-warning "><strong><em> This is the home
+                        page </em></strong></p>
+                        <div class="alert alert-warning alert-dismissible fade show my=0 mb=0" role="alert">
+                        <h1><strong>Welcome visitor!</strong></h1>
+                        <h2>Are you here for the first time? </h2>
+                        <h3>Click on the login or signin at the top right of the navbar.</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </div>
+                    <div class="justify-content-evenly">
+                    <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;"
+                       href="{% url 'reports-update'%}">Add</a>
+                    <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'employee-list' %}">Go To Employee</a>
+                        <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'mogoon-green_table' %}">Go To Green</a>
+                    <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'mogoon-purple' %}">Go To Purple</a>
+                     <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'mogoon-kandojobs_table' %}">Go To Kandojobs</a>
+                        <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'mogoon-milk_table' %}">Go To Milk</a>
+                        <a class="btn btn-warning bg-primary btn-info block-lg" style="width: 10rem;" href="{% url 'mogoon-fertilizer_table' %}">Go To Fertilizer</a>
                 </div>
+                <br>
 
-                {% for data in reports %}
-                <div class="card">
-                  <div class="card-header">
-                    Reports
-                  </div>
-                  <div class="card-body">
-                    <blockquote class="blockquote mb-0">
-                    <p>  {{ data.daily_report }}
-                        {{ data.visitors_name }}
-                        {{ data.visitor_comments }}
-                        {{ data.farm_report }}
-                        {{ data.farm_requirements }}
-                        {{ data.time_stamp }}
-                    </p>
-                            <td>
-                            <a class="btn btn-light btn-block bg-primary text-dark btn btn-info"
-                               href="{% url 'reports-edit' data.id %}">Edit</a>
-                            <a class="btn btn-light btn-block bg-danger text-dark btn btn-info"
-                               href="{% url 'reports-delete' data.id %}">Delete</a>
-                        </td>
+                    {% for data in reports %}
+                    <div class="card">
+                        <div class="card-header">
+                            Reports
+                        </div>
+                        <div class="card-body">
+                            <blockquote class="blockquote p-2 mb-0">
+                                <p>
+                                    {{ data.daily_report }}
+                                </p>
+                            </blockquote>
+                                <div class="card-body">
+                                    <blockquote class="blockquote p-2 mb-0">
+                                        <p>
+                                            {{ data.visitors_name }}
+                                        </p>
+                                    </blockquote>
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote p-2 mb-0">
+                                        <p>
+                                            {{ data.visitor_comments }}
+                                        </p>
+                                    </blockquote>
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote p-2 mb-0">
+                                        <p>
+                                            {{ data.farm_report }}
+                                        </p>
+                                    </blockquote>
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote p-2 mb-0">
+                                        <p>
+                                            {{ data.farm_requirements }}
+                                        </p>
+                                    </blockquote>
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote p-2 mb-0">
+                                        <p>
+                                            {{ data.time_stamp }}
+                                        </p>
+                                    </blockquote>
 
-                    <footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
-                    </blockquote>
+                                <div class="card-body float-right">
+                                    <div class="card text-bg-dark col-lg-6 d-none d-lg-flex">
+                                              <img src="..." class="card-img" alt="...">
+                                              <div class="card-img-overlay">
+                                                <h5 class="card-title">Farm Images</h5>
+                                                <p class="card-text"></p>
+                                                <p class="card-text"><small>Last updated 3 mins ago</small>
 
-              </div>
-                    {% endfor %}
+                                      </div>
+                                </div>
+                                    <br>
+                                <div>
+                                    <td>
+                                        <a class="btn btn-light btn-block bg-primary text-dark btn btn-info"
+                                           href="{% url 'reports-edit' data.id %}">Edit</a>
+                                        <a class="btn btn-light btn-block bg-danger text-dark btn btn-info"
+                                           href="{% url 'reports-delete' data.id %}">Delete</a>
+                                    </td>
+                                </div>
+
+                                </div>
+                                    <br>
+                                <footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source
+                                    Title</cite></footer>
+
+                             </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-{% endblock %}
+        {% endblock %}

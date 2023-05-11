@@ -2,13 +2,12 @@
 
 {% load static %}
 
-{% block title %} Reports {% endblock %}
+{% block title %} Update Reports {% endblock %}
 
 {% block body %}
-
-    <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-warning h-100 d-flex align-items-center justify-content-center" style="width: 100rem; background-color: rgba(13, 70, 10, 1);">
-            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 100rem;">
+  <div class="col-lg-12 d-none d-lg-flex">
+        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 100rem;">
+            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 90rem;">
                 <h1 class="text-center">The brief farm reports Page, enter the daily briefs below</h1>
                 <p class="text-center"><strong><em> This is the farm reports page </em></strong></p>
                  <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
@@ -49,12 +48,12 @@
                         <div class="mb-3 p-3">
                             <label for="validationTextarea" class="form-label"><strong>Time Stamp</strong></label>
                                 <input style="height:40px;width:700px" type="datetime-local" class="form-control"
-                                       id="formGroupExampleInput" placeholder="Date of Plucking" name="plucking_date" value="plucking_date">
+                                       id="formGroupExampleInput" placeholder="Date of " name="" value="">
 
                         </div>
 
                         <div class="mb-3">
-                            <input type="file" class="form-control" aria-label="file example">
+                            <input type="file" class="form-control" aria-label="file example" value="">
                             <div class="invalid-feedback text-light">Example invalid form file feedback</div>
                         </div>
                         <div class="col-12">

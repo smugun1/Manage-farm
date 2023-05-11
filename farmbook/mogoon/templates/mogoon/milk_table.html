@@ -15,16 +15,13 @@
 <div class="row g-4 d-flex align-items-center">
     <div class="col-lg-12 d-none d-lg-flex">
         <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
-            <h2 class="text-center bg-dark text-warning">Milk</h2>
+            <h2 class="text-center bg-dark text-warning">Milk Records</h2>
             <div class="border p-3">
                 <a class="btn btn-warning bg-primary btn-info block-lg"
                    href="{% url 'mogoon-milk_table_update'%}">Add</a>
                 <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
-
-
                 <hr>
                 <table class="table align-middle text-warning bg-dark">
-
                     <tr>
                         <th>Milking Date</th>
                         <th>Milk Today</th>
@@ -35,7 +32,6 @@
                         <th>Total Milk</th>
                         <th>Edit</th>
                         <th>Delete</th>
-
                     </tr>
 
                     {% for data in Milk %}
@@ -103,9 +99,7 @@
                         <td></td>
                         <td>{{v_cost.all_sum}}</td>
                         <td>{{T_v_cost}}</td>
-
                     </tr>
-
                 </table>
             </div>
         </div>

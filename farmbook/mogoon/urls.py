@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .apiViews import EmployeeListCreateAPIView, EmployeeRetrtieveUpdateDestroyAPIView
 from .views import *
 
 # from django.conf.urls import patterns, url
@@ -67,6 +68,7 @@ urlpatterns = [
     path('fertilizer_create_api/', views.FertilizerCreateView),
     path('milk_create_api/', views.MilkCreateView),
 
-    # path('employee_detail_api/<int:pk>/', views.EmployeeDetailView),
+    path('generics/', EmployeeListCreateAPIView.as_view()),
+    path('generics/<int:pk>/', EmployeeRetrtieveUpdateDestroyAPIView.as_view()),
 
 ]

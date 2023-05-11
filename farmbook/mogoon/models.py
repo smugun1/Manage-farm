@@ -12,6 +12,12 @@ class Reports(models.Model):
     farm_requirements = models.CharField(max_length=100)
     time_stamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.daily_report
+
+    class Meta:
+        ordering = ('-time_stamp',)
+
 
 class Employee(models.Model):
     GENDER_CHOICES = (

@@ -32,10 +32,6 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
-class MilkViewSet:
-    pass
-
-
 @login_required(login_url='login')
 @never_cache
 def ReportsViewRetrieve(request):
@@ -57,7 +53,6 @@ def ReportsViewUpdate(request):
     visitor_comments = models.CharField()
     farm_report = models.CharField()
     farm_requirements = models.CharField()
-    time_stamp = models.DateTimeField()
 
     context = {
 
@@ -66,7 +61,7 @@ def ReportsViewUpdate(request):
         "visitor_comments": visitor_comments,
         "farm_report": farm_report,
         "farm_requirements": farm_requirements,
-        "time_stamp": time_stamp,
+
     }
     return render(request, 'mogoon/reports_update.html', context)
 
@@ -79,10 +74,9 @@ def ReportsViewCreate(request):
     visitor_comments = request.POST['visitor_comments']
     farm_report = request.POST['farm_report']
     farm_requirements = request.POST['farm_requirements']
-    time_stamp = request.POST['time_stamp']
 
     insert = Reports(daily_report=daily_report, visitors_name=visitors_name, visitor_comments=visitor_comments,
-                     farm_report=farm_report, farm_requirements=farm_requirements, time_stamp=time_stamp)
+                     farm_report=farm_report, farm_requirements=farm_requirements)
     insert.save()
 
     return redirect('/reports')
@@ -784,15 +778,15 @@ def FertilizerViewCreate(request):
 @login_required(login_url='login')
 @login_required
 def R_update(request, pk):
-    data = Reports.objects.get(id=pk)
+    reports = Reports.objects.get(id=pk)
     if request.method == 'POST':
-        form = ReportsForm(request.POST, instance=data)
+        form = ReportsForm(request.POST, instance=reports)
         if form.is_valid():
             form.save()
             return redirect('/reports')
 
     else:
-        form = ReportsForm(instance=data)
+        form = ReportsForm(instance=reports)
 
     context = {
         'form': form, 'ReportsForm': ReportsForm,
@@ -804,13 +798,13 @@ def R_update(request, pk):
 @login_required(login_url='login')
 @login_required
 def R_delete(request, pk):
-    data = Reports.objects.get(id=pk)
+    reports = Reports.objects.get(id=pk)
     if request.method == 'POST':
-        data.delete()
+        reports.delete()
         return redirect('/reports')
 
     context = {
-        'item': data,
+        'item': reports,
     }
     return render(request, 'Reports/delete.html', context)
 
