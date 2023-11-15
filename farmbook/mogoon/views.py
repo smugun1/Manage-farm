@@ -1,32 +1,28 @@
 import datetime
+import logging
+from datetime import datetime
 from decimal import Decimal
 
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
-from django.db.models import Sum, F, Count, Avg, FloatField, Min, ExpressionWrapper
-from django.http import HttpResponse
+from django.db.models import Sum, F, Count, Avg, Min, ExpressionWrapper
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.views.decorators.cache import never_cache
+from pytz import UTC
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-import logging
-import json
 
 from . import models
-from .forms import TaskForms, UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
+from .forms import UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
     UpdateMilkForm, EmployeeForm, ReportsForm
 from .models import *
+from .models import Employee
 from .models import Milk
 from .serializer import GreenSerializer, PurpleSerializer, KandojobsSerializer, FertilizerSerializer, MilkSerializer, \
     EmployeeSerializer
-from rest_framework.views import APIView
-from datetime import datetime
-from pytz import UTC
-
-from .models import Employee
 
 logger = logging.getLogger(__name__)
 
@@ -34,56 +30,92 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 @login_required(login_url='login')
 @never_cache
-def ReportsViewRetrieve(request):
+def reports_view_retrieve(request):
     reports = Reports.objects.all()
+    form = ReportsForm()
 
     context = {
-
-        "name": {"Reports Page"},
+        "name": "Reports Page",  # Remove unnecessary curly braces
         'reports': reports,
+        "ReportsForm": form,  # Pass the form instance
     }
     return render(request, 'mogoon/view_reports.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def ReportsViewUpdate(request):
-    daily_report = models.CharField()
-    visitors_name = models.CharField()
-    visitor_comments = models.CharField()
-    farm_report = models.CharField()
-    farm_requirements = models.CharField()
+def reports_view_update(request):
+    if request.method == "POST":
+        form = ReportsForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Assuming your form has fields like daily_report, visitors_name, etc.
+            daily_report = form.cleaned_data['daily_report']
+            visitors_name = form.cleaned_data['visitors_name']
+            visitor_comments = form.cleaned_data['visitor_comments']
+            farm_report = form.cleaned_data['farm_report']
+            farm_requirements = form.cleaned_data['farm_requirements']
+            farm_image = form.cleaned_data['farm_image']
+
+            context = {
+                "daily_report": daily_report,
+                "visitors_name": visitors_name,
+                "visitor_comments": visitor_comments,
+                "farm_report": farm_report,
+                "farm_requirements": farm_requirements,
+                "farm_image": farm_image,
+            }
+            return render(request, 'mogoon/reports_update.html', context)
+    else:
+        form = ReportsForm()
 
     context = {
-
-        "daily_report": daily_report,
-        "visitors_name": visitors_name,
-        "visitor_comments": visitor_comments,
-        "farm_report": farm_report,
-        "farm_requirements": farm_requirements,
-
+        'form': form,
     }
     return render(request, 'mogoon/reports_update.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def ReportsViewCreate(request):
-    daily_report = request.POST['daily_report']
-    visitors_name = request.POST['visitors_name']
-    visitor_comments = request.POST['visitor_comments']
-    farm_report = request.POST['farm_report']
-    farm_requirements = request.POST['farm_requirements']
+def reports_view_create(request):
+    if request.method == 'POST':
+        form = ReportsForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Access cleaned data, including the file, from the form
+            daily_report = form.cleaned_data['daily_report']
+            visitors_name = form.cleaned_data['visitors_name']
+            visitor_comments = form.cleaned_data['visitor_comments']
+            farm_report = form.cleaned_data['farm_report']
+            farm_requirements = form.cleaned_data['farm_requirements']
+            farm_image = form.cleaned_data['farm_image']
 
-    insert = Reports(daily_report=daily_report, visitors_name=visitors_name, visitor_comments=visitor_comments,
-                     farm_report=farm_report, farm_requirements=farm_requirements)
-    insert.save()
+            # Create and save the Reports object
+            insert = Reports(
+                daily_report=daily_report,
+                visitors_name=visitors_name,
+                visitor_comments=visitor_comments,
+                farm_report=farm_report,
+                farm_requirements=farm_requirements,
+                farm_image=farm_image
+            )
+            insert.save()
 
-    return redirect('/reports')
+            return redirect('/reports')
+    else:
+        form = ReportsForm()
+
+    return render(request, 'mogoon/view_reports.html', {'form': form})
+
+
+def graphs_view(request):
+    context = {
+        'name': {'This is the graphs dashboard'},
+
+    }
+    return render(request, 'mogoon/graphs.html', context)
 
 
 @never_cache
-def EmployeeViewRetrieve(request):
+def employee_view_retrieve(request):
     # Query all employees from the database
     employee_data = Employee.objects.all()
 
@@ -111,7 +143,7 @@ def EmployeeViewRetrieve(request):
 
 
 @never_cache
-def EmployeeViewUpdate(request):
+def employee_view_update(request):
     # Query all employees from the database
     data = Employee.objects.all()
 
@@ -138,7 +170,7 @@ def EmployeeViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def EmployeeViewCreate(request):
+def employee_view_create(request):
     if request.method == "POST":
         print(request)
 
@@ -159,7 +191,7 @@ def EmployeeViewCreate(request):
 
 
 @never_cache
-def GreenViewRetrieve(request):
+def green_view_retrieve(request):
     data = Green.objects.all()
     plucking_date = Green._meta.get_field('plucking_date').verbose_name
 
@@ -201,7 +233,7 @@ total_green. These variables are used to calculate the necessary values to displ
 
 @login_required(login_url='login')
 @never_cache
-def GreenViewUpdate(request):
+def green_view_update(request):
     green_today = Green.objects.count()
     # get the current green_todate value
     green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
@@ -254,7 +286,7 @@ def GreenViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def GreenViewCreate(request):
+def green_view_create(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The green_todate is the green todate gotten from the
         # form(that was passed from the notes function) plus the green today entered in the form. Initially the green
@@ -281,7 +313,7 @@ def GreenViewCreate(request):
 
 
 @never_cache
-def PurpleViewRetrieve(request):
+def purple_view_retrieve(request):
     data = Purple.objects.all()
     plucking_date = Purple._meta.get_field('plucking_date').verbose_name
 
@@ -316,7 +348,7 @@ def PurpleViewRetrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def PurpleViewUpdate(request):
+def purple_view_update(request):
     purple_today = Purple.objects.count()
     # get the current purple_todate value
     purple_todate = Purple.objects.aggregate(all_sum=Sum('purple_today'))
@@ -367,7 +399,7 @@ def PurpleViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def PurpleViewCreate(request):
+def purple_view_create(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The purple_todate is the purple todate gotten from
         # the form(that was passed from the notes function) plus the purple today entered in the form. Initially the
@@ -395,7 +427,7 @@ def PurpleViewCreate(request):
 
 
 @never_cache
-def KandojobsViewRetrieve(request):
+def kandojobs_view_retrieve(request):
     data = Kandojobs.objects.all()
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
@@ -433,7 +465,7 @@ def KandojobsViewRetrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def KandojobsViewUpdate(request):
+def kandojobs_view_update(request):
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
     if total_pruned_bushes.get('pr_sum') is None:
@@ -490,7 +522,7 @@ def KandojobsViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def KandojobsViewCreate(request):
+def kandojobs_view_create(request):
     if request.method == "POST":
         pruning_done = request.POST['pruning_done']
         pruned_block_No = request.POST['pruned_block_No']
@@ -524,7 +556,7 @@ def KandojobsViewCreate(request):
 
 
 @never_cache
-def MilkViewRetrieve(request):
+def milk_view_retrieve(request):
     data = Milk.objects.all()
     milking_done = Milk._meta.get_field('milking_done').verbose_name
     today = now().date()
@@ -569,7 +601,7 @@ def MilkViewRetrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def MilkViewUpdate(request):
+def milk_view_update(request):
     milk_today = Milk.objects.count()
     # get the current milk_todate value
     milk_todate = Milk.objects.aggregate(all_sum=Sum('milk_today'))
@@ -650,7 +682,7 @@ def MilkViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def MilkViewCreate(request):
+def milk_view_create(request):
     if request.method == "POST":
         # this function saves a new record from the notes form. The milk_todate is the Milk todate gotten from the
         # form(that was passed from the notes function) plus the Milk today entered in the form. Initially the green
@@ -679,7 +711,7 @@ def MilkViewCreate(request):
 
 
 @never_cache
-def FertilizerViewRetrieve(request):
+def fertilizer_view_retrieve(request):
     data = Fertilizer.objects.all()
     fertilizer_applied = Fertilizer.objects.aggregate(Min('fertilizer_applied'))['fertilizer_applied__min']
     fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
@@ -716,7 +748,7 @@ def FertilizerViewRetrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def FertilizerViewUpdate(request):
+def fertilizer_view_update(request):
     fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
     fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))['fertilizer_labour_rate__sum']
     fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
@@ -752,7 +784,7 @@ def FertilizerViewUpdate(request):
 
 @login_required(login_url='login')
 @never_cache
-def FertilizerViewCreate(request):
+def fertilizer_view_create(request):
     if request.method == "POST":
         fertilizer = request.POST['fertilizer']
         fertilizer_applied = request.POST['fertilizer_applied']
@@ -776,11 +808,12 @@ def FertilizerViewCreate(request):
 # CRUD functionality for the tables
 ##########################################################CRUD########################################################
 @login_required(login_url='login')
-@login_required
-def R_update(request, pk):
-    reports = Reports.objects.get(id=pk)
+def r_update(request, pk):
+    # Use get_object_or_404 to handle the case where the Reports object is not found
+    reports = get_object_or_404(Reports, id=pk)
+
     if request.method == 'POST':
-        form = ReportsForm(request.POST, instance=reports)
+        form = ReportsForm(request.POST, request.FILES, instance=reports)
         if form.is_valid():
             form.save()
             return redirect('/reports')
@@ -789,16 +822,17 @@ def R_update(request, pk):
         form = ReportsForm(instance=reports)
 
     context = {
-        'form': form, 'ReportsForm': ReportsForm,
-
+        'form': form,
+        'ReportsForm': ReportsForm,  # Use the form class, not an instance
     }
     return render(request, 'Reports/update.html', context)
 
 
 @login_required(login_url='login')
-@login_required
-def R_delete(request, pk):
-    reports = Reports.objects.get(id=pk)
+def r_delete(request, pk):
+    # Use get_object_or_404 to handle the case where the Reports object is not found
+    reports = get_object_or_404(Reports, id=pk)
+
     if request.method == 'POST':
         reports.delete()
         return redirect('/reports')
@@ -810,10 +844,8 @@ def R_delete(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def Employee_update(request, pk):
+def employee_update(request, pk):
     data = Employee.objects.get(id=pk)
-    print(data)
     if request.method == 'POST':
         form = EmployeeForm(request.POST, instance=data)
         if form.is_valid():
@@ -831,7 +863,7 @@ def Employee_update(request, pk):
 
 
 @login_required(login_url='login')
-def Employee_edit(request, pk):
+def employee_edit(request, pk):
     employee = get_object_or_404(Employee, id=pk)
     if request.method == "POST":
         form = EmployeeForm(request.POST, instance=employee)
@@ -845,7 +877,7 @@ def Employee_edit(request, pk):
 
 
 @login_required(login_url='login')
-def Employee_delete(request, pk):
+def employee_delete(request, pk):
     employee = get_object_or_404(Employee, id=pk)
     if request.method == "POST":
         employee.delete()
@@ -858,7 +890,6 @@ def Employee_delete(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
 def update(request, pk):
     data = Green.objects.get(id=pk)
     if request.method == 'POST':
@@ -878,7 +909,6 @@ def update(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
 def delete(request, pk):
     data = Green.objects.get(id=pk)
     if request.method == 'POST':
@@ -892,8 +922,7 @@ def delete(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def F_update(request, pk):
+def f_update(request, pk):
     data = Fertilizer.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateFertilizerForm(request.POST, instance=data)
@@ -912,8 +941,7 @@ def F_update(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def F_delete(request, pk):
+def f_delete(request, pk):
     data = Fertilizer.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
@@ -926,8 +954,7 @@ def F_delete(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def K_update(request, pk):
+def k_update(request, pk):
     data = Kandojobs.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateKandojobsForm(request.POST, instance=data)
@@ -946,8 +973,7 @@ def K_update(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def K_delete(request, pk):
+def k_delete(request, pk):
     data = Kandojobs.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
@@ -960,8 +986,7 @@ def K_delete(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def M_update(request, pk):
+def m_update(request, pk):
     data = Milk.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateMilkForm(request.POST, instance=data)
@@ -980,8 +1005,7 @@ def M_update(request, pk):
 
 
 @login_required(login_url='login')
-@never_cache
-def M_delete(request, pk):
+def m_delete(request, pk):
     data = Milk.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
@@ -994,8 +1018,7 @@ def M_delete(request, pk):
 
 
 @login_required(login_url='login')
-@login_required
-def P_update(request, pk):
+def p_update(request, pk):
     data = Purple.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdatePurpleForm(request.POST, instance=data)
@@ -1014,8 +1037,7 @@ def P_update(request, pk):
 
 
 @login_required(login_url='login')
-@login_required
-def P_delete(request, pk):
+def p_delete(request, pk):
     data = Purple.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
@@ -1032,7 +1054,7 @@ def P_delete(request, pk):
 
 
 @api_view(['GET', 'POST'])
-def EmployeeListView(request):
+def employee_list_view(request):
     if request.method == 'GET':
         queryset = Employee.objects.all()
         serializer_class = EmployeeSerializer(queryset, many=True)
@@ -1046,7 +1068,7 @@ def EmployeeListView(request):
 
 
 @api_view(['POST'])
-def EmployeeCreateView(request):
+def employee_create_view(request):
     date_employed = request.POST.get('date_employed', False)
     national_identity = request.POST.get('national_identity', False)
     name = request.POST.get('name', False)
@@ -1064,14 +1086,14 @@ def EmployeeCreateView(request):
 
 
 @api_view(['GET'])
-def GreenListView(request):
+def green_list_view(request):
     queryset = Green.objects.all()
     serializer_class = GreenSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def GreenCreateView(request):
+def green_create_view(request):
     plucking_date = request.POST['plucking_date']
     green_data = request.POST['green_data']
     green_today = request.POST['green_today']
@@ -1093,14 +1115,14 @@ def GreenCreateView(request):
 
 
 @api_view(['GET'])
-def PurpleListView(request):
+def purple_list_view(request):
     queryset = Purple.objects.all()
     serializer_class = PurpleSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def PurpleCreateView(request):
+def purple_create_view(request):
     plucking_date = request.POST['plucking_date']
     purple_data = request.POST['purple_data']
     purple_today = request.POST['purple_today']
@@ -1122,14 +1144,14 @@ def PurpleCreateView(request):
 
 
 @api_view(['GET'])
-def KandojobsListCreateView(request):
+def kandojobs_list_create_view(request):
     queryset = Kandojobs.objects.all()
     serializer_class = KandojobsSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def KandojobsCreateView(request):
+def kandojobs_create_view(request):
     pruning_done = request.POST['pruning_done']
     pruned_block_No = request.POST['pruned_block_No']
     pruned_bushes = request.POST['pruned_bushes']
@@ -1162,14 +1184,14 @@ def KandojobsCreateView(request):
 
 
 @api_view(['GET'])
-def FertilizerListView(request):
+def fertilizer_list_view(request):
     queryset = Fertilizer.objects.all()
     serializer_class = FertilizerSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def FertilizerCreateView(request):
+def fertilizer_create_view(request):
     milking_done = request.POST['milking_done']
     milk_today = request.POST['milk_today']
     milk_todate = int(request.POST['milk_todate']) + int(milk_today)
@@ -1193,14 +1215,14 @@ def FertilizerCreateView(request):
 
 
 @api_view(['GET'])
-def MilkListView(request):
+def milk_list_view(request):
     queryset = Milk.objects.all()
     serializer_class = MilkSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def MilkCreateView(request):
+def milk_create_view(request):
     milking_done = request.POST['milking_done']
     milk_today = request.POST['milk_today']
     milk_todate = int(request.POST['milk_todate']) + int(milk_today)

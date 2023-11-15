@@ -1,0 +1,539 @@
+{% extends 'mogoon/base.html' %}
+
+{% load static %}
+
+{% block title %}dashboard{% endblock %}
+
+{% block body %}
+<!--top-->
+
+<div class="container">
+    <div class="container md-12">
+        <div class="container bg-white text-secondary my-1" style="width: 200rem; border-radius: 20px;">
+            <h1 class="text-center bg-dark text-primary">Graphs</h1>
+            <p class="h2 text-center"></p>
+            <div class="row my-1">
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header bg-light text-dark">
+                            Plucking Planner
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark"
+                                       href="{{ '//127.0.0.1:8000/resourcesexcell-admin/' }}">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Recsources <i class="fa fa-leaf" aria-hidden="true"></i></h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark" href="{{'http:/127.0.0.1:8000/admin/'}}">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Admins <i class="fa fa-bar-chart" aria-hidden="true"></i></h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark" href="">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Dashboard <i class="fa fa-television" aria-hidden="true"></i>
+                                            </h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark" href="">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Field <i class="fa fa-binoculars" aria-hidden="true"></i></h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark"
+                                       href="">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Plucking Record <i class="fa-solid fa-paperclip"></i></h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class=" col-md-2">
+                                    <a class="text-decoration-none text-dark"
+                                       href="">
+                                        <div class="card my-card shadow text-center p-2">
+                                            <h5>Plucking Record <i class="fa fa-calendar-check-o"
+                                                                   aria-hidden="true"></i></h5>
+                                            <h4>4</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header bg-light text-dark">
+                                        Division Graphs
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container fluid bg-white text-secondary my-0 px-0 mb-0 mt-0"
+                     style="width: 250rem; border-radius: 20px;">
+                    <div class="row my-5">
+                        <div class="md-4">
+                            <div class="container my-0 mx-0 mt-1">
+                                <div class="row mt-1">
+                                    <div class=" col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class=" col-md-4">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!--mid-graphs-->
+                                                    <div class="col-md-4">
+                                                        <div class="bg-white">
+                                                            <div class="container">
+                                                                <canvas id="Chart" width="400" height="300"></canvas>
+                                                            </div>
+
+                                                            <script>
+                                                            const ctx0 = document.getElementById('Chart');
+
+                                                              new Chart(ctx0, {
+                                                                type: 'doughnut',
+                                                                data: {
+                                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                                  datasets: [{
+                                                                    label: '# of Votes',
+                                                                    data: [12, 19, 3, 5, 2, 3],
+                                                                    borderWidth: 1
+                                                                  }]
+                                                                },
+                                                                options: {
+                                                                  scales: {
+                                                                    y: {
+                                                                      beginAtZero: true
+                                                                    }
+                                                                  }
+                                                                }
+                                                              });
+                                                            </script>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="bg-white">
+                                                            <canvas id="Chart0" width="400" height="300"></canvas>
+                                                            <script>
+                                                                 const ctx0 = document.getElementById('Chart0');
+
+                                                                  new Chart(ctx0, {
+                                                                    type: 'doughnut',
+                                                                    data: {
+                                                                      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                                      datasets: [{
+                                                                        label: '# of Votes',
+                                                                        data: [12, 19, 3, 5, 2, 3],
+                                                                        borderWidth: 1
+                                                                      }]
+                                                                    },
+                                                                    options: {
+                                                                      scales: {
+                                                                        y: {
+                                                                          beginAtZero: true
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  });
+                                                            </script>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="bg-white">
+                                                            <canvas id="Chart01" width="400" height="300"></canvas>
+                                                            <script>
+                                                              const ctx01 = document.getElementById('Chart01');
+
+                                                              new Chart(ctx01, {
+                                                                type: 'pie',
+                                                                data: {
+                                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                                  datasets: [{
+                                                                    label: '# of Votes',
+                                                                    data: [12, 19, 3, 5, 2, 3],
+                                                                    borderWidth: 1
+                                                                  }]
+                                                                },
+                                                                options: {
+                                                                  scales: {
+                                                                    y: {
+                                                                      beginAtZero: true
+                                                                    }
+                                                                  }
+                                                                }
+                                                              });
+                                                            </script>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end-top-->
+                        <!--bottom-->
+                        <!--lower_graphs>-->
+                        <div class="container" style="border-radius: 20px; width: 255rem;">
+                            <div class="row my-5">
+                                <div class="col-md-4">
+                                    <div class="bg-white">
+                                        <canvas id="chart1" width="500" height="400"></canvas>
+                                        <script>
+                                            let ctx1 = document.getElementById("chart1").getContext("2d");
+                                           new Chart(ctx1, {
+                                              type: "bar",
+                                              data: {
+                                                 labels: ["2022/Q1", "2022/Q2", "2022/Q3", "2022/Q4"],
+
+                                                 datasets: [
+                                                    {
+                                                        label: "Gross volume ($)",
+                                                        backgroundColor: [
+                                                          'rgba(300, 22, 227, 1)',
+                                                          'rgba(255, 99, 132, 1)',
+                                                          'rgba(255, 159, 200, 1)',
+                                                          'rgba(255, 205, 86, 1)',
+                                                        ],
+                                                       borderColor: [
+                                                         'rgba(300, 22, 227)',
+                                                          'rgb(255, 99, 132)',
+                                                          'rgb(255, 159, 200)',
+                                                          'rgb(255, 205, 86)',
+
+                                                        ],
+                                                      data: [26900, 28700, 27300, 29200],
+                                                      borderWidth: 4
+                                                    }
+                                                 ]
+                                              },
+                                              options: {
+                                                 title: {
+
+                                                    text: "Gross Volume in 2022",
+                                                    display: true
+                                                 }
+                                              }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-white">
+                                        <div>
+                                            <canvas id="Chart2" width="500" height="400"></canvas>
+                                        </div>
+                                        <script>
+                                              const ctx2 = document.getElementById('Chart2');
+
+                                              new Chart(ctx2, {
+                                                type: 'doughnut',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-white">
+                                        <div>
+                                            <canvas id="Chart3" width="500" height="400"></canvas>
+                                        </div>
+                                        <script>
+                                              const ctx3 = document.getElementById('Chart3');
+
+                                              new Chart(ctx3, {
+                                                type: 'pie',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="container">
+
+                                <div class="row my-5">
+                                    <div class="col-md-4">
+                                        <div class="bg-white">
+                                            <canvas id="chart0001" width="500" height="400"></canvas>
+                                            <script>
+                                                let ctx0001 = document.getElementById("chart0001").getContext("2d");
+                                               new Chart(ctx0001, {
+                                                  type: "doughnut",
+                                                  data: {
+                                                     labels: ["2022/Q1", "2022/Q2", "2022/Q3", "2022/Q4"],
+
+                                                     datasets: [
+                                                        {
+                                                            label: "Gross volume ($)",
+                                                            backgroundColor: [
+                                                              'rgba(300, 22, 227, 1)',
+                                                              'rgba(255, 99, 132, 1)',
+                                                              'rgba(255, 159, 200, 1)',
+                                                              'rgba(255, 205, 86, 1)',
+                                                            ],
+                                                           borderColor: [
+                                                             'rgba(300, 22, 227)',
+                                                              'rgb(255, 99, 132)',
+                                                              'rgb(255, 159, 200)',
+                                                              'rgb(255, 205, 86)',
+
+                                                            ],
+                                                          data: [26900, 28700, 27300, 29200],
+                                                          borderWidth: 4
+                                                        }
+                                                     ]
+                                                  },
+                                                  options: {
+                                                     title: {
+
+                                                        text: "Gross Volume in 2022",
+                                                        display: true
+                                                     }
+                                                  }
+                                                });
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white">
+                                            <div>
+                                                <canvas id="Chart002" width="500" height="400"></canvas>
+                                            </div>
+                                            <script>
+                                              const ctx002 = document.getElementById('Chart002');
+
+                                              new Chart(ctx002, {
+                                                type: 'pie',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="bg-white">
+                                            <div>
+                                                <canvas id="Chart003" width="500" height="400"></canvas>
+                                            </div>
+                                            <script>
+                                              const ctx003 = document.getElementById('Chart003');
+
+                                              new Chart(ctx003, {
+                                                type: 'pie',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-3">
+                                        <div class="bg-white">
+                                            <canvas id="Chart11" width="400" height="300"></canvas>
+                                            <script>
+                                              const ctx11 = document.getElementById('Chart11');
+
+                                              new Chart(ctx11, {
+                                                type: 'pie',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bg-white">
+                                            <canvas id="Chart00" width="400" height="300"></canvas>
+                                            <script>
+                                              const ctx00 = document.getElementById('Chart00');
+
+                                              new Chart(ctx00, {
+                                                type: 'doughnut',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bg-white">
+                                            <canvas id="Chart001" width="400" height="300"></canvas>
+                                            <script>
+                                              const ctx001 = document.getElementById('Chart001');
+
+                                              new Chart(ctx001, {
+                                                type: 'pie',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bg-white">
+                                            <canvas id="Chart011" width="400" height="300"></canvas>
+                                            <script>
+                                              const ctx011 = document.getElementById('Chart011');
+
+                                              new Chart(ctx011, {
+                                                type: 'doughnut',
+                                                data: {
+                                                  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                                  datasets: [{
+                                                    label: '# of Votes',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderWidth: 1
+                                                  }]
+                                                },
+                                                options: {
+                                                  scales: {
+                                                    y: {
+                                                      beginAtZero: true
+                                                    }
+                                                  }
+                                                }
+                                              });
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--end-graphs>-->
+{% endblock %}
+
+
+
+
+
+
+

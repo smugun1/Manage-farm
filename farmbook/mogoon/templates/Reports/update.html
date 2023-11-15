@@ -8,12 +8,12 @@
         <div class="alert alert-info">
             <p>Update record here!</p>
         </div>
-
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <input class="btn btn-info bg-warning" type="submit" value="Edit">
+
             <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'reports' %}">Return</a>
+            <button type="submit">Update</button>
         </form>
     </div>
 </div>

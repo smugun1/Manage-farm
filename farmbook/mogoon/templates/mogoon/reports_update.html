@@ -5,67 +5,73 @@
 {% block title %} Update Reports {% endblock %}
 
 {% block body %}
-  <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid bg-info text-warning h-100 d-flex align-items-center justify-content-center" style="width: 100rem;">
-            <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3" style="width: 90rem;">
-                <h1 class="text-center">The brief farm reports Page, enter the daily briefs below</h1>
-                <p class="text-center"><strong><em> This is the farm reports page </em></strong></p>
-                 <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
-                    <form action="{% url 'reports-create'%}" method="POST" class="was-validated" style="width: 90rem;">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                        <label for="validationTextarea" class="form-label">Daily report Comment</label>
-                        <textarea class="form-control" id="validationTextarea"
-                                  placeholder="Enter comments on farm activities" name="daily_report"
-                                  required></textarea>
-                        <div class="invalid-feedback text-light">
-                            Please enter comments on farm activities.
-                        </div>
+<div class="col-lg-12 d-none d-lg-flex">
+    <div class="container-fluid bg-secondary text-warning h-100 d-flex align-items-center justify-content-center"
+         style="width: 100rem;">
+        <div class="card card bg-dark text-right h-100 d-flex align-items-center justify-content-center m-3 p-3"
+             style="width: 90rem;">
+            <h1 class="text-center">The brief farm reports Page, enter the daily briefs below</h1>
+            <p class="text-center"><strong><em> This is the farm reports page </em></strong></p>
+            <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+            <form action="{% url 'reports-create'%}" method="POST" enctype="multipart/form-data" class="was-validated"
+                  style="width: 90rem;">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="validationTextarea" class="form-label">Daily report Comment</label>
+                    <textarea class="form-control" id="validationTextarea"
+                              placeholder="Enter comments on farm activities" name="daily_report"
+                              required></textarea>
+                    <div class="invalid-feedback text-light">
+                        Please enter comments on farm activities.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="validationTextarea" class="form-label">Visitors Name</label>
+                    <textarea class="form-control" id="validationTextarea1" placeholder="Enter Name"
+                              name="visitors_name"
+                              required></textarea>
+                    <label for="validationTextarea" class="form-label">Visitors Comments</label>
+                    <textarea class="form-control" id="validationTextarea2"
+                              placeholder="Enter Visitors comments " name="visitor_comments"
+                              required></textarea>
+                    <div class="invalid-feedback text-light">
+                        Please enter comments on farm activities.
                     </div>
                     <div class="mb-3">
-                        <label for="validationTextarea" class="form-label">Visitors Name</label>
-                        <textarea class="form-control" id="validationTextarea1" placeholder="Enter Name" name="visitors_name"
+                        <label for="validationTextarea" class="form-label">Farm report</label>
+                        <textarea class="form-control" id="validationTextarea3" placeholder="Enter Farm report"
+                                  name="farm_report"
                                   required></textarea>
-                        <label for="validationTextarea" class="form-label">Visitors Comments</label>
-                        <textarea class="form-control" id="validationTextarea2"
-                                  placeholder="Enter Visitors comments " name="visitor_comments"
+                        <label for="validationTextarea" class="form-label">Farm Requirements</label>
+                        <textarea class="form-control" id="validationTextarea4"
+                                  placeholder="Enter Requirement " name="farm_requirements"
                                   required></textarea>
                         <div class="invalid-feedback text-light">
                             Please enter comments on farm activities.
                         </div>
-                        <div class="mb-3">
-                            <label for="validationTextarea" class="form-label">Farm report</label>
-                            <textarea class="form-control" id="validationTextarea3" placeholder="Enter Farm report" name="farm_report"
-                                      required></textarea>
-                            <label for="validationTextarea" class="form-label">Farm Requirements</label>
-                            <textarea class="form-control" id="validationTextarea4"
-                                      placeholder="Enter Requirement " name="farm_requirements"
-                                      required></textarea>
-                            <div class="invalid-feedback text-light">
-                                Please enter comments on farm activities.
-                            </div>
-                        </div>
-                        <div class="mb-3 p-3">
-                            <label for="validationTextarea" class="form-label"><strong>Time Stamp</strong></label>
-                                <input style="height:40px;width:700px" type="datetime-local" class="form-control"
-                                       id="formGroupExampleInput" placeholder="Date of " name="" value="">
-
-                        </div>
-
-                        <div class="mb-3">
-                            <input type="file" class="form-control" aria-label="file example" value="">
-                            <div class="invalid-feedback text-light">Example invalid form file feedback</div>
-                        </div>
-                        <div class="col-12">
-                            <button class="btn btn-warning text-danger" type="submit">SUBMIT FORM</button>
-                        </div>
                     </div>
-                </form>
+                    <div class="mb-3 p-3">
+                        <label for="validationTextarea" class="form-label"><strong>Time Stamp</strong></label>
+                        <input style="height:40px;width:700px" type="datetime-local" class="form-control"
+                               id="formGroupExampleInput" placeholder="Date of " name="" value="">
+
+                    </div>
+
+                   <div class="mb-3">
+                        <input type="file" class="form-control" aria-label="file example" name="farm_image" accept="image/*">
+                        <div class="invalid-feedback text-light">Please select a valid image file.</div>
+                    </div>
+
+                    <div class="col-12">
+                        <button class="btn btn-warning text-danger" type="submit">SUBMIT FORM</button>
+                    </div>
+                </div>
+            </form>
             </div>
             <div>
-            </div>
         </div>
     </div>
+</div>
 
 
 {% endblock %}

@@ -11,9 +11,18 @@ class Reports(models.Model):
     farm_report = models.CharField(max_length=100)
     farm_requirements = models.CharField(max_length=100)
     time_stamp = models.DateTimeField(auto_now_add=True)
+    farm_image = models.ImageField(null=True, blank=True, upload_to="images/")
 
     def __str__(self):
         return self.daily_report
+
+    # @property
+    # def imageURL(self):
+    #     try:
+    #         url = self.farm_image.url
+    #     except:
+    #         url = ''
+    #     return url
 
     class Meta:
         ordering = ('-time_stamp',)
