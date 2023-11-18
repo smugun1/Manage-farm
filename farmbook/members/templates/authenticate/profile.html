@@ -2,51 +2,61 @@
 
 {% load static %}
 
+{% block title %} Profile {% endblock %}
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 {% block body %}
 <div class="container bg-opacity-1 bg-blue-200 rounded-lg">
-    <div class="card text-red-500 bg-opacity-1 bg-green-200 rounded-lg">
-        <h1>Welcome {{user}}</h1>
-        <h2>This is your Profile Page {{user}}</h2>
-        <h3>{{user}} look for your massages here.</h3>
+    <div class="card-body">
+        <div class="card text-bg-dark col-lg-12 d-none d-lg-flex">
+            {% if image %}
+            <img class="thumbnail" src="{{ image.url }}" alt="profile_pics"
+                 width="500">
+            {% endif %}
+        </div>
+    </div>
+    <div class="card text-purple-500 bg-opacity-1 bg-green-200 rounded-lg">
+        <h1>Welcome {{user}}!!!</h1>
+        <h2>{{user}} This is your Profile Page</h2>
+        <h3> </h3>
     </div>
 
-        {% if messages %}
+    {% if messages %}
 
-        {% for message in messages %}
+    {% for message in messages %}
 
-        <small {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</small>
+    <small {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</small>
 
-        {% endfor %}
+    {% endfor %}
 
-        {% endif %}
+    {% endif %}
 
-        <a href="{% url 'logout' %}">Logout</a>
+    <button class="btn btn bg-light text-warning"><a href="{% url 'logout' %}" class="text-danger">Logout</a></button>
 
 
+    <br>
+    <div class="row">
+        <div class="col-md-4">
+            {% load static %}<img src="{% static '/images/slide 24.jpg/' %}" class="d-block w-100 h-60" alt="...">
+            <br>
+            {% load static %}<img src="{% static '/images/slide 23.jpg/' %}" class="d-block w-100 h-60" alt="...">
+            <br>
+        </div>
         <br>
-        <div class="row">
-            <div class="col-md-4">
-                {% load static %}<img src="{% static '/images/slide 24.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-                {% load static %}<img src="{% static '/images/slide 23.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-            </div>
+        <div class="col-md-4">
+            {% load static %}<img src="{% static '/images/slide 26.jpg/' %}" class="d-block w-100 h-60" alt="...">
             <br>
-            <div class="col-md-4">
-                {% load static %}<img src="{% static '/images/slide 26.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-                {% load static %}<img src="{% static '/images/slide 35.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-            </div>
+            {% load static %}<img src="{% static '/images/slide 35.jpg/' %}" class="d-block w-100 h-60" alt="...">
             <br>
-            <div class="col-md-4">
-                {% load static %}<img src="{% static '/images/slide 30.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-                {% load static %}<img src="{% static '/images/slide 27.jpg/' %}" class="d-block w-100 h-60" alt="...">
-                <br>
-            </div>
+        </div>
+        <br>
+        <div class="col-md-4">
+            {% load static %}<img src="{% static '/images/slide 30.jpg/' %}" class="d-block w-100 h-60" alt="...">
+            <br>
+            {% load static %}<img src="{% static '/images/slide 27.jpg/' %}" class="d-block w-100 h-60" alt="...">
+            <br>
         </div>
     </div>
 </div>
+
 {% endblock %}

@@ -14,16 +14,16 @@
 {% block body %}
 <div class="row g-4 d-flex align-items-center">
     <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
-            <h2 class="text-center bg-dark text-warning">Purple Tea</h2>
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4" style="border-radius: 10px;">
+            <h2 class="text-center bg-dark text-light">Purple Tea</h2>
             <div class="border p-3">
-                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-purple_update' %}">Add</a>
-                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'mogoon-purple_update' %}">Add</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
                 <form action="" method="POST">
                     {% csrf_token %}
 
                 </form>
-                <table class="table id=Pupletea align-middle text-warning bg-dark">
+                <table class="table id=Pupletea align-middle text-dark bg-light">
                     <tr>
                         <th>Purple Data</th>
                         <th>Plucking Date</th>
@@ -70,6 +70,55 @@
                         <td>{{ p_average|floatformat:2 }}</td>
                     </tr>
                 </table>
+            </div>
+        </div>
+         <div class="col-md-4">
+            <div class="bg-white">
+                <canvas id="chartContainer" style="height: 300px;"></canvas>
+                <script>
+                    // Ensure jQuery is noConflict mode to avoid conflicts
+                        jQuery.noConflict();
+
+                        jQuery(document).ready(function ($) {
+                            // Function to extract data from the table and generate a chart
+                            function generateChart() {
+                                var labels = [];
+                                var values = [];
+
+                                // Loop through table rows (skip header and total/average row)
+                               {% for data_entry in purple_data %}
+                                    labels.push('{{ data_entry.plucking_date }}');
+                                    values.push({{ data_entry.purple_today }});
+                                {% endfor %}
+
+                                // Chart.js configuration
+                                var ctx = document.getElementById('chartContainer').getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Purple Today',
+                                            data: values,
+                                            backgroundColor: 'rgba(75, 192, 192, 1)',
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Call the function to generate the chart
+                            generateChart();
+                        });
+                </script>
             </div>
         </div>
     </div>

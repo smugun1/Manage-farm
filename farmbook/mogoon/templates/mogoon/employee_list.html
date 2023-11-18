@@ -4,6 +4,7 @@
 
 {% include 'Employee/delete.html' %}
 
+
 {% load static %}
 {% load humanize %}
 
@@ -14,12 +15,12 @@
 {% block body %}
 <div class="row g-4 d-flex align-items-center">
     <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-0 my-4 py-4">
-            <h2 class="text-center bg-dark text-warning">All Employees</h2>
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-0 my-4 py-4" style="border-radius: 10px;">
+            <h2 class="text-center bg-dark text-light">All Employees</h2>
             <div class="border p-3">
-            <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'employee-list_update' %}">Add</a>
-                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
-                <table class="table id=Employee align-middle text-warning bg-dark">
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'employee-list_update' %}">Add</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <table class="table id=Employee align-middle text-dark bg-light">
                     <thead>
                     <tr>
                         <th>Date Employed</th>
@@ -67,7 +68,7 @@
 
                             {{ sal_add }}
                         </b></td>
-                        </tr>
+                    </tr>
                     <tr>
                         <td><b>TOTAL</b></td>
                         <td></td>
@@ -80,7 +81,7 @@
 
                             {{ salary_sum }}
                         </b></td>
-                        </tr>
+                    </tr>
 
                     <tr>
                         <td><b>SALARY AVE</b></td>
@@ -94,12 +95,88 @@
 
                             {{ salary_avg|floatformat:2 }}
                         </b></td>
-                        </tr>
+                    </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="bg-white">
+                <canvas id="salaryChart" style="height: 400px;"></canvas>
+                <script>
+                            // Ensure jQuery is in noConflict mode to avoid conflicts
+                            jQuery.noConflict();
+
+                            jQuery(document).ready(function ($) {
+                                // Function to extract data from the table and generate a chart
+                                function generateChart() {
+                                    var labels = [];
+                                    var values = [];
+
+                                    // Loop through data passed from the server (assuming it's in JSON format)
+                                    {% for data_entry in employee_data %}
+                                        labels.push('{{ data_entry.date_employed }}');
+                                        values.push({{ data_entry.salary_total }});
+                                    {% endfor %}
+
+                                    // Define different colors for each bar
+                                    var backgroundColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
+                                    // Define border colors for each bar
+                                    var borderColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
+                                    // Chart.js configuration
+                                    var ctx = document.getElementById('salaryChart').getContext('2d');
+                                    var myChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [{
+                                                label: 'Employees',
+                                                data: values,
+                                                backgroundColor: backgroundColors,
+                                                borderColor: borderColors,
+                                                borderWidth: 1
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+
+                                // Call the function to generate the chart
+                                generateChart();
+                            });
+
+                </script>
+            </div>
+        </div>
     </div>
 </div>
+
 {% endblock %}
 

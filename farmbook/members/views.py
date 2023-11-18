@@ -48,6 +48,7 @@ def user_login(request):
 @login_required
 def user_profile(request):
     if request.user.is_authenticated:
+
         return render(request, 'authenticate/profile.html', {'name': request.user})
     else:
         return render(request, 'authenticate/userlogin.html')

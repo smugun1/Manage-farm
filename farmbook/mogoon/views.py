@@ -1,12 +1,12 @@
 import datetime
 import logging
-from datetime import datetime
 from decimal import Decimal
 
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
-from django.db.models import Sum, F, Count, Avg, Min, ExpressionWrapper
+from django.db.models import Sum, F, Count, Avg, Min, ExpressionWrapper, DecimalField
+from django.db.models.functions import Cast
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.views.decorators.cache import never_cache
@@ -107,9 +107,18 @@ def reports_view_create(request):
 
 
 def graphs_view(request):
+    data = Employee.objects.all()
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = EmployeeForm()
+        # return redirect('graphs/')
     context = {
         'name': {'This is the graphs dashboard'},
-
+        'data': data,
+        'form': form,
     }
     return render(request, 'mogoon/graphs.html', context)
 
@@ -146,6 +155,12 @@ def employee_view_retrieve(request):
 def employee_view_update(request):
     # Query all employees from the database
     data = Employee.objects.all()
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = EmployeeForm()
 
     # Calculate the total salary and Average of all employees
     salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
@@ -171,8 +186,12 @@ def employee_view_update(request):
 @login_required(login_url='login')
 @never_cache
 def employee_view_create(request):
-    if request.method == "POST":
-        print(request)
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = EmployeeForm()
 
         date_employed = request.POST['date_employed']
         national_identity = request.POST['national_identity']
@@ -234,6 +253,13 @@ total_green. These variables are used to calculate the necessary values to displ
 @login_required(login_url='login')
 @never_cache
 def green_view_update(request):
+    data = Green.objects.all()
+    if request.method == 'POST':
+        form = UpdateGreenForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = UpdateGreenForm()
     green_today = Green.objects.count()
     # get the current green_todate value
     green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
@@ -718,11 +744,14 @@ def fertilizer_view_retrieve(request):
     fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))['fertilizer_labour_rate__sum']
     fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
     fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))['fertilizer_labour_cost__sum']
-    fertilizer_price = Fertilizer.objects.values('fertilizer_price').aggregate(Sum('fertilizer_price'))[
-        'fertilizer_price__sum']
+    fertilizer_price = Fertilizer.objects.values('fertilizer_price').aggregate(Sum('fertilizer_price')).get(
+        'fertilizer_price__sum', 0)
     fertilizer_cost = Fertilizer.objects.aggregate(
-        tot_cost=Sum(F('fertilizer_amt') * F('fertilizer_price'))
-    )['tot_cost']
+        tot_cost=Sum(
+            Cast('fertilizer_amt', DecimalField()) * F('fertilizer_price'),
+            output_field=DecimalField(),
+        )
+    ).get('tot_cost', Decimal('0'))
     fertilizer_total_cost = Fertilizer.objects.aggregate(
         total_cost=Sum(
             ExpressionWrapper(
@@ -749,37 +778,71 @@ def fertilizer_view_retrieve(request):
 @login_required(login_url='login')
 @never_cache
 def fertilizer_view_update(request):
-    fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
-    fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))['fertilizer_labour_rate__sum']
-    fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
-    fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))['fertilizer_labour_cost__sum']
-    if fertilizer_labour_cost is None:
-        fertilizer_labour_cost = 0
-    else:
+    form = UpdateFertilizerForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        # Assuming your form is based on the Fertilizer model
+        fertilizer_instance = form.save(commit=False)
+        fertilizer_amt = Fertilizer.objects.aggregate(Sum('fertilizer_amt'))['fertilizer_amt__sum']
+        fertilizer_labour_rate = Fertilizer.objects.aggregate(Sum('fertilizer_labour_rate'))[
+            'fertilizer_labour_rate__sum']
+        fertilizer_labour = Fertilizer.objects.aggregate(Sum('fertilizer_labour'))['fertilizer_labour__sum']
         fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))[
             'fertilizer_labour_cost__sum']
-    fertilizer_price = models.DecimalField()
-    fertilizer_cost = F(fertilizer_amt) * F(fertilizer_price)
-    if fertilizer_cost is None:
-        fertilizer_cost = 0
-    else:
-        fertilizer_cost = F(fertilizer_amt) * F(fertilizer_price)
-    fertilizer_total_cost = F('fertilizer_labour_cost') + fertilizer_cost
-    if fertilizer_total_cost is None:
-        fertilizer_total_cost = 0
-    else:
-        fertilizer_total_cost = F('fertilizer_labour_cost') + fertilizer_cost
-    context = {
-        "fertilizer_amt": fertilizer_amt,
-        "fertilizer_labour_rate": fertilizer_labour_rate,
-        "fertilizer_labour": fertilizer_labour,
-        "fertilizer_price": fertilizer_price,
-        "fertilizer_labour_cost": fertilizer_labour_cost,
-        "fertilizer_cost": fertilizer_cost,
-        "fertilizer_total_cost": fertilizer_total_cost,
+        if fertilizer_labour_cost is None:
+            fertilizer_labour_cost = 0
+        else:
+            fertilizer_labour_cost = Fertilizer.objects.aggregate(Sum('fertilizer_labour_cost'))[
+                'fertilizer_labour_cost__sum']
+        fertilizer_price = Fertilizer.objects.values('fertilizer_price').aggregate(Sum('fertilizer_price')).get(
+            'fertilizer_price__sum', 0)
+        fertilizer_cost = Fertilizer.objects.aggregate(
+            tot_cost=Sum(
+                Cast('fertilizer_amt', DecimalField()) * F('fertilizer_price'),
+                output_field=DecimalField(),
+            )
+        ).get('tot_cost', Decimal('0'))
+        if fertilizer_cost is None:
+            fertilizer_cost = 0
+        else:
+            fertilizer_cost = Fertilizer.objects.aggregate(
+                tot_cost=Sum(
+                    Cast('fertilizer_amt', DecimalField()) * F('fertilizer_price'),
+                    output_field=DecimalField(),
+                )
+            ).get('tot_cost', Decimal('0'))
+        fertilizer_total_cost = Fertilizer.objects.aggregate(
+            total_cost=Sum(
+                ExpressionWrapper(
+                    F('fertilizer_labour_cost') + (F('fertilizer_amt') * F('fertilizer_price')),
+                    output_field=models.FloatField()
+                )
+            )
+        )['total_cost']
+        if fertilizer_total_cost is None:
+            fertilizer_total_cost = 0
+        else:
+            fertilizer_total_cost = Fertilizer.objects.aggregate(
+                total_cost=Sum(
+                    ExpressionWrapper(
+                        F('fertilizer_labour_cost') + (F('fertilizer_amt') * F('fertilizer_price')),
+                        output_field=models.FloatField()
+                    )
+                )
+            )['total_cost']
+        context = {
+            "form": form,
+            "fertilizer_amt": fertilizer_amt,
+            "fertilizer_labour_rate": fertilizer_labour_rate,
+            "fertilizer_labour": fertilizer_labour,
+            "fertilizer_price": fertilizer_price,
+            "fertilizer_labour_cost": fertilizer_labour_cost,
+            "fertilizer_cost": fertilizer_cost,
+            "fertilizer_total_cost": fertilizer_total_cost,
 
-    }
-    return render(request, 'mogoon/fertilizer_table_update.html', context)
+        }
+        return render(request, 'mogoon/fertilizer_table_update.html', context)
+    # If the form is not valid, or it's a GET request, render the form
+    return render(request, 'mogoon/fertilizer_table_update.html', {"form": form})
 
 
 @login_required(login_url='login')

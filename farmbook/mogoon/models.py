@@ -54,7 +54,7 @@ class Employee(models.Model):
     salary_total = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return f'{self.name}-{self.salary_total}'
 
 
 class Green(models.Model):
@@ -68,7 +68,8 @@ class Green(models.Model):
     total_green = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.green_data)
+        return f'{self.green_today}-{self.green_todate}-{self.plucker_numbers}' \
+               f'{self.plucking_average}-{self.plucker_numbers}-{self.total_green}'
 
 
 class Purple(models.Model):
@@ -82,7 +83,8 @@ class Purple(models.Model):
     total_purple = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.purple_data)
+        return f'{self.purple_today}-{self.purple_todate}-{self.plucker_numbers}' \
+               f'{self.plucking_average}-{self.plucker_numbers}-{self.total_purple}'
 
 
 class Kandojobs(models.Model):
@@ -105,7 +107,10 @@ class Kandojobs(models.Model):
     weeding_cost = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
-        return str(self.pruned_bushes)
+        return f'{self.pruning_done}-{self.pruned_block_No}-{self.pruned_bushes}-{self.total_pruned_bushes}'\
+            f'{self.pruning_rate}-{self.pruning_cost}-{self.weeding_done}-{self.weeding_chem_amt}'\
+            f'{self.total_chem_amt}-{self.weeding_labour_number}-{self.total_weeding_labour_number}'\
+            f'{self.weeding_labour}-{self.weeding_cost}'
 
 
 class Fertilizer(models.Model):
@@ -120,7 +125,8 @@ class Fertilizer(models.Model):
     fertilizer_total_cost = models.DecimalField(max_digits=8, decimal_places=2, default=None)
 
     def __str__(self):
-        return str(self.fertilizer_amt)
+        return f'{self.fertilizer_applied}-{self.fertilizer_amt}-{self.fertilizer_labour}-{self.fertilizer_labour_cost}'\
+            f'{self.fertilizer_cost}-{self.fertilizer_total_cost}'
 
 
 class Milk(models.Model):
@@ -139,7 +145,8 @@ class Milk(models.Model):
     Total_vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
     def __str__(self):
-        return str(self.milk_today)
+        return f'{self.milking_done}-{self.milk_today}-{self.milk_todate}-{self.cows_milked}' \
+               f'{self.cow_numbers}-{self.total_milk}-{self.vet_cost}-{self.Total_vet_cost}'
 
 
 class Profile:

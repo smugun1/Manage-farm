@@ -14,19 +14,19 @@
 {% block body %}
 <div class="row g-4 d-flex align-items-center">
     <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
-            <h2 class="text-center bg-dark text-warning">Kando Jobs</h2>
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4" style="border-radius: 10px;">
+            <h2 class="text-center bg-dark text-light">Kando Jobs</h2>
             <div class="border p-3">
-                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'mogoon-kandojobs_table_update'%}">Add</a>
-                <a class="btn btn-warning bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'mogoon-kandojobs_table_update'%}">Add</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
                 <form action="" method="POST">
                     {% csrf_token %}
 
                 </form>
 
                 <hr>
-                <h3 class="text-center bg-dark text-warning">Pruning Table</h3>
-                <table class="table align-middle text-warning bg-dark">
+                <h3 class="text-center bg-dark text-dark">Pruning Table</h3>
+                <table class="table align-middle text-dark bg-light">
                     <tr>
                         <th>Kandojobs</th>
                         <th>Pruning Date</th>
@@ -57,47 +57,152 @@
 
                     {% endfor %}
                 </table>
-                <h3 class="text-center bg-dark text-warning">Weeding Table</h3>
-                <table class="table align-middle text-warning bg-dark">
-                    <tr>
-                        <th>Weeding Date</th>
-                        <th>Chemical Name</th>
-                        <th>Block No.</th>
-                        <th>Cost Per Liter</th>
-                        <th>Chemical amount</th>
-                        <th>Total Chem Amount</th>
-                        <th>Weeding Labour Number</th>
-                        <th>Total weeding Labour Number</th>
-                        <th>Weeding Labour Rate</th>
-                        <th>Weeding Labour</th>
-                        <th>Weeding Cost</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
 
-                    {% for data in kandojobs %}
+            </div>
+        </div>
 
-                    <tr>
-                        <td>{{data.weeding_done}}</td>
-                        <td>{{data.chemical_name}}</td>
-                        <td>{{data.block_No}}</td>
-                        <td>{{data.cost_per_lit}}</td>
-                        <td>{{data.weeding_chem_amt}}</td>
-                        <td>{{data.total_chem_amt|add:data.weeding_chem_amt}}</td>
-                        <td>{{data.weeding_labour_number}}</td>
-                        <td>{{data.total_weeding_labour_number|add:data.weeding_labour_number}}</td>
-                        <td>{{data.weeding_labour_rate}}</td>
-                        <td>{{data.weeding_labour}}</td>
-                        <td>{{data.weeding_cost}}</td>
-                        <td><a class="btn btn-info btn-block bg-primary btn btn-info"
-                               href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
-                        <td><a class="btn btn-info btn-block bg-danger btn btn-info"
-                               href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
-                    </tr>
-                    {% endfor %}
-                </table>
+        <div class="col-md-3">
+            <div class="bg-white">
+                <canvas id="chartContainer" style="height: 300px;"></canvas>
+                <script>
+                    // Ensure jQuery is noConflict mode to avoid conflicts
+                        jQuery.noConflict();
+
+                        jQuery(document).ready(function ($) {
+                            // Function to extract data from the table and generate a chart
+                            function generateChart() {
+                                var labels = [];
+                                var values = [];
+
+                                // Loop through table rows (skip header and total/average row)
+                               {% for data_entry in kandojobs %}
+                                    labels.push('{{ data_entry.pruning_done }}');
+                                    values.push({{ data_entry.pruned_bushes }});
+                                {% endfor %}
+
+                                // Chart.js configuration
+                                var ctx = document.getElementById('chartContainer').getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Pruning Table',
+                                            data: values,
+                                            backgroundColor: 'rgba(75, 192, 192, 1)',
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Call the function to generate the chart
+                            generateChart();
+                        });
+                </script>
             </div>
         </div>
     </div>
+
+    <div class="col-md-3">
+        <div class="bg-white">
+            <canvas id="chartContainer1" style="height: 300px;"></canvas>
+            <script>
+                    // Ensure jQuery is noConflict mode to avoid conflicts
+                        jQuery.noConflict();
+
+                        jQuery(document).ready(function ($) {
+                            // Function to extract data from the table and generate a chart
+                            function generateChart() {
+                                var labels = [];
+                                var values = [];
+
+                                // Loop through table rows (skip header and total/average row)
+                               {% for data_entry in kandojobs %}
+                                    labels.push('{{ data_entry.weeding_done }}');
+                                    values.push({{ data_entry.weeding_cost }});
+                                {% endfor %}
+
+                                // Chart.js configuration
+                                var ctx = document.getElementById('chartContainer1').getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Weeding Table',
+                                            data: values,
+                                            backgroundColor: 'rgba(75, 192, 192, 1)',
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Call the function to generate the chart
+                            generateChart();
+                        });
+            </script>
+        </div>
+    </div>
+    <div class="border p-3">
+        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4">
+            <h3 class="text-center bg-dark text-dark">Weeding Table</h3>
+            <table class="table align-middle text-dark bg-light">
+                <tr>
+                    <th>Weeding Date</th>
+                    <th>Chemical Name</th>
+                    <th>Block No.</th>
+                    <th>Cost Per Liter</th>
+                    <th>Chemical amount</th>
+                    <th>Total Chem Amount</th>
+                    <th>Weeding Labour Number</th>
+                    <th>Total weeding Labour Number</th>
+                    <th>Weeding Labour Rate</th>
+                    <th>Weeding Labour</th>
+                    <th>Weeding Cost</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+
+                {% for data in kandojobs %}
+
+                <tr>
+                    <td>{{data.weeding_done}}</td>
+                    <td>{{data.chemical_name}}</td>
+                    <td>{{data.block_No}}</td>
+                    <td>{{data.cost_per_lit}}</td>
+                    <td>{{data.weeding_chem_amt}}</td>
+                    <td>{{data.total_chem_amt|add:data.weeding_chem_amt}}</td>
+                    <td>{{data.weeding_labour_number}}</td>
+                    <td>{{data.total_weeding_labour_number|add:data.weeding_labour_number}}</td>
+                    <td>{{data.weeding_labour_rate}}</td>
+                    <td>{{data.weeding_labour}}</td>
+                    <td>{{data.weeding_cost}}</td>
+                    <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                           href="{% url 'kandojobs-update' data.id %}">Edit</a></td>
+                    <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                           href="{% url 'kandojobs-delete' data.id %}">Delete</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
 </div>
-{% endblock %}
+    {% endblock %}
