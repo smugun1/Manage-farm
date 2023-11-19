@@ -5,11 +5,11 @@ from django.db import models
 
 # Create your models here.
 class Reports(models.Model):
-    daily_report = models.CharField(max_length=250)
+    daily_report = models.CharField(max_length=2000)
     visitors_name = models.CharField(max_length=100)
-    visitor_comments = models.CharField(max_length=100)
-    farm_report = models.CharField(max_length=100)
-    farm_requirements = models.CharField(max_length=100)
+    visitor_comments = models.CharField(max_length=2000)
+    farm_report = models.CharField(max_length=2000)
+    farm_requirements = models.CharField(max_length=200)
     time_stamp = models.DateTimeField(auto_now_add=True)
     farm_image = models.ImageField(null=True, blank=True, upload_to="images/")
 

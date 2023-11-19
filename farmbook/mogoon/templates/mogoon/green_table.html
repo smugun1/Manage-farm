@@ -77,7 +77,7 @@
         </div>
          <div class="col-md-4">
             <div class="bg-white">
-                <canvas id="chartContainer" style="height: 300px;"></canvas>
+                <canvas id="greenChart" style="height: 300px;"></canvas>
                 <script>
                     // Ensure jQuery is noConflict mode to avoid conflicts
                         jQuery.noConflict();
@@ -94,8 +94,32 @@
                                     values.push({{ data_entry.green_today }});
                                 {% endfor %}
 
+                                // Define different colors for each bar
+                                    var backgroundColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
+                                    // Define border colors for each bar
+                                    var borderColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
                                 // Chart.js configuration
-                                var ctx = document.getElementById('chartContainer').getContext('2d');
+                                var ctx = document.getElementById('greenChart').getContext('2d');
                                 var myChart = new Chart(ctx, {
                                     type: 'bar',
                                     data: {
@@ -103,8 +127,8 @@
                                         datasets: [{
                                             label: 'Green Today',
                                             data: values,
-                                            backgroundColor: 'rgba(75, 192, 192, 1)',
-                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            backgroundColor: backgroundColors,
+                                            borderColor: borderColors,
                                             borderWidth: 1
                                         }]
                                     },

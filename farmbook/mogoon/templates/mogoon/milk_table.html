@@ -12,61 +12,72 @@
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 
 {% block body %}
-<div class="row g-4 d-flex align-items-center">
-    <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4" style="border-radius: 10px;">
-            <h2 class="text-center bg-dark text-light">Milk Records</h2>
-            <div class="border p-3">
-                <a class="btn btn-dark bg-primary btn-info block-lg"
-                   href="{% url 'mogoon-milk_table_update'%}">Add</a>
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+<div class=" align-items-center">
+    <div class="row d-none d-lg-flex">
+        <div class="col-lg-8 d-none d-lg-flex">
+            <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
+                 style="border-radius: 10px;">
+                <h2 class="text-center bg-dark text-light">Milk Records</h2>
+                <div class="border p-3">
+                    <a class="btn btn-dark bg-primary btn-info block-lg"
+                       href="{% url 'mogoon-milk_table_update'%}">Add</a>
+                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                    <hr>
+                    <table class="table align-middle text-dark bg-light">
+                        <tr>
+                            <th>Milking Date</th>
+                            <th>Milk Today</th>
+                            <th>Milk Todate</th>
+                            <th>Cows Milked</th>
+                            <th>Cow Numbers</th>
+                            <th>Milking Average</th>
+                            <th>Total Milk</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+
+                        {% for data in Milk %}
+
+                        <tr>
+                            <td>{{data.milking_done}}</td>
+                            <td>{{data.milk_today}}</td>
+                            <td>{{data.milk_todate}}</td>
+                            <td>{{data.cows_milked}}</td>
+                            <td>{{data.cow_numbers}}</td>
+                            <td>{{data.milking_average}}</td>
+                            <td>{{data.total_milk}}</td>
+                            <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                                   href="{% url 'milk-update' data.id %}">Edit</a></td>
+                            <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                                   href="{% url 'milk-delete' data.id %}">Delete</a></td>
+                            {% endfor %}
+                        </tr>
+
+                        <tr>
+                            <td>TOTAL</td>
+                            <td>{{ m_today }}</td>
+                            <td>{{ m_todate }}</td>
+                            <td>{{ c_milked.all_sum }}</td>
+                            <td>{{ c_numbers.all_sum}}</td>
+                            <td>{{m_average|floatformat:2}}</td>
+                            <td>{{t_milk}}</td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
                 <hr>
-                <table class="table align-middle text-dark bg-light">
-                    <tr>
-                        <th>Milking Date</th>
-                        <th>Milk Today</th>
-                        <th>Milk Todate</th>
-                        <th>Cows Milked</th>
-                        <th>Cow Numbers</th>
-                        <th>Milking Average</th>
-                        <th>Total Milk</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
 
-                    {% for data in Milk %}
+                <br>
 
-                    <tr>
-                        <td>{{data.milking_done}}</td>
-                        <td>{{data.milk_today}}</td>
-                        <td>{{data.milk_todate}}</td>
-                        <td>{{data.cows_milked}}</td>
-                        <td>{{data.cow_numbers}}</td>
-                        <td>{{data.milking_average}}</td>
-                        <td>{{data.total_milk}}</td>
-                        <td><a class="btn btn-info btn-block bg-primary btn btn-info"
-                               href="{% url 'milk-update' data.id %}">Edit</a></td>
-                        <td><a class="btn btn-info btn-block bg-danger btn btn-info"
-                               href="{% url 'milk-delete' data.id %}">Delete</a></td>
-                        {% endfor %}
-                    </tr>
-
-                    <tr>
-                        <td>TOTAL</td>
-                        <td>{{ m_today }}</td>
-                        <td>{{ m_todate }}</td>
-                        <td>{{ c_milked.all_sum }}</td>
-                        <td>{{ c_numbers.all_sum}}</td>
-                        <td>{{m_average|floatformat:2}}</td>
-                        <td>{{t_milk}}</td>
-
-                    </tr>
-
-                </table>
-                <div class="col-md-3">
-                    <div class="bg-white">
-                        <canvas id="chartContainer" style="height: 300px;"></canvas>
-                        <script>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="bg-white">
+                <canvas id="chartContainer" style="height: 300px;"></canvas>
+                <script>
                     // Ensure jQuery is noConflict mode to avoid conflicts
                         jQuery.noConflict();
 
@@ -82,6 +93,30 @@
                                     values.push({{ data_entry.total_milk }});
                                 {% endfor %}
 
+                                 // Define different colors for each bar
+                                    var backgroundColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
+                                    // Define border colors for each bar
+                                    var borderColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
                                 // Chart.js configuration
                                 var ctx = document.getElementById('chartContainer').getContext('2d');
                                 var myChart = new Chart(ctx, {
@@ -91,8 +126,8 @@
                                         datasets: [{
                                             label: 'Milk Records',
                                             data: values,
-                                            backgroundColor: 'rgba(75, 192, 192, 1)',
-                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            backgroundColor: backgroundColors,
+                                            borderColor: borderColors,
                                             borderWidth: 1
                                         }]
                                     },
@@ -110,12 +145,30 @@
                             generateChart();
                         });
 
-                        </script>
-                    </div>
-                </div>
-                <hr>
 
-                <br>
+
+
+
+
+
+
+
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="row d-none d-lg-flex">
+        <div class="col-lg-8 d-none d-lg-flex">
+            <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
+                 style="border-radius: 10px;">
+                <h2 class="text-center bg-dark text-light">Vet Records</h2>
+
+                 <div class="border p-3">
+                    <a class="btn btn-dark bg-primary btn-info block-lg"
+                       href="{% url 'mogoon-milk_table_update'%}">Add</a>
+                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                    <hr>
+
                 <table class="table align-middle text-dark bg-light">
                     <tr>
                         <th>Calf Down Date</th>
@@ -153,10 +206,13 @@
                         <td>{{T_v_cost}}</td>
                     </tr>
                 </table>
- <div class="col-md-3">
-                    <div class="bg-white">
-                        <canvas id="chartContainer1" style="height: 300px;"></canvas>
-                        <script>
+            </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="bg-white">
+                <canvas id="chartContainer1" style="height: 300px;"></canvas>
+                <script>
                     // Ensure jQuery is noConflict mode to avoid conflicts
                         jQuery.noConflict();
 
@@ -172,6 +228,30 @@
                                     values.push({{ data_entry.Total_vet_cost }});
                                 {% endfor %}
 
+                                 // Define different colors for each bar
+                                    var backgroundColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
+                                    // Define border colors for each bar
+                                    var borderColors = [
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 199, 232, 1)',
+                                        'rgba(255, 20, 86, 1)',
+                                        'rgba(54, 62, 135, 1)',
+                                        // Add more colors as needed
+                                    ];
+
                                 // Chart.js configuration
                                 var ctx = document.getElementById('chartContainer1').getContext('2d');
                                 var myChart = new Chart(ctx, {
@@ -181,8 +261,8 @@
                                         datasets: [{
                                             label: 'Vet Costs',
                                             data: values,
-                                            backgroundColor: 'rgba(75, 192, 192, 1)',
-                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            backgroundColor: backgroundColors,
+                                            borderColor: borderColors,
                                             borderWidth: 1
                                         }]
                                     },
@@ -200,12 +280,18 @@
                             generateChart();
                         });
 
-                        </script>
-                    </div>
-                </div>
+
+
+
+
+
+
+
+
+                </script>
             </div>
         </div>
     </div>
-    <hr>
+</div>
 </div>
 {% endblock %}

@@ -22,7 +22,7 @@ from .models import *
 from .models import Employee
 from .models import Milk
 from .serializer import GreenSerializer, PurpleSerializer, KandojobsSerializer, FertilizerSerializer, MilkSerializer, \
-    EmployeeSerializer
+    EmployeeSerializer, ReportsSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def reports_view_retrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def reports_view_update(request):
+def reports_view_fetch_details(request):
     if request.method == "POST":
         form = ReportsForm(request.POST, request.FILES)
         if form.is_valid():
@@ -64,14 +64,14 @@ def reports_view_update(request):
                 "farm_requirements": farm_requirements,
                 "farm_image": farm_image,
             }
-            return render(request, 'mogoon/reports_update.html', context)
+            return render(request, 'mogoon/reports_create.html', context)
     else:
         form = ReportsForm()
 
     context = {
         'form': form,
     }
-    return render(request, 'mogoon/reports_update.html', context)
+    return render(request, 'mogoon/reports_create.html', context)
 
 
 @login_required(login_url='login')
@@ -99,7 +99,7 @@ def reports_view_create(request):
             )
             insert.save()
 
-            return redirect('/reports')
+            return redirect('/')
     else:
         form = ReportsForm()
 
@@ -107,19 +107,45 @@ def reports_view_create(request):
 
 
 def graphs_view(request):
-    data = Employee.objects.all()
-    if request.method == 'POST':
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            form.save()
-    else:
-        form = EmployeeForm()
-        # return redirect('graphs/')
-    context = {
-        'name': {'This is the graphs dashboard'},
-        'data': data,
-        'form': form,
+    # Retrieve data from various models
+    employees_data = Employee.objects.all()
+    green_data = Green.objects.all()
+    purple_data = Purple.objects.all()
+    kandojobs_data = Kandojobs.objects.all()
+    fertilizer_data = Fertilizer.objects.all()
+    milk_data = Milk.objects.all()
+
+    # Use specific forms for each model
+    employee_form = EmployeeForm(request.POST or None)
+    green_form = UpdateGreenForm(request.POST or None)
+    purple_form = UpdatePurpleForm(request.POST or None)
+    kandojobs_form = UpdateKandojobsForm(request.POST or None)
+    fertilizer_form = UpdateFertilizerForm(request.POST or None)
+    milk_form = UpdateMilkForm(request.POST or None)
+
+    # Combine data and forms into a dictionary
+    data_and_forms = {
+        'Employees': {'data': employees_data, 'form': employee_form},
+        'Green': {'data': green_data, 'form': green_form},
+        'Purple': {'data': purple_data, 'form': purple_form},
+        'Kandojobs': {'data': kandojobs_data, 'form': kandojobs_form},
+        'Fertilizer': {'data': fertilizer_data, 'form': fertilizer_form},
+        'Milk': {'data': milk_data, 'form': milk_form},
     }
+
+    if request.method == 'POST':
+        # Determine the form submitted and handle it accordingly
+        form_name = request.POST.get('form_name')
+        if form_name in data_and_forms:
+            current_form = data_and_forms[form_name]['form']
+            if current_form.is_valid():
+                current_form.save()
+
+    context = {
+        'name': 'This is the graphs dashboard',
+        'data_and_forms': data_and_forms,
+    }
+
     return render(request, 'mogoon/graphs.html', context)
 
 
@@ -127,6 +153,7 @@ def graphs_view(request):
 def employee_view_retrieve(request):
     # Query all employees from the database
     employee_data = Employee.objects.all()
+    form = EmployeeForm()
 
     # Calculate the total salary of all employees
     salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
@@ -141,10 +168,8 @@ def employee_view_retrieve(request):
     # Define the context dictionary with all the data
     context = {
         "employee_data": employee_data,
-        "sal_add": salary_total,
-        "salary_sum": salary_sum,
-        "salary_avg": salary_avg,
-        "no_employees": no_employees,
+        "form": form,
+
     }
 
     # Render the template with the context data
@@ -152,13 +177,12 @@ def employee_view_retrieve(request):
 
 
 @never_cache
-def employee_view_update(request):
-    # Query all employees from the database
-    data = Employee.objects.all()
+def employee_view_fetch_details(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect('employee-list')  # Redirect to the employee list page after successful form submission
     else:
         form = EmployeeForm()
 
@@ -173,14 +197,14 @@ def employee_view_update(request):
     total_count = Employee.objects.count()
 
     context = {
-        'employee_data': data,
+        'form': form,
         'sal_add': salary_total,
         'salary_sum': salary_sum,
         'salary_avg': salary_avg,
         'no_employees': total_count,
     }
 
-    return render(request, 'mogoon/employee_details_update.html', context)
+    return render(request, 'mogoon/employee_details_create.html', context)
 
 
 @login_required(login_url='login')
@@ -252,7 +276,7 @@ total_green. These variables are used to calculate the necessary values to displ
 
 @login_required(login_url='login')
 @never_cache
-def green_view_update(request):
+def green_view_fetch_details(request):
     data = Green.objects.all()
     if request.method == 'POST':
         form = UpdateGreenForm(request.POST)
@@ -307,7 +331,7 @@ def green_view_update(request):
         "total_green": total_green,
 
     }
-    return render(request, 'mogoon/green_table_update.html', context)
+    return render(request, 'mogoon/green_table_create.html', context)
 
 
 @login_required(login_url='login')
@@ -374,7 +398,7 @@ def purple_view_retrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def purple_view_update(request):
+def purple_view_fetch_details(request):
     purple_today = Purple.objects.count()
     # get the current purple_todate value
     purple_todate = Purple.objects.aggregate(all_sum=Sum('purple_today'))
@@ -420,7 +444,7 @@ def purple_view_update(request):
         "total_purple": total_purple,
 
     }
-    return render(request, 'mogoon/purple_tea_update.html', context)
+    return render(request, 'mogoon/purple_tea_create.html', context)
 
 
 @login_required(login_url='login')
@@ -491,7 +515,7 @@ def kandojobs_view_retrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def kandojobs_view_update(request):
+def kandojobs_view_fetch_details(request):
     pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
     total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
     if total_pruned_bushes.get('pr_sum') is None:
@@ -543,7 +567,7 @@ def kandojobs_view_update(request):
         "weeding_cost": weeding_cost,
 
     }
-    return render(request, 'mogoon/kandojobs_table_update.html', context)
+    return render(request, 'mogoon/kandojobs_table_create.html', context)
 
 
 @login_required(login_url='login')
@@ -627,7 +651,7 @@ def milk_view_retrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def milk_view_update(request):
+def milk_view_fetch_details(request):
     milk_today = Milk.objects.count()
     # get the current milk_todate value
     milk_todate = Milk.objects.aggregate(all_sum=Sum('milk_today'))
@@ -703,7 +727,7 @@ def milk_view_update(request):
         "Total_vet_cost": Total_vet_cost,
 
     }
-    return render(request, 'mogoon/milk_table_update.html', context)
+    return render(request, 'mogoon/milk_table_create.html', context)
 
 
 @login_required(login_url='login')
@@ -777,7 +801,7 @@ def fertilizer_view_retrieve(request):
 
 @login_required(login_url='login')
 @never_cache
-def fertilizer_view_update(request):
+def fertilizer_view_fetch_details(request):
     form = UpdateFertilizerForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         # Assuming your form is based on the Fertilizer model
@@ -840,9 +864,9 @@ def fertilizer_view_update(request):
             "fertilizer_total_cost": fertilizer_total_cost,
 
         }
-        return render(request, 'mogoon/fertilizer_table_update.html', context)
+        return render(request, 'mogoon/fertilizer_table_create.html', context)
     # If the form is not valid, or it's a GET request, render the form
-    return render(request, 'mogoon/fertilizer_table_update.html', {"form": form})
+    return render(request, 'mogoon/fertilizer_table_create.html', {"form": form})
 
 
 @login_required(login_url='login')
@@ -898,7 +922,7 @@ def r_delete(request, pk):
 
     if request.method == 'POST':
         reports.delete()
-        return redirect('/reports')
+        return redirect('/')
 
     context = {
         'item': reports,
@@ -922,7 +946,7 @@ def employee_update(request, pk):
         'form': form, 'EmployeeForm': EmployeeForm,
 
     }
-    return render(request, 'mogoon/employee_details_update.html', context)
+    return render(request, 'mogoon/employee_details_create.html', context)
 
 
 @login_required(login_url='login')
@@ -1114,6 +1138,40 @@ def p_delete(request, pk):
 
 ##################################################API FETCH URLS#######################################################
 # API views
+@api_view(['GET', 'POST'])
+def reports_list_view(request):
+    if request.method == 'GET':
+        queryset = Reports.objects.all()
+        serializer_class = ReportsSerializer(queryset, many=True)
+        return Response(serializer_class.data)
+    elif request.method == 'POST':
+        serializer = ReportsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def reports_create_view(request):
+    daily_report = request.POST.get('daily_report', False)
+    visitors_name = request.POST.get('visitors_name', False)
+    visitor_comments = request.POST.get('visitor_comments', False)
+    farm_report = request.POST.get('farm_report', False)
+    farm_requirements = request.POST.get('farm_requirements', False)
+    farm_image = request.POST.get('farm_image', False)
+
+    insert = Reports(
+        daily_report=daily_report,
+        visitors_name=visitors_name,
+        visitor_comments=visitor_comments,
+        farm_report=farm_report,
+        farm_requirements=farm_requirements,
+        farm_image=farm_image
+    )
+    insert.save()
+
+    return Response(status=200)
 
 
 @api_view(['GET', 'POST'])

@@ -13,34 +13,34 @@ from .views import *
 
 urlpatterns = [
     path('', reports_view_retrieve, name='reports'),
-    path('reports-update', reports_view_update, name='reports-update'),
+    path('reports-update', reports_view_fetch_details, name='reports-update'),
     path('reports-create', reports_view_create, name='reports-create'),
 
     path('graph', graphs_view, name='graph'),
 
     path('employee-list/', views.employee_view_retrieve, name='employee-list'),
-    path('employee-list_update/', views.employee_view_update, name='employee-list_update'),
+    path('employee-list_update/', views.employee_view_fetch_details, name='employee-list_update'),
     path('employees_create/', views.employee_view_create, name='mogoon-employees_create'),
 
     path('green_table/', views.green_view_retrieve, name='mogoon-green_table'),
-    path('green_table_update/', views.green_view_update, name='mogoon-green_table_update'),
+    path('green_table_update/', views.green_view_fetch_details, name='mogoon-green_table_update'),
     path('green_create/', views.green_view_create, name='mogoon-green_create'),
 
     path('purple_table/', views.purple_view_retrieve, name='mogoon-purple'),
-    path('purple_update/', views.purple_view_update, name='mogoon-purple_update'),
+    path('purple_update/', views.purple_view_fetch_details, name='mogoon-purple_update'),
     path('purple_create/', views.purple_view_create, name='mogoon-purple_create'),
 
     path('kandojobs_table/', views.kandojobs_view_retrieve, name='mogoon-kandojobs_table'),
-    path('kandojobs_table_update/', views.kandojobs_view_update, name='mogoon-kandojobs_table_update'),
+    path('kandojobs_table_update/', views.kandojobs_view_fetch_details, name='mogoon-kandojobs_table_update'),
     path('kandojobs_create/', views.kandojobs_view_create, name='mogoon-kandojobs_create'),
 
     path('fertilizer_table/', views.fertilizer_view_retrieve, name='mogoon-fertilizer_table'),
-    path('fertilizer_table_update/', views.fertilizer_view_update,
+    path('fertilizer_table_update/', views.fertilizer_view_fetch_details,
          name='mogoon-fertilizer_table_update'),
     path('fertilizer_create/', views.fertilizer_view_create, name='mogoon-fertilizer_create'),
 
     path('milk_table/', views.milk_view_retrieve, name='mogoon-milk_table'),
-    path('milk_table_update/', views.milk_view_update, name='mogoon-milk_table_update'),
+    path('milk_table_update/', views.milk_view_fetch_details, name='mogoon-milk_table_update'),
     path('milk_create/', views.milk_view_create, name='mogoon-milk_create'),
 
     path('r_update/<str:pk>/', views.r_update, name='reports-edit'),

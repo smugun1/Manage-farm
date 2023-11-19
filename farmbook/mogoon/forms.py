@@ -2,7 +2,7 @@ from django import forms
 from .models import Green, Fertilizer, Kandojobs, Milk, Employee, Purple, Reports
 
 
-class TaskForms(forms.ModelForm):
+class EmployeeForms(forms.ModelForm):
     content = forms.CharField(label='SimKMN', widget=forms.TextInput(
         attrs={'placeholder': 'Add task here...'}))
 
@@ -35,12 +35,6 @@ class UpdateGreenForm(forms.ModelForm):
 class UpdatePurpleForm(forms.ModelForm):
     class Meta:
         model = Purple
-        fields = '__all__'
-
-
-class UpdateTaskForm(forms.ModelForm):
-    class Meta:
-        model = Green
         fields = '__all__'
 
 
