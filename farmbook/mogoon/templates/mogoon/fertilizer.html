@@ -19,7 +19,7 @@
     <div class="border p-3">
         <a class="btn btn-dark bg-primary btn-info block-lg"
            href="{% url 'fertilizer-details' %}">Add</a>
-        <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-details' %}">Go To Reports</a>
+        <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
         <form action="" method="POST">
             {% csrf_token %}
         </form>

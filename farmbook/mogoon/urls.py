@@ -15,10 +15,10 @@ from .views import *
 
 urlpatterns = [
     path('', reports_view_retrieve, name='reports-retrieve'),
-    path('reports-details', reports_view_fetch_details, name='reports-details'),
-    path('reports-create', reports_view_create, name='reports-create'),
+    path('reports-details/', reports_view_fetch_details, name='reports-details'),
+    path('reports-create/', reports_view_create, name='reports-create'),
 
-    path('graph', graphs_view, name='graph'),
+    path('graph/', graphs_view, name='graph'),
 
     path('employee-retrieve/', views.employee_view_retrieve, name='employee-retrieve'),
     path('employee-details/', views.employee_view_fetch_details, name='employee-details'),

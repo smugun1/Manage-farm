@@ -39,7 +39,7 @@ def reports_view_retrieve(request):
     form = ReportsForm()
 
     context = {
-        "name": "Reports Page",  # Remove unnecessary curly braces
+        "name": "Reports Page",
         'reports': reports,
         "ReportsForm": form,  # Pass the form instance
     }
@@ -68,14 +68,14 @@ def reports_view_fetch_details(request):
                 "farm_requirements": farm_requirements,
                 "farm_image": farm_image,
             }
-            return render(request, 'mogoon/reports_create.html', context)
+            return render(request, 'mogoon/view_reports_create.html', context)
     else:
         form = ReportsForm()
 
     context = {
         'form': form,
     }
-    return render(request, 'mogoon/reports_create.html', context)
+    return render(request, 'mogoon/view_reports_create.html', context)
 
 
 @login_required(login_url='login')
@@ -671,6 +671,7 @@ def weeding_view_fetch_details(request):
     first_entry = Weeding.objects.first()
 
     weeding_done = Weeding._meta.get_field('weeding_done').verbose_name
+
     # Check if there's any entry in the table
     if first_entry:
         # Assuming 'cost_per_lit' is a constant value for all entries
@@ -693,11 +694,11 @@ def weeding_view_fetch_details(request):
 
         context = {
             "weeding_done": weeding_done,
-            "wc_amt": weeding_chem_amt,
-            "tc_sum": total_chem_amt,
+            "weeding_chem_amt": weeding_chem_amt,
+            "total_chem_amt": total_chem_amt,
             "cost_per_lit": cost_per_lit,
-            "wl_num": weeding_labour_number,
-            "wl_sum": total_weeding_labour_number,
+            "weeding_labour_number": weeding_labour_number,
+            "total_weeding_labour_number": total_weeding_labour_number,
             "weeding_labour_rate": F('weeding_labour_rate'),
             "weeding_labour": weeding_labour,
             "weeding_cost": weeding_cost,
@@ -737,7 +738,7 @@ def weeding_view_create(request):
         )
 
         insert.save()
-        return redirect('/weeding-table')
+        return redirect('/weeding-retrieve')
 
 
 @never_cache
@@ -850,7 +851,7 @@ def milk_view_create(request):
                       cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
                       total_milk=total_milk)
         insert.save()
-        return redirect('/milk-table')
+        return redirect('/milk-retrieve')
 
 
 @never_cache
@@ -858,15 +859,12 @@ def vetcosts_view_retrieve(request):
     data = VetCosts.objects.all()
 
     # Assuming calf_down is a DateTimeField
-    calf_down_values = VetCosts.objects.values_list('calf_down', flat=True)
-
-    # Extracting the verbose name of the field
-    calf_down_verbose_name = VetCosts._meta.get_field('calf_down').verbose_name
+    calf_down = timezone.now()
 
     today = timezone.now()
 
     # Calculate calf_age for each record
-    calf_age_list = [today - calf_date for calf_date in calf_down_values]
+    calf_age = today - calf_down
 
     calf_numbers = VetCosts.objects.count()
     vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
@@ -874,9 +872,9 @@ def vetcosts_view_retrieve(request):
 
     context = {
         "vetcosts": data,
-        "calf_down_verbose_name": calf_down_verbose_name,
+        "calf_down": calf_down,
         "today": today,
-        "calf_age_list": calf_age_list,
+        "calf_age": calf_age,
         "calf_numbers": calf_numbers,
         "vet_cost": vet_cost['vt_count'] or 0,
         "total_vet_cost": total_vet_cost['tl_cost'] or 0,
@@ -889,42 +887,40 @@ def vetcosts_view_retrieve(request):
 @never_cache
 def vetcosts_view_fetch_details(request):
     if request.method == "POST":
-        try:
-            calf_down = datetime.strptime(request.POST['calf_down'], '%Y-%m-%d')
-            today = timezone.now()
-            calf_age = today - calf_down
-            calf_numbers = VetCosts.objects.count()
-            vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
-            total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['tl_cost'] or 0
+        calf_down = timezone.now()
+        today = timezone.now()
+        calf_age = today - calf_down
+        calf_numbers = VetCosts.objects.count()
+        vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
+        total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['tl_cost'] or 0
 
-            context = {
-                "calf_down": calf_down,
-                "calf_age": calf_age,
-                "calf_numbers": calf_numbers,
-                "vet_cost": vet_cost,
-                "total_vet_cost": total_vet_cost,
-            }
+        context = {
+            "calf_down": calf_down,
+            "calf_age": calf_age,
+            "calf_numbers": calf_numbers,
+            "vet_cost": vet_cost,
+            "total_vet_cost": total_vet_cost,
+        }
 
-            return render(request, 'mogoon/vetcosts_create.html', context)
+        return render(request, 'mogoon/vetcosts_create.html', context)
 
-        except ValueError:
-            # Handle the case where the date format is invalid
-            return HttpResponse("Invalid date format")
+    # Handle the case where the request method is not POST
+    return HttpResponse("Invalid request method")
 
 
 @never_cache
 def vetcosts_view_create(request):
     if request.method == "POST":
-        calf_down = request.POST['calf_down']
-        calf_age = request.POST['calf_age']
-        calf_numbers = request.POST['calf_numbers']
-        vet_cost = request.POST['vet_cost']
-        total_vet_cost = request.POST['total_vet_cost']
+        form = VetCostsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('vetcosts-retrieve')
+        else:
+            # If the form is not valid, render the form with errors
+            return render(request, 'mogoon/vetcosts.html', {'form': form})
 
-        insert = VetCosts(calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers, vet_cost=vet_cost,
-                          total_vet_cost=total_vet_cost)
-        insert.save()
-        return redirect('/vetcosts-table')
+    # Handle the case where the request method is not POST
+    return HttpResponse("Invalid request method")
 
 
 @never_cache
@@ -1056,7 +1052,7 @@ def fertilizer_view_create(request):
                             fertilizer_price=fertilizer_price,
                             fertilizer_cost=fertilizer_cost, fertilizer_total_cost=fertilizer_total_cost)
         insert.save()
-        return redirect('/fertilizer-table')
+        return redirect('/fertilizer-retrieve')
 
 
 # CRUD functionality for the tables
@@ -1089,7 +1085,7 @@ def reports_view_delete(request, pk):
 
     if request.method == 'POST':
         reports.delete()
-        return redirect('/')
+        return redirect('/reports-retrieve')
 
     context = {
         'item': reports,
@@ -1228,16 +1224,18 @@ def pruning_view_delete(request, pk):
 @login_required(login_url='login')
 def weeding_view_update(request, pk):
     data = Weeding.objects.get(id=pk)
-    form = WeedingForm(request.POST or None, instance=data)
-
     if request.method == 'POST':
+        form = WeedingForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/weeding-retrieve')
 
+    else:
+        form = WeedingForm(instance=data)
+
     context = {
-        'form': form,
-        'WeedingForm': WeedingForm,
+        'form': form, 'WeedingForm': WeedingForm,
+
     }
     return render(request, 'Weeding/update.html', context)
 
@@ -1289,7 +1287,7 @@ def milk_view_delete(request, pk):
 
 @login_required(login_url='login')
 def vetcosts_view_update(request, pk):
-    data = VetCosts.objects.get(id=pk)
+    data = get_object_or_404(VetCosts, id=pk)
     form = VetCostsForm(request.POST or None, instance=data)
 
     if request.method == 'POST':
@@ -1298,13 +1296,11 @@ def vetcosts_view_update(request, pk):
             form.save()
             return redirect('/vetcosts-retrieve')
 
-    else:
-        form = VetCostsForm(instance=data)
-
     context = {
         'form': form,
         'VetCostsForm': VetCostsForm,
     }
+
     return render(request, 'VetCosts/update.html', context)
 
 
@@ -1314,11 +1310,12 @@ def vetcosts_view_delete(request, pk):
 
     if request.method == 'POST':
         data.delete()
-        return redirect('/vetcosts-retrieve')
+        return redirect('vetcosts-retrieve')
 
     context = {
         'item': data,
     }
+
     return render(request, 'VetCosts/delete.html', context)
 
 

@@ -31,9 +31,9 @@
                             <th>Chemical amount</th>
                             <th>Total Chem Amount</th>
                             <th>Weeding Labour Number</th>
-                            <th>Total weeding Labour Number</th>
                             <th>Weeding Labour Rate</th>
                             <th>Weeding Labour</th>
+                            <th>Total weeding Labour Number</th>
                             <th>Weeding Cost</th>
                             <th>Edit</th>
                             <th>Delete</th>
@@ -48,10 +48,10 @@
                             <td>{{data.cost_per_lit}}</td>
                             <td>{{data.weeding_chem_amt}}</td>
                             <td>{{data.total_chem_amt|add:data.weeding_chem_amt}}</td>
-                            <td>{{data.weeding_labour_number}}</td>
                             <td>{{data.total_weeding_labour_number|add:data.weeding_labour_number}}</td>
                             <td>{{data.weeding_labour_rate}}</td>
                             <td>{{data.weeding_labour}}</td>
+                            <td>{{data.weeding_labour_number}}</td>
                             <td>{{data.weeding_cost}}</td>
                             <td><a class="btn btn-info btn-block bg-primary btn btn-info"
                                    href="{% url 'weeding-update' data.id %}">Edit</a></td>

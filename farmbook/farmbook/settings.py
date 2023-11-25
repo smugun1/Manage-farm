@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
-import django_heroku
+
 import dj_database_url
+import django_heroku
 import environ
 
 # Initialise environment variables
@@ -51,25 +52,24 @@ INSTALLED_APPS = [
 
     'mogoon',
     'members',
-    'reports',
+    # 'dashboard',
     'rest_framework',
     # 'crispy_forms',
     # 'storages',
     # 'mathfilters',
 
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Moved up
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
 ]
+
 
 ROOT_URLCONF = 'farmbook.urls'
 
