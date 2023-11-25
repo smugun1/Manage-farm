@@ -13,19 +13,16 @@
                         <h2 class="text-center text-light">Create Purple Tea Form</h2>
                   <a class="btn btn-light bg-secondary btn-info block-lg" style="width: 10rem;"
                                          href="{% url 'graph' %}">Go To Graphs</a>
-                        <form action="{% url 'mogoon-purple_create' %}" method="POST">
+                        <form action="{% url 'purple-create' %}" method="POST">
                             {% csrf_token %}
 
                             {{ form }}
 
                             <div class="col-sm col-sm">
                                 <label for="formGroupExampleInput2" class="form-label"><strong>Purple Tea</strong></label>
-                                <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput2"
-                                        name="purple_data">
-                                    <option selected disabled>choose option</option>
-                                    <option value="Purpletea">Purple_tea</option>
-                                    <option value="Purple tea">Purple tea</option>
-                                </select>
+                                <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput2"
+                                     name="purple_data" value="Purple tea" readonly>
+
 
                                 <label for="formGroupExampleInput" class="form-label"><strong>
                                     Date of Plucking</strong></label>
@@ -39,7 +36,7 @@
                                            id="formGroupExampleInput3"
                                            placeholder="Quantity Today" name="purple_today" value="">
                                 </div>
-                                <div class="col-sm col-sm">
+                                <div class="col-sm" hidden="true">
                                     <label for="formGroupExampleInput2" class="form-label"><strong>Total Quantity</strong></label>
                                     <input style="height:40px;width:700px" type="text" class="form-control"
                                            id="formGroupExampleInput4"
@@ -54,7 +51,7 @@
                                            placeholder="No. of Plucker" name="plucker_number"
                                            value="{{plucker_numbers.all_count}}">
                                 </div>
-                                 <div class="col-sm col-sm">
+                                 <div class="col-sm" hidden="true">
                                     <label for="formGroupExampleInput2" class="form-label"><strong>Total No. of Pluckers
                                     </strong></label>
                                     <input style="height:40px;width:700px" type="text" class="form-control"
@@ -62,7 +59,7 @@
                                            placeholder="Total No. of Pluckers" name="total_pluckers"
                                            value="{{total_pluckers.pl_total}}" readonly>
                                 </div>
-                                <div class="col-sm col-sm">
+                                <div class="col-sm" hidden="true">
                                     <label for="formGroupExampleInput2" class="form-label"><strong>Mean Per Plucker
                                         </strong></label>
                                     <input style="height:40px;width:700px" type="text" class="form-control"
@@ -70,7 +67,7 @@
                                            placeholder="Mean Per Plucker" name="plucking_average"
                                            value="{{plucking_average|floatformat:2}}">
                                 </div>
-                                <div class="col-sm col-sm">
+                                <div class="col-sm" hidden="true">
                                     <label for="formGroupExampleInput2" class="form-label"><strong>All Purple leaf
                                         </strong></label>
                                     <input style="height:40px;width:700px" type="text" class="form-control"
@@ -84,7 +81,7 @@
                                             typeof="hover">Submit
                                     </button>
                                     <a class="btn btn-light bg-success btn-info block-lg"
-                                       href="{% url 'mogoon-purple' %}">Return</a>
+                                       href="{% url 'purple-retrieve' %}">Return</a>
                                 </div>
                             </div>
                         </form>

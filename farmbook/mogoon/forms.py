@@ -1,5 +1,5 @@
 from django import forms
-from .models import Green, Fertilizer, Kandojobs, Milk, Employee, Purple, Reports
+from .models import Green, Fertilizer, Milk, Employee, Purple, Reports, Pruning, Weeding, VetCosts
 
 
 class EmployeeForms(forms.ModelForm):
@@ -44,13 +44,25 @@ class UpdateFertilizerForm(forms.ModelForm):
         fields = '__all__'
 
 
-class UpdateKandojobsForm(forms.ModelForm):
+class PruningForm(forms.ModelForm):
     class Meta:
-        model = Kandojobs
+        model = Pruning
+        fields = '__all__'
+
+
+class WeedingForm(forms.ModelForm):
+    class Meta:
+        model = Weeding
         fields = '__all__'
 
 
 class UpdateMilkForm(forms.ModelForm):
     class Meta:
         model = Milk
+        fields = '__all__'
+
+
+class VetCostsForm(forms.ModelForm):
+    class Meta:
+        model = VetCosts
         fields = '__all__'

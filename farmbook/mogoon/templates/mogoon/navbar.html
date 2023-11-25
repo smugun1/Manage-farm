@@ -6,20 +6,26 @@
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link active" href=""></a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'reports' %}">Reports</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'reports-retrieve' %}">Reports</a></li>
 
                 <li class="nav-item"><a class="nav-link active" href=""></a></li>
 
-                <li class="nav-item"><a class="nav-link active" href="{% url 'employee-list' %}">Employee List</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'employee-retrieve' %}">Staff List</a></li>
 
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-green_table' %}">Green Table</a>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'green-retrieve' %}">Green Tea</a>
                 </li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-purple' %}">Purple Table</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-kandojobs_table' %}">Kandojobs
-                Table</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-milk_table' %}">Milk Table</a></li>
-                <li class="nav-item"><a class="nav-link active" href="{% url 'mogoon-fertilizer_table' %}">Fertilizer
-                Table</a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'purple-retrieve' %}">Purple Tea</a></li>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'pruning-retrieve' %}">Tea Pruning</a></li>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'weeding-retrieve' %}">Tea Weeding</a></li>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'milk-retrieve' %}">Milk</a></li>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'vetcosts-retrieve' %}">Vet Costs</a></li>
+
+                <li class="nav-item"><a class="nav-link active" href="{% url 'fertilizer-retrieve' %}">Fertilizer
+                </a></li>
 
                 {% endif %}
             </ul>

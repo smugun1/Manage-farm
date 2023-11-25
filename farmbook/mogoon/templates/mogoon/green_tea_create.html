@@ -13,19 +13,15 @@
                         <h2 class="text-center text-light">Create Green Tea Form</h2>
                   <a class="btn btn-light bg-secondary btn-info block-lg" style="width: 10rem;"
                                         href="{% url 'graph' %}">Go To Graphs</a>
-                        <form action="{% url 'mogoon-green_create' %}" method="POST">
+                        <form action="{% url 'green-create' %}" method="POST">
                             {% csrf_token %}
 
                             {{ form }}
 
                             <div class="col-sm col-sm">
                                 <label for="formGroupExampleInput2" class="form-label"><strong>Green Tea</strong></label>
-                                <select style="height:40px;width:700px" class="form-control" id="formGroupExampleInput2"
-                                        name="green_data">
-                                    <option selected disabled>choose option</option>
-                                    <option value="Greentea">Green-Tea</option>
-                                    <option value="Green Tea">Green Tea</option>
-                                </select>
+                               <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput2"
+                                     name="green_data" value="Green tea" readonly>
 
                                 <label for="formGroupExampleInput" class="form-label"><strong>Date of Plucking
                                     </strong></label>
@@ -84,7 +80,7 @@
                                             typeof="hover">Submit
                                     </button>
                                     <a class="btn btn-light bg-success btn-info block-lg"
-                                       href="{% url 'mogoon-green_table' %}">Return</a>
+                                       href="{% url 'green-retrieve' %}">Return</a>
                                 </div>
                             </div>
                         </form>

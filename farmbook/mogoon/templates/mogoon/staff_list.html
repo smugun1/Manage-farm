@@ -19,8 +19,8 @@
              style="border-radius: 10px;">
             <h2 class="text-center bg-dark text-light">All Employees</h2>
             <div class="border p-3">
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'employee-list_update' %}">Add</a>
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'employee-details' %}">Add</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
                 <table id="Employee" class="table align-middle text-dark bg-light">
                     <thead>
                     <tr>
@@ -50,7 +50,7 @@
 
                         <td>
                             <a class="btn btn-light btn-block bg-primary text-dark btn btn-info"
-                               href="{% url 'employee-edit' data.id %}">Edit</a>
+                               href="{% url 'employee-update' data.id %}">Edit</a>
                         </td>
                         <td>
                             <a class="btn btn-light btn-block bg-danger text-dark btn btn-info"

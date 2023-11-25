@@ -1,78 +1,63 @@
 {% extends 'mogoon/base.html' %}
 
-{% include 'Purple/update.html' %}
+{% include 'Pruning/update.html' %}
 
-{% include 'Purple/delete.html' %}
+{% include 'Pruning/delete.html' %}
 
 {% load static %}
 
 
-<title>{% block title %}Purple Tea{% endblock %}</title>
+{% block title %}Pruning{% endblock %}
 
 <link rel='stylesheet' href="{% static 'style.css' %}" type='text/css'>
 
 {% block body %}
-<div class="row g-4 d-flex align-items-center">
-    <div class="col-lg-12 d-none d-lg-flex">
-        <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4" style="border-radius: 10px;">
-            <h2 class="text-center bg-dark text-light">Purple Tea</h2>
-            <div class="border p-3">
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'purple-details' %}">Add</a>
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
-                <form action="" method="POST">
-                    {% csrf_token %}
+<div class="align-items-center">
+    <div class="row d-none d-lg-flex">
+        <div class="col-lg-8 d-none d-lg-flex">
+            <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
+                 style="border-radius: 10px;">
+                <h2 class="text-center bg-dark text-light">Pruning</h2>
+                <div class="border p-3">
+                    <a class="btn btn-dark bg-primary btn-info block-lg"
+                       href="{% url 'pruning-details' %}">Add</a>
+                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
+                    <hr>
+                    <h3 class="text-center bg-dark text-dark">Pruning Table</h3>
+                    <table class="table align-middle text-dark bg-light">
+                        <tr>
+                            <th>Pruning Date</th>
+                            <th>Pruned Block No.</th>
+                            <th>Pruned Bushes</th>
+                            <th>Total pruned bushes</th>
+                            <th>Pruning Rate</th>
+                            <th>Pruning Cost</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
 
-                </form>
-                <table class="table id=Pupletea align-middle text-dark bg-light">
-                    <tr>
-                        <th>Purple Data</th>
-                        <th>Plucking Date</th>
-                        <th>Purple Today</th>
-                        <th>Purple Todate</th>
-                        <th>Plucker Numbers</th>
-                        <th>Total Pluckers</th>
-                        <th>Plucking Average</th>
-                        <th>Update</th>
-                        <th>Delete</th>
-                    </tr>
+                        {% for data in pruning %}
 
-                    {% for data in purple_data %}
+                        <tr>
 
-                    <tr>
-                        <td>{{data.purple_data}}</td>
-                        <td>{{data.plucking_date}}</td>
-                        <td>{{data.purple_today}}</td>
-                        <td>{{data.purple_todate}}</td>
-                        <td>{{data.plucker_numbers}}</td>
-                        <td>{{data.total_pluckers|add:data.plucker_numbers}}</td>
-                        <td>{% widthratio data.purple_today data.plucker_numbers 1 %}</td>
-                        <td>
-                            <a class="btn btn-info btn-block bg-primary btn btn-info"
-                               href="{% url 'purple-update' data.id %}">Edit</a></td>
-                        <td>
-                            <a class="btn btn-info btn-block bg-danger btn btn-info"
-                               href="{% url 'purple-delete' data.id %}">Delete</a></td>
-                    </tr>
-                    {% endfor %}
+                            <td>{{data.pruning_done}}</td>
+                            <td>{{data.pruned_block_no}}</td>
+                            <td>{{data.pruned_bushes}}</td>
+                            <td>{{data.total_pruned_bushes|add:data.pruned_bushes}}</td>
+                            <td>{{data.pruning_rate}}</td>
+                            <td>{% widthratio data.pruned_bushes 1 data.pruning_rate %}</td>
+                            <td><a class="btn btn-info btn-block bg-primary btn btn-info"
+                                   href="{% url 'pruning-update' data.id %}">Edit</a></td>
+                            <td><a class="btn btn-info btn-block bg-danger btn btn-info"
+                                   href="{% url 'pruning-delete' data.id %}">Delete</a></td>
+                        </tr>
 
-                    {% with total_purpletea=0 %}{% endwith %}
-                    {% for data in purple_data %}
-                    {% with total_purpletea=total_purpletea|add:data.purple_today %}
-                    {% endwith %}
-                    {% endfor %}
-                    <tr>
-                        <td>Total/Ave</td>
-                        <td></td>
-                        <td>{{ c_todate }}</td>
-                        <td>{{ c_todate }}</td>
-                        <td>{{ t_pluckers }}</td>
-                        <td>{{ t_pluckers}}</td>
-                        <td>{{ p_average|floatformat:2 }}</td>
-                    </tr>
-                </table>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
-         <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="bg-white">
                 <canvas id="chartContainer" style="height: 300px;"></canvas>
                 <script>
@@ -86,12 +71,12 @@
                                 var values = [];
 
                                 // Loop through table rows (skip header and total/average row)
-                               {% for data_entry in purple_data %}
-                                    labels.push('{{ data_entry.plucking_date }}');
-                                    values.push({{ data_entry.purple_today }});
+                               {% for data_entry in pruning %}
+                                    labels.push('{{ data_entry.pruning_done }}');
+                                    values.push({{ data_entry.pruned_bushes }});
                                 {% endfor %}
 
-                                // Define different colors for each bar
+                                 // Define different colors for each bar
                                     var backgroundColors = [
                                         'rgba(75, 192, 192, 1)',
                                         'rgba(255, 99, 132, 1)',
@@ -122,7 +107,7 @@
                                     data: {
                                         labels: labels,
                                         datasets: [{
-                                            label: 'Purple Today',
+                                            label: 'Pruning Table',
                                             data: values,
                                             backgroundColor: backgroundColors,
                                             borderColor: borderColors,
@@ -142,9 +127,16 @@
                             // Call the function to generate the chart
                             generateChart();
                         });
+
+
+
+
+
+
                 </script>
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

@@ -2,11 +2,15 @@ import datetime
 import logging
 from decimal import Decimal
 
+from django.urls import reverse
+from django.utils import timezone
+
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
 from django.db.models import Sum, F, Count, Avg, Min, ExpressionWrapper, DecimalField
 from django.db.models.functions import Cast
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.views.decorators.cache import never_cache
@@ -16,13 +20,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from . import models
-from .forms import UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, UpdateKandojobsForm, \
-    UpdateMilkForm, EmployeeForm, ReportsForm
+from .forms import UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, \
+    UpdateMilkForm, EmployeeForm, ReportsForm, PruningForm, WeedingForm, VetCostsForm
 from .models import *
 from .models import Employee
 from .models import Milk
-from .serializer import GreenSerializer, PurpleSerializer, KandojobsSerializer, FertilizerSerializer, MilkSerializer, \
-    EmployeeSerializer, ReportsSerializer
+from .serializer import GreenSerializer, PurpleSerializer, FertilizerSerializer, MilkSerializer, \
+    EmployeeSerializer, ReportsSerializer, PruningSerializer, WeedingSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -111,26 +115,32 @@ def graphs_view(request):
     employees_data = Employee.objects.all()
     green_data = Green.objects.all()
     purple_data = Purple.objects.all()
-    kandojobs_data = Kandojobs.objects.all()
+    pruning_data = Pruning.objects.all()
+    weeding_data = Pruning.objects.all()
     fertilizer_data = Fertilizer.objects.all()
     milk_data = Milk.objects.all()
+    vetcosts_data = VetCosts.objects.all()
 
     # Use specific forms for each model
     employee_form = EmployeeForm(request.POST or None)
     green_form = UpdateGreenForm(request.POST or None)
     purple_form = UpdatePurpleForm(request.POST or None)
-    kandojobs_form = UpdateKandojobsForm(request.POST or None)
+    pruning_form = PruningForm(request.POST or None)
+    weeding_form = WeedingForm(request.POST or None)
     fertilizer_form = UpdateFertilizerForm(request.POST or None)
     milk_form = UpdateMilkForm(request.POST or None)
+    vetcosts_form = VetCostsForm(request.POST or None)
 
     # Combine data and forms into a dictionary
     data_and_forms = {
         'Employees': {'data': employees_data, 'form': employee_form},
         'Green': {'data': green_data, 'form': green_form},
         'Purple': {'data': purple_data, 'form': purple_form},
-        'Kandojobs': {'data': kandojobs_data, 'form': kandojobs_form},
+        'pruning': {'data': pruning_data, 'form': pruning_form},
+        'weeding': {'data': weeding_data, 'form': weeding_form},
         'Fertilizer': {'data': fertilizer_data, 'form': fertilizer_form},
         'Milk': {'data': milk_data, 'form': milk_form},
+        'VetCosts': {'data': vetcosts_data, 'form': vetcosts_form},
     }
 
     if request.method == 'POST':
@@ -153,10 +163,10 @@ def graphs_view(request):
 def employee_view_retrieve(request):
     # Query all employees from the database
     employee_data = Employee.objects.all()
-    form = EmployeeForm()
 
+    date_employed = Employee._meta.get_field('date_employed').verbose_name
     # Calculate the total salary of all employees
-    salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
+    salary_total = Employee.objects.aggregate(sal_add=Sum('salary_total'))['sal_add'] or 0
 
     # Calculate the sum and average salary of all employees
     salary_sum = Employee.objects.aggregate(salary_sum=Sum('salary_total'))['salary_sum'] or 0
@@ -168,12 +178,15 @@ def employee_view_retrieve(request):
     # Define the context dictionary with all the data
     context = {
         "employee_data": employee_data,
-        "form": form,
-
+        "date_employed": date_employed,
+        "salary_total": salary_total,
+        "salary_sum": salary_sum,
+        "salary_avg": salary_avg,
+        "no_employees": no_employees,
     }
 
     # Render the template with the context data
-    return render(request, 'mogoon/employee_list.html', context)
+    return render(request, 'mogoon/staff_list.html', context)
 
 
 @never_cache
@@ -182,12 +195,12 @@ def employee_view_fetch_details(request):
         form = EmployeeForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('employee-list')  # Redirect to the employee list page after successful form submission
+            return redirect('employee-retrieve')  # Redirect to the employee list page after successful form submission
     else:
         form = EmployeeForm()
 
     # Calculate the total salary and Average of all employees
-    salary_total = Employee.objects.aggregate(sal_add=Count('salary_total'))['sal_add'] or 0
+    salary_total = Employee.objects.aggregate(sal_add=Sum('salary_total'))['sal_add'] or 0
 
     # Calculate the sum and average salary of all employees
     salary_sum = Employee.objects.aggregate(salary_sum=Sum('salary_total'))['salary_sum'] or 0
@@ -204,33 +217,41 @@ def employee_view_fetch_details(request):
         'no_employees': total_count,
     }
 
-    return render(request, 'mogoon/employee_details_create.html', context)
+    return render(request, 'mogoon/staff_details_create.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
 def employee_view_create(request):
     if request.method == 'POST':
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            form.save()
-    else:
-        form = EmployeeForm()
-
+        # Access cleaned data, including the file, from the form
         date_employed = request.POST['date_employed']
         national_identity = request.POST['national_identity']
         name = request.POST['name']
         age = request.POST['age']
-        gender = request.POST.get('gender', False)
-        department = request.POST.get('department', False)
-        position = request.POST.get('position', False)
+        gender = request.POST['gender']
+        department = request.POST['department']
+        position = request.POST['position']
         salary_total = request.POST['salary_total']
 
-        insert = Employee(date_employed=date_employed, national_identity=national_identity, name=name, age=age,
-                          gender=gender, department=department, position=position, salary_total=salary_total)
+        # Create and save the Employee object
+        insert = Employee(
+            date_employed=date_employed,
+            national_identity=national_identity,
+            name=name,
+            age=age,
+            gender=gender,
+            department=department,
+            position=position,
+            salary_total=salary_total
+        )
         insert.save()
 
-        return redirect('/employee-list')
+        return redirect('/employee-retrieve')
+    else:
+        form = EmployeeForm()
+
+    return render(request, 'mogoon/staff_list.html', {'form': form})
 
 
 @never_cache
@@ -262,15 +283,15 @@ def green_view_retrieve(request):
         "p_average": plucking_average,
         "t_green": total_green['total_sum'],
     }
-    return render(request, 'mogoon/green_table.html', context)
+    return render(request, 'mogoon/green_tea.html', context)
 
 
 """What changed in the code?
-The code was changed to match the template. The code was modified to include the data from the green model and to 
-calculate the necessary values to display on the template. The code was also modified to handle scenarios where the 
-database is empty and the values are returned as None. This was done by checking the value of the all_sum key in the 
-green_todate dictionary and setting it to 0 if it is of type None. This allows the template to display the 0 value 
-instead of None. Other changes include adding variables for plucker_numbers, total_pluckers, plucking_average and 
+The code was changed to match the template. The code was modified to include the data from the green model and to
+calculate the necessary values to display on the template. The code was also modified to handle scenarios where the
+database is empty and the values are returned as None. This was done by checking the value of the all_sum key in the
+green_todate dictionary and setting it to 0 if it is of type None. This allows the template to display the 0 value
+instead of None. Other changes include adding variables for plucker_numbers, total_pluckers, plucking_average and
 total_green. These variables are used to calculate the necessary values to display on the template. """
 
 
@@ -331,7 +352,7 @@ def green_view_fetch_details(request):
         "total_green": total_green,
 
     }
-    return render(request, 'mogoon/green_table_create.html', context)
+    return render(request, 'mogoon/green_tea_create.html', context)
 
 
 @login_required(login_url='login')
@@ -359,7 +380,7 @@ def green_view_create(request):
                        total_green=total_green)
         insert.save()
 
-    return redirect('/green_table')
+    return redirect('/green-retrieve')
 
 
 @never_cache
@@ -473,136 +494,250 @@ def purple_view_create(request):
                         total_purple=total_purple)
         insert.save()
 
-    return redirect('/purple_table')
+    return redirect('/purple-retrieve')
 
 
 @never_cache
-def kandojobs_view_retrieve(request):
-    data = Kandojobs.objects.all()
-    pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
-    total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
+def pruning_view_retrieve(request):
+    data = Pruning.objects.all()
+
+    pruning_done = Pruning._meta.get_field('pruning_done').verbose_name
+    pruned_block_no = request.POST.get('pruned_block_no')
+    # Count and sum for pruned_bushes
+    pruned_bushes = Pruning.objects.aggregate(pr_count=Count('pruned_bushes'))
+    total_pruned_bushes = Pruning.objects.aggregate(pr_sum=Sum('pruned_bushes'))
+
+    # Calculate pruning cost
     pruning_rate = Decimal(request.GET.get('pruning_rate', 0))
-    pruning_cost = pruned_bushes.get('pr_count') * pruning_rate
-    weeding_chem_amt = Kandojobs.objects.aggregate(wc_sum=Sum('weeding_chem_amt'))
-    total_chem_amt = weeding_chem_amt.get('wc_sum', 0) or 0
-    kandojob = Kandojobs.objects.first()
-    cost_per_lit = kandojob.cost_per_lit if kandojob else 0
-    if kandojob:
-        cost_per_lit = kandojob.cost_per_lit
-    else:
-        cost_per_lit = 0
-    weeding_labour_number = Kandojobs.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-    total_weeding_labour_number = weeding_labour_number.get('wl_sum', 0) or 0
-    weeding_labour_rate = Decimal(request.GET.get('weeding_labour_rate', 0))
-    weeding_labour = total_weeding_labour_number * weeding_labour_rate
-    weeding_cost = (total_chem_amt * cost_per_lit) + weeding_labour
+    pruning_cost = pruned_bushes.get('pr_count', 0) * pruning_rate
 
     context = {
-        "kandojobs": data,
-        "pr_count": pruned_bushes.get('pr_count', 0),
-        "pr_sum": total_pruned_bushes.get('pr_sum', 0),
-        "pruning_rate": pruning_rate,
-        "pruning_cost": pruning_cost,
-        "total_chem_amt": total_chem_amt,
-        "cost_per_lit": cost_per_lit,
-        "total_weeding_labour_number": total_weeding_labour_number,
-        "weeding_labour_rate": weeding_labour_rate,
-        "weeding_labour": weeding_labour,
-        "weeding_cost": weeding_cost,
-    }
-    return render(request, 'mogoon/kandojobs_table.html', context)
-
-
-@login_required(login_url='login')
-@never_cache
-def kandojobs_view_fetch_details(request):
-    pruned_bushes = Kandojobs.objects.aggregate(pr_count=Count('pruned_bushes'))
-    total_pruned_bushes = Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
-    if total_pruned_bushes.get('pr_sum') is None:
-        total_pruned_bushes['pr_sum'] = 0
-    else:
-        Kandojobs.objects.aggregate(pr_sum=Sum('pruned_bushes'))
-    pruning_rate = models.DecimalField()
-    pruning_cost = pruned_bushes.get('pr_count') * F('pruning_rate')
-    if pruning_cost is None:
-        pruning_cost = 0
-    else:
-        pruning_cost = pruned_bushes.get('pr_count') * F('pruning_rate')
-    cost_per_lit = models.DecimalField()
-    weeding_labour_number = Kandojobs.objects.aggregate(wl_num=Count('weeding_labour_number'))
-    weeding_labour_rate = models.DecimalField()
-    weeding_chem_amt = Kandojobs.objects.aggregate(wc_amt=Count('weeding_chem_amt'))
-    total_chem_amt = Kandojobs.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
-    if total_chem_amt.get('tc_sum') is None:
-        total_chem_amt['tc_sum'] = 0
-    else:
-        total_chem_amt = Kandojobs.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
-    total_weeding_labour_number = Kandojobs.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-    if total_weeding_labour_number.get('wl_sum') is None:
-        total_weeding_labour_number['wl_sum'] = 0
-    else:
-        total_weeding_labour_number = Kandojobs.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-    weeding_labour = weeding_labour_number.get('w_sum') * F('weeding_labour_rate')
-    if weeding_labour is None:
-        weeding_labour = 0
-    else:
-        weeding_labour = weeding_labour_number.get('w_sum') * F('weeding_labour_rate')
-    weeding_cost = (total_chem_amt.get('tc_sum') * F(cost_per_lit)) + weeding_labour
-    if weeding_cost is None:
-        weeding_cost = 0
-    else:
-        weeding_cost = (total_chem_amt.get('tc_sum') * F(cost_per_lit)) + weeding_labour
-
-    context = {
-        "pruned_bushes": pruned_bushes,
+        "pruning": data,
+        "pruning_done": pruning_done,
+        "pruned_block_no": pruned_block_no,
         "total_pruned_bushes": total_pruned_bushes,
+        "pr_count": pruned_bushes.get('pr_count', 0),
         "pruning_rate": pruning_rate,
         "pruning_cost": pruning_cost,
-        "weeding_labour_number": weeding_labour_number,
-        "weeding_labour_rate": weeding_labour_rate,
-        "weeding_chem_amt": weeding_chem_amt,
-        "total_chem_amt": total_chem_amt,
-        "weeding_labour": weeding_labour,
-        "total_weeding_labour_number": total_weeding_labour_number,
-        "weeding_cost": weeding_cost,
-
     }
-    return render(request, 'mogoon/kandojobs_table_create.html', context)
+    return render(request, 'mogoon/tea_pruning.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
-def kandojobs_view_create(request):
-    if request.method == "POST":
-        pruning_done = request.POST['pruning_done']
-        pruned_block_No = request.POST['pruned_block_No']
-        pruned_bushes = request.POST['pruned_bushes']
-        total_pruned_bushes = request.POST['total_pruned_bushes']
-        pruning_rate = request.POST['pruning_rate']
-        pruning_cost = request.POST['pruning_cost']
-        weeding_done = request.POST['weeding_done']
-        chemical_name = request.POST['chemical_name']
-        block_No = request.POST['block_No']
-        cost_per_lit = request.POST['cost_per_lit']
-        weeding_chem_amt = request.POST['weeding_chem_amt']
-        total_chem_amt = request.POST['total_chem_amt']
-        weeding_labour_number = request.POST['weeding_labour_number']
-        total_weeding_labour_number = request.POST['total_weeding_labour_number']
-        weeding_labour_rate = request.POST['weeding_labour_rate']
-        weeding_labour = request.POST['weeding_labour']
-        weeding_cost = request.POST['weeding_cost']
+def pruning_view_fetch_details(request):
+    pruned_block_no = request.POST.get('pruned_block_no')
+    pruned_bushes = Pruning.objects.aggregate(pr_count=Count('pruned_bushes'))
+    total_pruned_bushes = Pruning.objects.aggregate(pr_sum=Sum('pruned_bushes'))
 
-        insert = Kandojobs(pruned_block_No=pruned_block_No, pruned_bushes=pruned_bushes,
-                           total_pruned_bushes=total_pruned_bushes, pruning_done=pruning_done,
-                           pruning_rate=pruning_rate, pruning_cost=pruning_cost, weeding_done=weeding_done,
-                           chemical_name=chemical_name, block_No=block_No, cost_per_lit=cost_per_lit,
-                           weeding_chem_amt=weeding_chem_amt, total_chem_amt=total_chem_amt,
-                           weeding_labour_number=weeding_labour_number, weeding_labour_rate=weeding_labour_rate,
-                           weeding_labour=weeding_labour, total_weeding_labour_number=total_weeding_labour_number,
-                           weeding_cost=weeding_cost)
+    pruning_rate = Decimal(request.POST.get('pruning_rate', 0))
+    pruning_cost = pruned_bushes.get('pr_count', 0) * pruning_rate
+
+    context = {
+        "pruned_block_no": pruned_block_no,
+        "pr_count": pruned_bushes.get('pr_count', 0),
+        "total_pruned_bushes": total_pruned_bushes.get('pr_sum', 0),
+        "pruning_rate": pruning_rate,
+        "pruning_cost": pruning_cost,
+    }
+    return render(request, 'mogoon/tea_pruning_create.html', context)
+
+
+@login_required(login_url='login')
+@never_cache
+def pruning_view_create(request):
+    if request.method == "POST":
+        pruning_done = request.POST.get('pruning_done', None)
+
+        # Check if 'pruning_done' is not empty or None
+        if pruning_done is not None and pruning_done != '':
+            pruned_block_no = request.POST.get('pruned_block_no')
+
+            # Ensure 'pruned_block_no' is provided
+            if pruned_block_no is None or pruned_block_no == '':
+                return HttpResponse("Error: 'pruned_block_no' cannot be empty or None")
+
+            # Retrieve the actual count values from the dictionaries
+            pruned_bushes = request.POST['pruned_bushes']
+            total_pruned_bushes = Pruning.objects.aggregate(pr_sum=Sum('pruned_bushes'))
+
+            total_pruned_count = total_pruned_bushes.get('pr_sum', 0)
+
+            pruning_rate = Decimal(request.POST.get('pruning_rate', 0))
+            pruning_cost = Decimal(pruned_bushes) * pruning_rate
+
+            # Provide a default value (0) if total_pruned_count is None
+            total_pruned_count = total_pruned_count or 0
+
+            insert = Pruning(
+                pruned_block_no=pruned_block_no,
+                pruned_bushes=pruned_bushes,  # Use the actual count/or value value
+                total_pruned_bushes=total_pruned_count,
+                pruning_done=pruning_done,
+                pruning_rate=pruning_rate,
+                pruning_cost=pruning_cost,
+            )
+
+            insert.save()
+            return redirect('/pruning-retrieve')
+
+
+@login_required(login_url='login')
+@never_cache
+def weeding_view_retrieve(request):
+    data = Weeding.objects.all()
+    if request.method == 'POST':
+        # Handle POST request to update data based on user input
+        weeding_done = request.POST.get('weeding_done')
+        chemical_name = request.POST.get('chemical_name')
+        block_no = request.POST.get('block_no')
+        weeding_chem_amt = request.POST.get('weeding_chem_amt')
+
+        # Handle block_no as before
+        block_no = handle_block_no(block_no)
+
+        # ... (rest of your existing code for processing POST request)
+        # After processing, you might want to redirect or render another page
+        return redirect('some_success_page')
+    else:
+
+        # Assuming 'cost_per_lit' is a constant value for all entries
+        first_entry = Weeding.objects.first()
+        cost_per_lit = first_entry.cost_per_lit if first_entry else 0
+
+        weeding_done = Weeding._meta.get_field('weeding_done').verbose_name
+        chemical_name = request.POST.get('chemical_name', None)
+        block_no = request.POST.get('block_no')
+
+        # Handle block_no as before
+        block_no = handle_block_no(block_no)
+
+        weeding_chem_amt = request.POST.get('weeding_chem_amt', None)
+
+        # Count and sum for weeding_labour_number
+        weeding_labour_number_count = Weeding.objects.aggregate(wl_num=Count('weeding_labour_number'))
+        total_weeding_labour_number_sum = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
+
+        # Calculate weeding labour and cost
+        weeding_labour_rate = Decimal(request.GET.get('weeding_labour_rate', 0))
+        weeding_labour_number_sum = total_weeding_labour_number_sum.get('wl_sum', 0)
+        weeding_labour = weeding_labour_number_sum * weeding_labour_rate if weeding_labour_number_sum is not None else 0
+
+        # Sum for weeding_chem_amt
+        total_chem_amt = Decimal(request.GET.get('weeding_chem_amt', 0))
+
+        weeding_cost = F('weeding_chem_amt') * cost_per_lit + weeding_labour
+
+        context = {
+            "weeding": data,
+            "weeding_done": weeding_done,
+            "chemical_name": chemical_name,
+            "block_no": block_no,
+            "cost_per_lit": cost_per_lit,
+            "weeding_chem_amt": weeding_chem_amt,
+            "total_chem_amt": total_chem_amt,
+            "weeding_labour_number": weeding_labour_number_count.get('wl_num', 0),
+            "total_weeding_labour_number": total_weeding_labour_number_sum.get('wl_sum', 0),
+            "weeding_labour_rate": weeding_labour_rate,
+            "weeding_labour": weeding_labour,
+            "weeding_cost": weeding_cost,
+        }
+
+        return render(request, 'mogoon/tea_weeding.html', context)
+
+
+def handle_block_no(block_no):
+    # Check if block_no is not empty before using it
+    if block_no:
+        # Convert block_no to an integer or handle it appropriately
+        try:
+            block_no = int(block_no)
+        except ValueError:
+            # Handle the case where block_no is not a valid number
+            # You might want to return an error response or set a default value
+            block_no = 1
+    else:
+        # Handle the case where block_no is an empty string or not provided
+        # You might want to return an error response or set a default value
+        block_no = 0
+
+    return block_no
+
+
+@login_required(login_url='login')
+@never_cache
+def weeding_view_fetch_details(request):
+    # Retrieve the first entry in the table
+    first_entry = Weeding.objects.first()
+
+    weeding_done = Weeding._meta.get_field('weeding_done').verbose_name
+    # Check if there's any entry in the table
+    if first_entry:
+        # Assuming 'cost_per_lit' is a constant value for all entries
+        cost_per_lit = first_entry.cost_per_lit or 0
+
+        # Aggregate counts and sums
+        weeding_labour_number = Weeding.objects.aggregate(wl_num=Count('weeding_labour_number'))
+        weeding_chem_amt = Weeding.objects.aggregate(wc_amt=Sum('weeding_chem_amt'))
+        total_chem_amt = Weeding.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
+        total_weeding_labour_number = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
+
+        # Set default values for the cases where aggregation results are None
+        weeding_chem_amt = weeding_chem_amt.get('wc_amt', 0)
+        total_chem_amt = total_chem_amt.get('tc_sum', 0)
+        total_weeding_labour_number = total_weeding_labour_number.get('wl_sum', 0)
+
+        # Calculate weeding labour and cost
+        weeding_labour = total_weeding_labour_number * F('weeding_labour_rate')
+        weeding_cost = weeding_chem_amt * cost_per_lit + weeding_labour
+
+        context = {
+            "weeding_done": weeding_done,
+            "wc_amt": weeding_chem_amt,
+            "tc_sum": total_chem_amt,
+            "cost_per_lit": cost_per_lit,
+            "wl_num": weeding_labour_number,
+            "wl_sum": total_weeding_labour_number,
+            "weeding_labour_rate": F('weeding_labour_rate'),
+            "weeding_labour": weeding_labour,
+            "weeding_cost": weeding_cost,
+        }
+
+        return render(request, 'mogoon/tea_weeding_create.html', context)
+
+
+@login_required(login_url='login')
+@never_cache
+def weeding_view_create(request):
+    if request.method == "POST":
+        weeding_done = request.POST.get('weeding_done')
+        chemical_name = request.POST.get('chemical_name')
+        block_no = request.POST.get('block_no')
+        cost_per_lit = request.POST.get('cost_per_lit')
+        weeding_chem_amt = request.POST.get('weeding_chem_amt')
+        total_chem_amt = request.POST.get('total_chem_amt')
+        weeding_labour_number = request.POST.get('weeding_labour_number')
+        total_weeding_labour_number = request.POST.get('total_weeding_labour_number')
+        weeding_labour_rate = request.POST.get('weeding_labour_rate')
+        weeding_labour = request.POST.get('weeding_labour')
+        weeding_cost = request.POST.get('weeding_cost')
+
+        insert = Weeding(
+            weeding_done=weeding_done,
+            chemical_name=chemical_name,
+            block_no=block_no,
+            cost_per_lit=cost_per_lit,
+            weeding_chem_amt=weeding_chem_amt,
+            total_chem_amt=total_chem_amt,
+            weeding_labour_number=weeding_labour_number,
+            weeding_labour_rate=weeding_labour_rate,
+            weeding_labour=weeding_labour,
+            total_weeding_labour_number=total_weeding_labour_number,
+            weeding_cost=weeding_cost
+        )
 
         insert.save()
-        return redirect('/kandojobs_table')
+        return redirect('/weeding-table')
 
 
 @never_cache
@@ -622,12 +757,6 @@ def milk_view_retrieve(request):
     )['ml_ave'] if cow_numbers != 0 else 0
 
     total_milk = Milk.objects.aggregate(total_sum=Sum('milk_today'))
-    calf_down = datetime.now(tz=UTC).replace(tzinfo=None)
-    today = datetime.utcnow()
-    calf_age = today - calf_down
-    calf_numbers = Milk.objects.count()
-    vet_cost = Milk.objects.aggregate(all_sum=Sum('vet_cost'))
-    Total_vet_cost = Milk.objects.aggregate(total_cost=Sum('vet_cost'))
 
     context = {
         "Milk": data,
@@ -639,14 +768,9 @@ def milk_view_retrieve(request):
         "m_average": milking_average,
         "t_milk": total_milk['total_sum'],
         "today": today,
-        "cf_down": calf_down,
-        "cf_age": calf_age,
-        "cf_numbers": calf_numbers,
-        "v_cost": vet_cost,
-        "T_v_cost": Total_vet_cost['total_cost'],
     }
-    print(milk_today)
-    return render(request, 'mogoon/milk_table.html', context)
+
+    return render(request, 'mogoon/milk.html', context)
 
 
 @login_required(login_url='login')
@@ -693,27 +817,6 @@ def milk_view_fetch_details(request):
         total_milk['total_sum'] = 0
     else:
         total_milk = Milk.objects.aggregate(total_sum=Sum('milk_todate'))
-    calf_down = datetime.now(tz=pytz.UTC).replace(tzinfo=None)
-    if calf_down is None:
-        calf_down = 0
-    else:
-        calf_down = datetime.now(tz=pytz.UTC).replace(tzinfo=None)
-    today = datetime.utcnow()
-    calf_age = today - calf_down
-    if calf_age is None:
-        calf_age = 0
-    else:
-        calf_age = today - calf_down
-    calf_numbers = Milk.objects.count()
-    if calf_numbers is None:
-        calf_numbers = 0
-    else:
-        Milk.objects.count()
-    Total_vet_cost = Milk.objects.aggregate(total_cost=Sum('vet_cost'))
-    if Total_vet_cost.get('total_cost') is None:
-        Total_vet_cost['total_cost'] = 0
-    else:
-        Total_vet_cost = Milk.objects.aggregate(total_cost=Sum('vet_cost'))
 
     context = {
         "milk_todate": milk_todate,
@@ -721,13 +824,9 @@ def milk_view_fetch_details(request):
         "cow_numbers": cow_numbers,
         "milking_average": milking_average,
         "total_milk": total_milk,
-        "calf_down": calf_down,
-        "calf_age": calf_age,
-        "calf_numbers": calf_numbers,
-        "Total_vet_cost": Total_vet_cost,
 
     }
-    return render(request, 'mogoon/milk_table_create.html', context)
+    return render(request, 'mogoon/milk_create.html', context)
 
 
 @login_required(login_url='login')
@@ -746,18 +845,86 @@ def milk_view_create(request):
         cow_numbers = request.POST['cow_numbers']
         milking_average = request.POST['milking_average']
         total_milk = request.POST['total_milk']
+
+        insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
+                      cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
+                      total_milk=total_milk)
+        insert.save()
+        return redirect('/milk-table')
+
+
+@never_cache
+def vetcosts_view_retrieve(request):
+    data = VetCosts.objects.all()
+
+    # Assuming calf_down is a DateTimeField
+    calf_down_values = VetCosts.objects.values_list('calf_down', flat=True)
+
+    # Extracting the verbose name of the field
+    calf_down_verbose_name = VetCosts._meta.get_field('calf_down').verbose_name
+
+    today = timezone.now()
+
+    # Calculate calf_age for each record
+    calf_age_list = [today - calf_date for calf_date in calf_down_values]
+
+    calf_numbers = VetCosts.objects.count()
+    vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
+    total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))
+
+    context = {
+        "vetcosts": data,
+        "calf_down_verbose_name": calf_down_verbose_name,
+        "today": today,
+        "calf_age_list": calf_age_list,
+        "calf_numbers": calf_numbers,
+        "vet_cost": vet_cost['vt_count'] or 0,
+        "total_vet_cost": total_vet_cost['tl_cost'] or 0,
+    }
+
+    return render(request, 'mogoon/vetcosts.html', context)
+
+
+@login_required(login_url='login')
+@never_cache
+def vetcosts_view_fetch_details(request):
+    if request.method == "POST":
+        try:
+            calf_down = datetime.strptime(request.POST['calf_down'], '%Y-%m-%d')
+            today = timezone.now()
+            calf_age = today - calf_down
+            calf_numbers = VetCosts.objects.count()
+            vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
+            total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['tl_cost'] or 0
+
+            context = {
+                "calf_down": calf_down,
+                "calf_age": calf_age,
+                "calf_numbers": calf_numbers,
+                "vet_cost": vet_cost,
+                "total_vet_cost": total_vet_cost,
+            }
+
+            return render(request, 'mogoon/vetcosts_create.html', context)
+
+        except ValueError:
+            # Handle the case where the date format is invalid
+            return HttpResponse("Invalid date format")
+
+
+@never_cache
+def vetcosts_view_create(request):
+    if request.method == "POST":
         calf_down = request.POST['calf_down']
         calf_age = request.POST['calf_age']
         calf_numbers = request.POST['calf_numbers']
         vet_cost = request.POST['vet_cost']
-        Total_vet_cost = request.POST['Total_vet_cost']
+        total_vet_cost = request.POST['total_vet_cost']
 
-        insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
-                      cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
-                      total_milk=total_milk, calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
-                      vet_cost=vet_cost, Total_vet_cost=Total_vet_cost)
+        insert = VetCosts(calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers, vet_cost=vet_cost,
+                          total_vet_cost=total_vet_cost)
         insert.save()
-        return redirect('/milk_table')
+        return redirect('/vetcosts-table')
 
 
 @never_cache
@@ -796,7 +963,7 @@ def fertilizer_view_retrieve(request):
         "f_cost": fertilizer_cost,
         "f_t_cost": fertilizer_total_cost,
     }
-    return render(request, 'mogoon/fertilizer_table.html', context)
+    return render(request, 'mogoon/fertilizer.html', context)
 
 
 @login_required(login_url='login')
@@ -864,9 +1031,9 @@ def fertilizer_view_fetch_details(request):
             "fertilizer_total_cost": fertilizer_total_cost,
 
         }
-        return render(request, 'mogoon/fertilizer_table_create.html', context)
+        return render(request, 'mogoon/fertilizer_create.html', context)
     # If the form is not valid, or it's a GET request, render the form
-    return render(request, 'mogoon/fertilizer_table_create.html', {"form": form})
+    return render(request, 'mogoon/fertilizer_create.html', {"form": form})
 
 
 @login_required(login_url='login')
@@ -875,7 +1042,7 @@ def fertilizer_view_create(request):
     if request.method == "POST":
         fertilizer = request.POST['fertilizer']
         fertilizer_applied = request.POST['fertilizer_applied']
-        fertilizer_labour_rate = request.POST['fertilizer_labour_rate']
+        fertilizer_labour_rate = request.POST.get('fertilizer_labour_rate', 0)
         fertilizer_amt = request.POST['fertilizer_amt']
         fertilizer_labour = request.POST['fertilizer_labour']
         fertilizer_labour_cost = request.POST['fertilizer_labour_cost']
@@ -889,13 +1056,13 @@ def fertilizer_view_create(request):
                             fertilizer_price=fertilizer_price,
                             fertilizer_cost=fertilizer_cost, fertilizer_total_cost=fertilizer_total_cost)
         insert.save()
-        return redirect('/fertilizer_table')
+        return redirect('/fertilizer-table')
 
 
 # CRUD functionality for the tables
 ##########################################################CRUD########################################################
 @login_required(login_url='login')
-def r_update(request, pk):
+def reports_view_update(request, pk):
     # Use get_object_or_404 to handle the case where the Reports object is not found
     reports = get_object_or_404(Reports, id=pk)
 
@@ -903,7 +1070,7 @@ def r_update(request, pk):
         form = ReportsForm(request.POST, request.FILES, instance=reports)
         if form.is_valid():
             form.save()
-            return redirect('/reports')
+            return redirect('/reports-retrieve')
 
     else:
         form = ReportsForm(instance=reports)
@@ -916,7 +1083,7 @@ def r_update(request, pk):
 
 
 @login_required(login_url='login')
-def r_delete(request, pk):
+def reports_view_delete(request, pk):
     # Use get_object_or_404 to handle the case where the Reports object is not found
     reports = get_object_or_404(Reports, id=pk)
 
@@ -931,13 +1098,13 @@ def r_delete(request, pk):
 
 
 @login_required(login_url='login')
-def employee_update(request, pk):
+def employee_view_update(request, pk):
     data = Employee.objects.get(id=pk)
     if request.method == 'POST':
         form = EmployeeForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/employee_list')
+            return redirect('/employee_retrieve')
 
     else:
         form = EmployeeForm(instance=data)
@@ -946,30 +1113,16 @@ def employee_update(request, pk):
         'form': form, 'EmployeeForm': EmployeeForm,
 
     }
-    return render(request, 'mogoon/employee_details_create.html', context)
+    return render(request, 'Employee/update.html', context)
 
 
 @login_required(login_url='login')
-def employee_edit(request, pk):
-    employee = get_object_or_404(Employee, id=pk)
-    if request.method == "POST":
-        form = EmployeeForm(request.POST, instance=employee)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Employee details are successfully updated.')
-            return redirect('/employee-list')
-    else:
-        form = EmployeeForm(instance=employee)
-    return render(request, 'Employee/update.html', {'form': form, 'employee': employee})
-
-
-@login_required(login_url='login')
-def employee_delete(request, pk):
+def employee_view_delete(request, pk):
     employee = get_object_or_404(Employee, id=pk)
     if request.method == "POST":
         employee.delete()
         messages.success(request, 'Employee details are successfully deleted.')
-        return redirect('/employee-list')
+        return redirect('/employee-retrieve')
     context = {
         'item': employee,
     }
@@ -983,7 +1136,7 @@ def update(request, pk):
         form = UpdateGreenForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/green_table')
+            return redirect('/green-retrieve')
 
     else:
         form = UpdateGreenForm(instance=data)
@@ -1000,7 +1153,7 @@ def delete(request, pk):
     data = Green.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/green_table')
+        return redirect('/green-retrieve')
 
     context = {
         'item': data,
@@ -1009,13 +1162,13 @@ def delete(request, pk):
 
 
 @login_required(login_url='login')
-def f_update(request, pk):
+def fertilizer_view_update(request, pk):
     data = Fertilizer.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateFertilizerForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/fertilizer_table')
+            return redirect('/fertilizer-retrieve')
 
     else:
         form = UpdateFertilizerForm(instance=data)
@@ -1028,11 +1181,11 @@ def f_update(request, pk):
 
 
 @login_required(login_url='login')
-def f_delete(request, pk):
+def fertilizer_view_delete(request, pk):
     data = Fertilizer.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/fertilizer_table')
+        return redirect('/fertilizer-retrieve')
 
     context = {
         'item': data,
@@ -1041,45 +1194,75 @@ def f_delete(request, pk):
 
 
 @login_required(login_url='login')
-def k_update(request, pk):
-    data = Kandojobs.objects.get(id=pk)
+def pruning_view_update(request, pk):
+    data = Pruning.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateKandojobsForm(request.POST, instance=data)
+        form = PruningForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/kandojobs_table')
+            return redirect('/pruning-retrieve')
 
     else:
-        form = UpdateKandojobsForm(instance=data)
+        form = PruningForm(instance=data)
 
     context = {
-        'form': form, 'UpdateKandojobsForm': UpdateKandojobsForm,
+        'form': form, 'PruningForm': PruningForm,
 
     }
-    return render(request, 'Kandojobs/update.html', context)
+    return render(request, 'Pruning/update.html', context)
 
 
 @login_required(login_url='login')
-def k_delete(request, pk):
-    data = Kandojobs.objects.get(id=pk)
+def pruning_view_delete(request, pk):
+    data = Pruning.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/kandojobs_table')
+        return redirect('/pruning-retrieve')
 
     context = {
         'item': data,
     }
-    return render(request, 'Kandojobs/delete.html', context)
+    return render(request, 'Pruning/delete.html', context)
 
 
 @login_required(login_url='login')
-def m_update(request, pk):
+def weeding_view_update(request, pk):
+    data = Weeding.objects.get(id=pk)
+    form = WeedingForm(request.POST or None, instance=data)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('/weeding-retrieve')
+
+    context = {
+        'form': form,
+        'WeedingForm': WeedingForm,
+    }
+    return render(request, 'Weeding/update.html', context)
+
+
+@login_required(login_url='login')
+def weeding_view_delete(request, pk):
+    data = Weeding.objects.get(id=pk)
+    if request.method == 'POST':
+        data.delete()
+        return redirect('/weeding-retrieve')
+
+    context = {
+        'item': data,
+    }
+    return render(request, 'Weeding/delete.html', context)
+
+
+@login_required(login_url='login')
+def milk_view_update(request, pk):
     data = Milk.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdateMilkForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/milk_table')
+            return redirect('/milk-retrieve')
 
     else:
         form = UpdateMilkForm(instance=data)
@@ -1092,11 +1275,11 @@ def m_update(request, pk):
 
 
 @login_required(login_url='login')
-def m_delete(request, pk):
+def milk_view_delete(request, pk):
     data = Milk.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/milk_table')
+        return redirect('/milk-retrieve')
 
     context = {
         'item': data,
@@ -1105,13 +1288,48 @@ def m_delete(request, pk):
 
 
 @login_required(login_url='login')
-def p_update(request, pk):
+def vetcosts_view_update(request, pk):
+    data = VetCosts.objects.get(id=pk)
+    form = VetCostsForm(request.POST or None, instance=data)
+
+    if request.method == 'POST':
+        form = VetCostsForm(request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+            return redirect('/vetcosts-retrieve')
+
+    else:
+        form = VetCostsForm(instance=data)
+
+    context = {
+        'form': form,
+        'VetCostsForm': VetCostsForm,
+    }
+    return render(request, 'VetCosts/update.html', context)
+
+
+@login_required(login_url='login')
+def vetcosts_view_delete(request, pk):
+    data = get_object_or_404(VetCosts, pk=pk)
+
+    if request.method == 'POST':
+        data.delete()
+        return redirect('/vetcosts-retrieve')
+
+    context = {
+        'item': data,
+    }
+    return render(request, 'VetCosts/delete.html', context)
+
+
+@login_required(login_url='login')
+def purple_view_update(request, pk):
     data = Purple.objects.get(id=pk)
     if request.method == 'POST':
         form = UpdatePurpleForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
-            return redirect('/purple_table')
+            return redirect('/purple-retrieve')
 
     else:
         form = UpdatePurpleForm(instance=data)
@@ -1124,11 +1342,11 @@ def p_update(request, pk):
 
 
 @login_required(login_url='login')
-def p_delete(request, pk):
+def purple_view_delete(request, pk):
     data = Purple.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('/purple_table')
+        return redirect('/purple-retrieve')
 
     context = {
         'item': data,
@@ -1265,23 +1483,41 @@ def purple_create_view(request):
 
 
 @api_view(['GET'])
-def kandojobs_list_create_view(request):
-    queryset = Kandojobs.objects.all()
-    serializer_class = KandojobsSerializer(queryset, many=True)
+def pruning_list_create_view(request):
+    queryset = Pruning.objects.all()
+    serializer_class = PruningSerializer(queryset, many=True)
     return Response(serializer_class.data)
 
 
 @api_view(['POST'])
-def kandojobs_create_view(request):
+def pruning_create_view(request):
     pruning_done = request.POST['pruning_done']
-    pruned_block_No = request.POST['pruned_block_No']
+    pruned_block_no = request.POST['pruned_block_no']
     pruned_bushes = request.POST['pruned_bushes']
     total_pruned_bushes = request.POST['total_pruned_bushes']
     pruning_rate = request.POST['pruning_rate']
     pruning_cost = request.POST['pruning_cost']
+
+    insert = Pruning(pruned_block_no=pruned_block_no, pruned_bushes=pruned_bushes,
+                     total_pruned_bushes=total_pruned_bushes, pruning_done=pruning_done,
+                     pruning_rate=pruning_rate, pruning_cost=pruning_cost)
+
+    insert.save()
+    return Response(status=200)
+
+
+@api_view(['GET'])
+def weeding_list_create_view(request):
+    queryset = Weeding.objects.all()
+    serializer_class = WeedingSerializer(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def weeding_create_view(request):
     weeding_done = request.POST['weeding_done']
     chemical_name = request.POST['chemical_name']
-    block_No = request.POST['block_No']
+    block_no = request.POST['block_no']
     cost_per_lit = request.POST['cost_per_lit']
     weeding_chem_amt = request.POST['weeding_chem_amt']
     total_chem_amt = request.POST['total_chem_amt']
@@ -1291,14 +1527,12 @@ def kandojobs_create_view(request):
     weeding_labour = request.POST['weeding_labour']
     weeding_cost = request.POST['weeding_cost']
 
-    insert = Kandojobs(pruned_block_No=pruned_block_No, pruned_bushes=pruned_bushes,
-                       total_pruned_bushes=total_pruned_bushes, pruning_done=pruning_done,
-                       pruning_rate=pruning_rate, pruning_cost=pruning_cost, weeding_done=weeding_done,
-                       chemical_name=chemical_name, block_No=block_No, cost_per_lit=cost_per_lit,
-                       weeding_chem_amt=weeding_chem_amt, total_chem_amt=total_chem_amt,
-                       weeding_labour_number=weeding_labour_number, weeding_labour_rate=weeding_labour_rate,
-                       weeding_labour=weeding_labour, total_weeding_labour_number=total_weeding_labour_number,
-                       weeding_cost=weeding_cost)
+    insert = Weeding(weeding_done=weeding_done,
+                     chemical_name=chemical_name, block_no=block_no, cost_per_lit=cost_per_lit,
+                     weeding_chem_amt=weeding_chem_amt, total_chem_amt=total_chem_amt,
+                     weeding_labour_number=weeding_labour_number, weeding_labour_rate=weeding_labour_rate,
+                     weeding_labour=weeding_labour, total_weeding_labour_number=total_weeding_labour_number,
+                     weeding_cost=weeding_cost)
 
     insert.save()
     return Response(status=200)
@@ -1313,24 +1547,21 @@ def fertilizer_list_view(request):
 
 @api_view(['POST'])
 def fertilizer_create_view(request):
-    milking_done = request.POST['milking_done']
-    milk_today = request.POST['milk_today']
-    milk_todate = int(request.POST['milk_todate']) + int(milk_today)
-    # Initially request.POST['milk_today'] is a string, it has to be wrapped with an int for purpose of addition
-    cows_milked = request.POST['cows_milked']
-    cow_numbers = request.POST['cow_numbers']
-    milking_average = request.POST['milking_average']
-    total_milk = request.POST['total_milk']
-    calf_down = request.POST['calf_down']
-    calf_age = request.POST['calf_age']
-    calf_numbers = request.POST['calf_numbers']
-    vet_cost = request.POST['vet_cost']
-    Total_vet_cost = request.POST['Total_vet_cost']
+    fertilizer = request.POST['fertilizer']
+    fertilizer_applied = request.POST['fertilizer_applied']
+    fertilizer_labour_rate = request.POST['fertilizer_labour_rate']
+    fertilizer_amt = request.POST['fertilizer_amt']
+    fertilizer_labour = request.POST['fertilizer_labour']
+    fertilizer_labour_cost = request.POST['fertilizer_labour_cost']
+    fertilizer_price = request.POST['fertilizer_price']
+    fertilizer_cost = request.POST['fertilizer_cost']
+    fertilizer_total_cost = request.POST['fertilizer_total_cost']
 
-    insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
-                  cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
-                  total_milk=total_milk, calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
-                  vet_cost=vet_cost, Total_vet_cost=Total_vet_cost)
+    insert = Fertilizer(fertilizer=fertilizer, fertilizer_applied=fertilizer_applied, fertilizer_amt=fertilizer_amt,
+                        fertilizer_labour_rate=fertilizer_labour_rate,
+                        fertilizer_labour=fertilizer_labour, fertilizer_labour_cost=fertilizer_labour_cost,
+                        fertilizer_price=fertilizer_price,
+                        fertilizer_cost=fertilizer_cost, fertilizer_total_cost=fertilizer_total_cost)
     insert.save()
     return Response(200)
 
@@ -1352,16 +1583,31 @@ def milk_create_view(request):
     cow_numbers = request.POST['cow_numbers']
     milking_average = request.POST['milking_average']
     total_milk = request.POST['total_milk']
+
+    insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
+                  cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
+                  total_milk=total_milk)
+    insert.save()
+    return Response(200)
+
+
+@api_view(['GET'])
+def vetcosts_list_view(request):
+    queryset = VetCosts.objects.all()
+    serializer_class = VetCosts(queryset, many=True)
+    return Response(serializer_class.data)
+
+
+@api_view(['POST'])
+def vetcosts_create_view(request):
     calf_down = request.POST['calf_down']
     calf_age = request.POST['calf_age']
     calf_numbers = request.POST['calf_numbers']
     vet_cost = request.POST['vet_cost']
-    Total_vet_cost = request.POST['Total_vet_cost']
+    total_vet_cost = request.POST['total_vet_cost']
 
-    insert = Milk(milking_done=milking_done, milk_today=milk_today, milk_todate=milk_todate,
-                  cows_milked=cows_milked, cow_numbers=cow_numbers, milking_average=milking_average,
-                  total_milk=total_milk, calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
-                  vet_cost=vet_cost, Total_vet_cost=Total_vet_cost)
+    insert = VetCosts(calf_down=calf_down, calf_age=calf_age, calf_numbers=calf_numbers,
+                      vet_cost=vet_cost, total_vet_cost=total_vet_cost)
     insert.save()
     return Response(200)
 

@@ -11,7 +11,7 @@
             {% csrf_token %}
             {{ form.as_p }}
             <input class="btn btn-info bg-warning" type="submit" value="Edit">
-            <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'employee-list' %}">Return</a>
+            <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'employee-retrieve' %}">Return</a>
         </form>
     </div>
 </div>

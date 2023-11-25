@@ -54,7 +54,8 @@ class Employee(models.Model):
     salary_total = models.IntegerField()
 
     def __str__(self):
-        return f'{self.name}-{self.salary_total}'
+        return f'{self.date_employed}-{self.national_identity}-{self.name}-{self.age}{self.gender}-{self.department}' \
+               f'{self.position}-{self.salary_total}'
 
 
 class Green(models.Model):
@@ -87,16 +88,23 @@ class Purple(models.Model):
                f'{self.plucking_average}-{self.plucker_numbers}-{self.total_purple}'
 
 
-class Kandojobs(models.Model):
+class Pruning(models.Model):
     pruning_done = models.DateTimeField(auto_now_add=False)
-    pruned_block_No = models.IntegerField()
+    pruned_block_no = models.IntegerField()
     pruned_bushes = models.IntegerField()
-    total_pruned_bushes = models.IntegerField(name=None, default=None)
+    total_pruned_bushes = models.IntegerField(null=True, blank=True)
     pruning_rate = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
     pruning_cost = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.pruning_done}-{self.pruned_block_no}-{self.pruned_bushes}-{self.total_pruned_bushes}' \
+               f'{self.pruning_rate}-{self.pruning_cost}'
+
+
+class Weeding(models.Model):
     weeding_done = models.DateTimeField(auto_now_add=False, default=None)
     chemical_name = models.CharField(max_length=100, default=None)
-    block_No = models.IntegerField(name=None, default=None)
+    block_no = models.IntegerField(name=None, default=None)
     cost_per_lit = models.DecimalField(max_digits=8, decimal_places=2)
     weeding_chem_amt = models.DecimalField(max_digits=8, decimal_places=2)
     total_chem_amt = models.DecimalField(max_digits=8, decimal_places=2, default=None)
@@ -107,10 +115,9 @@ class Kandojobs(models.Model):
     weeding_cost = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
-        return f'{self.pruning_done}-{self.pruned_block_No}-{self.pruned_bushes}-{self.total_pruned_bushes}'\
-            f'{self.pruning_rate}-{self.pruning_cost}-{self.weeding_done}-{self.weeding_chem_amt}'\
-            f'{self.total_chem_amt}-{self.weeding_labour_number}-{self.total_weeding_labour_number}'\
-            f'{self.weeding_labour}-{self.weeding_cost}'
+        return f'{self.weeding_done}-{self.weeding_chem_amt}-{self.total_chem_amt}-{self.weeding_labour_number}' \
+               f'{self.total_weeding_labour_number}-{self.weeding_labour}-{self.weeding_cost}' \
+               f'{self.block_no}-{self.cost_per_lit}-{self.weeding_labour_rate}'
 
 
 class Fertilizer(models.Model):
@@ -125,8 +132,8 @@ class Fertilizer(models.Model):
     fertilizer_total_cost = models.DecimalField(max_digits=8, decimal_places=2, default=None)
 
     def __str__(self):
-        return f'{self.fertilizer_applied}-{self.fertilizer_amt}-{self.fertilizer_labour}-{self.fertilizer_labour_cost}'\
-            f'{self.fertilizer_cost}-{self.fertilizer_total_cost}'
+        return f'{self.fertilizer_applied}-{self.fertilizer_amt}-{self.fertilizer_labour}-{self.fertilizer_labour_cost}' \
+               f'{self.fertilizer_cost}-{self.fertilizer_total_cost}'
 
 
 class Milk(models.Model):
@@ -137,16 +144,26 @@ class Milk(models.Model):
     cow_numbers = models.IntegerField()
     milking_average = models.DecimalField(max_digits=4, decimal_places=2)
     total_milk = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.milking_done}-{self.milk_today}-{self.milk_todate}-{self.cows_milked}' \
+               f'{self.cow_numbers}-{self.total_milk}'
+
+
+class VetCosts(models.Model):
     calf_down = models.DateTimeField(auto_now_add=True)
     today = models.DateTimeField(auto_now_add=False, blank=True, default=datetime.now())
     calf_age = models.IntegerField(name=None, default=None)
     calf_numbers = models.IntegerField(blank=True)
     vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
-    Total_vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    total_vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.data = None
 
     def __str__(self):
-        return f'{self.milking_done}-{self.milk_today}-{self.milk_todate}-{self.cows_milked}' \
-               f'{self.cow_numbers}-{self.total_milk}-{self.vet_cost}-{self.Total_vet_cost}'
+        return f'{self.calf_down}-{self.today}-{self.calf_age}-{self.calf_numbers}-{self.vet_cost}-{self.total_vet_cost}'
 
 
 class Profile:

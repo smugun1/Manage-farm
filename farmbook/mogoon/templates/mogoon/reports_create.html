@@ -14,7 +14,7 @@
             <div>
             <a class="btn btn-light bg-secondary btn-info block-lg" style="width: 10rem;"
                            href="{% url 'graph' %}">Go To Graphs</a>
-            <a class="btn btn-light bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a></div>
+            <a class="btn btn-light bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a></div>
             <h5 class="text-center"><p class="text-center"><strong><em>The brief farm reports Page, enter the daily briefs below </em></strong></p></h5>
 
             <form action="{% url 'reports-create'%}" method="POST" enctype="multipart/form-data" class="was-validated"

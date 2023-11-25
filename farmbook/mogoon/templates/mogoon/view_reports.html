@@ -32,21 +32,25 @@
 
                     <div class="justify-content-evenly align-items-center">
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'reports-update'%}">Add</a>
+                           href="{% url 'reports-retrieve'%}">Add</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
                            href="{% url 'graph' %}">Go To Graphs</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'employee-list' %}">Go To Employee</a>
+                           href="{% url 'employee-retrieve' %}">Go To Employee</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'mogoon-green_table' %}">Go To Green</a>
+                           href="{% url 'green-retrieve' %}">Go To Green</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'mogoon-purple' %}">Go To Purple</a>
+                           href="{% url 'purple-retrieve' %}">Go To Purple</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'mogoon-kandojobs_table' %}">Go To Kandojobs</a>
+                           href="{% url 'pruning-retrieve' %}">Go To Pruning</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'mogoon-milk_table' %}">Go To Milk</a>
+                           href="{% url 'weeding-retrieve' %}">Go To Weeding</a>
                         <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
-                           href="{% url 'mogoon-fertilizer_table' %}">Go To Fertilizer</a>
+                           href="{% url 'milk-retrieve' %}">Go To Milk</a>
+                        <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
+                           href="{% url 'vetcosts-retrieve' %}">Go To VetCosts</a>
+                        <a class="btn btn-dark bg-secondary btn-info block-lg" style="width: 10rem;"
+                           href="{% url 'fertilizer-retrieve' %}">Go To Fertilizer</a>
                         <h1 class="text-center bg-secondary text-light">View Reports</h1>
                         <p class="text-center bg-secondary text-light align-items-center"><strong><em> This is the reports
                             page </em></strong></p>
@@ -63,7 +67,7 @@
                                     <div class="container">
                                         <td>
                                             <a class="btn btn-light btn-block bg-info text-dark btn btn-info"
-                                               href="{% url 'reports-edit' data.id %}">Edit</a>
+                                               href="{% url 'reports-update' data.id %}">Edit</a>
                                             <a class="btn btn-light btn-block bg-warning text-dark btn btn-info"
                                                href="{% url 'reports-delete' data.id %}">Delete</a>
                                         </td>

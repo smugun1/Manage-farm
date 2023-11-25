@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 
     'mogoon',
     'members',
-    'rest_framework'
+    'reports',
+    'rest_framework',
     # 'crispy_forms',
     # 'storages',
     # 'mathfilters',

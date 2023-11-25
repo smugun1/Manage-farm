@@ -20,8 +20,8 @@
                 <h2 class="text-center bg-dark text-light">Milk Records</h2>
                 <div class="border p-3">
                     <a class="btn btn-dark bg-primary btn-info block-lg"
-                       href="{% url 'mogoon-milk_table_update'%}">Add</a>
-                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                       href="{% url 'milk-details'%}">Add</a>
+                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
                     <hr>
                     <table class="table align-middle text-dark bg-light">
                         <tr>
@@ -157,141 +157,7 @@
             </div>
         </div>
     </div>
-    <div class="row d-none d-lg-flex">
-        <div class="col-lg-8 d-none d-lg-flex">
-            <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
-                 style="border-radius: 10px;">
-                <h2 class="text-center bg-dark text-light">Vet Records</h2>
 
-                 <div class="border p-3">
-                    <a class="btn btn-dark bg-primary btn-info block-lg"
-                       href="{% url 'mogoon-milk_table_update'%}">Add</a>
-                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
-                    <hr>
-
-                <table class="table align-middle text-dark bg-light">
-                    <tr>
-                        <th>Calf Down Date</th>
-                        <th>Today Date</th>
-                        <th>Calf Age</th>
-                        <th>Calf Numbers</th>
-                        <th>Vet Cost</th>
-                        <th>Total Vet Cost</th>
-                        <th>Update</th>
-                        <th>Delete</th>
-                    </tr>
-
-                    {% for data in Milk %}
-
-                    <tr>
-                        <td>{{data.calf_down}}</td>
-                        <td>{{data.today}}</td>
-                        <td>{{data.calf_age}}</td>
-                        <td>{{data.calf_numbers}}</td>
-                        <td>{{data.vet_cost}}</td>
-                        <td>{{data.Total_vet_cost}}</td>
-                        <td><a class="btn btn-info btn-block bg-primary btn btn-info"
-                               href="{% url 'milk-update' data.id %}">Edit</a></td>
-                        <td><a class="btn btn-info btn-block bg-danger btn btn-info"
-                               href="{% url 'milk-delete' data.id %}">Delete</a></td>
-                    </tr>
-                    {% endfor %}
-
-                    <tr>
-                        <td>TOTAL</td>
-                        <td></td>
-                        <td>{{ cf_age }}</td>
-                        <td></td>
-                        <td>{{v_cost.all_sum}}</td>
-                        <td>{{T_v_cost}}</td>
-                    </tr>
-                </table>
-            </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="bg-white">
-                <canvas id="chartContainer1" style="height: 300px;"></canvas>
-                <script>
-                    // Ensure jQuery is noConflict mode to avoid conflicts
-                        jQuery.noConflict();
-
-                        jQuery(document).ready(function ($) {
-                            // Function to extract data from the table and generate a chart
-                            function generateChart() {
-                                var labels = [];
-                                var values = [];
-
-                                // Loop through table rows (skip header and total/average row)
-                               {% for data_entry in Milk %}
-                                    labels.push('{{ data_entry.today }}');
-                                    values.push({{ data_entry.Total_vet_cost }});
-                                {% endfor %}
-
-                                 // Define different colors for each bar
-                                    var backgroundColors = [
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(255, 99, 132, 1)',
-                                        'rgba(255, 205, 86, 1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 199, 232, 1)',
-                                        'rgba(255, 20, 86, 1)',
-                                        'rgba(54, 62, 135, 1)',
-                                        // Add more colors as needed
-                                    ];
-
-                                    // Define border colors for each bar
-                                    var borderColors = [
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(255, 99, 132, 1)',
-                                        'rgba(255, 205, 86, 1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 199, 232, 1)',
-                                        'rgba(255, 20, 86, 1)',
-                                        'rgba(54, 62, 135, 1)',
-                                        // Add more colors as needed
-                                    ];
-
-                                // Chart.js configuration
-                                var ctx = document.getElementById('chartContainer1').getContext('2d');
-                                var myChart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: 'Vet Costs',
-                                            data: values,
-                                            backgroundColor: backgroundColors,
-                                            borderColor: borderColors,
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-
-                            // Call the function to generate the chart
-                            generateChart();
-                        });
-
-
-
-
-
-
-
-
-
-                </script>
-            </div>
-        </div>
-    </div>
 </div>
 </div>
 {% endblock %}

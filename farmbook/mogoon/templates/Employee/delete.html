@@ -11,7 +11,7 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button class="btn btn-warning" typeof="hover"><a href="{% url 'employee-list' %}">Cancel</a>
+                <button class="btn btn-warning" typeof="hover"><a href="{% url 'employee-retrieve' %}">Cancel</a>
                 </button>
                 <button class="btn btn-danger" typeof="hover" type="submit">Confirm</button>
 

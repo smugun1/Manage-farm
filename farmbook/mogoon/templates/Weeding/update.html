@@ -8,12 +8,12 @@
         <div class="alert alert-info">
             <p>Update record here!</p>
         </div>
-        <form method="POST" enctype="multipart/form-data">
+
+        <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-
-            <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'reports-retrieve' %}">Return</a>
-            <button type="submit">Update</button>
+            <input class="btn btn-info bg-warning" type="submit" value="Edit">
+            <a class="btn btn-warning bg-warning btn-info block-lg" href="{% url 'weeding-retrieve' %}">Return</a>
         </form>
     </div>
 </div>

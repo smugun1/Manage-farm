@@ -14,9 +14,9 @@
             <h2 class="text-center text-light">Create Employee Form</h2>
             <a class="btn btn-light bg-secondary btn-info block-lg" style="width: 10rem;" href="{% url 'graph' %}">Go To
                 Graphs</a>
-            <form method="POST" action="{% url 'mogoon-employees_create' %}">
+            <form method="POST" action="{% url 'employees-create' %}">
                 {% csrf_token %}
-
+                
 
                 <div class="col-sm ">
                     <label for="date_employed" class="form-label"><strong>Date of Employment</strong></label>
@@ -100,7 +100,7 @@
                     <div class="container my-3">
                         <button class="btn btn-primary" type="submit">Submit</button>
                         <a class="btn btn-light bg-success btn-info block-lg"
-                           href="{% url 'employee-list' %}">Return</a>
+                           href="{% url 'employee-retrieve' %}">Return</a>
                     </div>
                 </div>
             </form>

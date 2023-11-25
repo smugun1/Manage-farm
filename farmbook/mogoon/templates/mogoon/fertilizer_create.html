@@ -13,7 +13,7 @@
                 <h2 class="text-center text-light">Create Fertilizer Form</h2>
                 <a class="btn btn-light bg-secondary btn-info block-lg" style="width: 10rem;"
                                     href="{% url 'graph' %}">Go To Graphs</a>
-                <form action="{% url 'mogoon-fertilizer_create' %}" method="POST">
+                <form action="{% url 'fertilizer-create' %}" method="POST">
                     {% csrf_token %}
 
 
@@ -100,7 +100,7 @@
                         </button>
 
                         <a class="btn btn-light bg-success btn-info block-lg"
-                               href="{% url 'mogoon-fertilizer_table' %}">Return</a>
+                               href="{% url 'fertilizer-retrieve' %}">Return</a>
                         </div>
                     </div>
                 </form>

@@ -19,8 +19,8 @@
             <h2 class="text-center bg-dark text-light">Green Tea</h2>
             <div class="border p-3">
                 <a class="btn btn-dark bg-primary btn-info block-lg"
-                   href="{% url 'mogoon-green_table_update' %}">Add</a>
-                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports' %}">Go To Reports</a>
+                   href="{% url 'green-details' %}">Add</a>
+                <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
                 <form action="" method="POST">
                     {% csrf_token %}
 
@@ -49,11 +49,11 @@
                         <td>{% widthratio data.green_today data.plucker_numbers 1 %}</td>
                         <td>
                             <a class="btn btn-info btn-block bg-primary btn btn-info"
-                               href="{% url 'green_data-update' data.id %}">Edit</a>
+                               href="{% url 'green-update' data.id %}">Edit</a>
                         </td>
                         <td>
                             <a class="btn btn-info btn-block bg-danger btn btn-info"
-                               href="{% url 'green_data-delete' data.id %}">Delete</a>
+                               href="{% url 'green-delete' data.id %}">Delete</a>
                         </td>
                     </tr>
                     {% endfor %}
