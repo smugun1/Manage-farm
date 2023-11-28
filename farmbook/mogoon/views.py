@@ -2,9 +2,6 @@ import datetime
 import logging
 from decimal import Decimal
 
-from django.urls import reverse
-from django.utils import timezone
-
 import pytz
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
@@ -12,6 +9,7 @@ from django.db.models import Sum, F, Count, Avg, Min, ExpressionWrapper, Decimal
 from django.db.models.functions import Cast
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.utils.timezone import now
 from django.views.decorators.cache import never_cache
 from pytz import UTC
@@ -20,8 +18,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from . import models
-from .forms import UpdateGreenForm, UpdatePurpleForm, UpdateFertilizerForm, \
-    UpdateMilkForm, EmployeeForm, ReportsForm, PruningForm, WeedingForm, VetCostsForm
+from .forms import GreenForm, PurpleForm, FertilizerForm, \
+    MilkForm, EmployeeForm, ReportsForm, PruningForm, WeedingForm, VetCostsForm
 from .models import *
 from .models import Employee
 from .models import Milk
@@ -116,19 +114,19 @@ def graphs_view(request):
     green_data = Green.objects.all()
     purple_data = Purple.objects.all()
     pruning_data = Pruning.objects.all()
-    weeding_data = Pruning.objects.all()
+    weeding_data = Weeding.objects.all()
     fertilizer_data = Fertilizer.objects.all()
     milk_data = Milk.objects.all()
     vetcosts_data = VetCosts.objects.all()
 
     # Use specific forms for each model
     employee_form = EmployeeForm(request.POST or None)
-    green_form = UpdateGreenForm(request.POST or None)
-    purple_form = UpdatePurpleForm(request.POST or None)
+    green_form = GreenForm(request.POST or None)
+    purple_form = PurpleForm(request.POST or None)
     pruning_form = PruningForm(request.POST or None)
     weeding_form = WeedingForm(request.POST or None)
-    fertilizer_form = UpdateFertilizerForm(request.POST or None)
-    milk_form = UpdateMilkForm(request.POST or None)
+    fertilizer_form = FertilizerForm(request.POST or None)
+    milk_form = MilkForm(request.POST or None)
     vetcosts_form = VetCostsForm(request.POST or None)
 
     # Combine data and forms into a dictionary
@@ -300,11 +298,11 @@ total_green. These variables are used to calculate the necessary values to displ
 def green_view_fetch_details(request):
     data = Green.objects.all()
     if request.method == 'POST':
-        form = UpdateGreenForm(request.POST)
+        form = GreenForm(request.POST)
         if form.is_valid():
             form.save()
     else:
-        form = UpdateGreenForm()
+        form = GreenForm()
     green_today = Green.objects.count()
     # get the current green_todate value
     green_todate = Green.objects.aggregate(all_sum=Sum('green_today'))
@@ -586,114 +584,64 @@ def pruning_view_create(request):
 @never_cache
 def weeding_view_retrieve(request):
     data = Weeding.objects.all()
-    if request.method == 'POST':
-        # Handle POST request to update data based on user input
-        weeding_done = request.POST.get('weeding_done')
-        chemical_name = request.POST.get('chemical_name')
-        block_no = request.POST.get('block_no')
-        weeding_chem_amt = request.POST.get('weeding_chem_amt')
-
-        # Handle block_no as before
-        block_no = handle_block_no(block_no)
-
-        # ... (rest of your existing code for processing POST request)
-        # After processing, you might want to redirect or render another page
-        return redirect('some_success_page')
+    weeding_chem_amt = Weeding.objects.aggregate(wc_sum=Sum('weeding_chem_amt'))
+    total_chem_amt = weeding_chem_amt.get('wc_sum', 0) or 0
+    weeding = Weeding.objects.first()
+    cost_per_lit = weeding.cost_per_lit if weeding else 0
+    if weeding:
+        cost_per_lit = weeding.cost_per_lit
     else:
+        cost_per_lit = 0
+    weeding_labour_number = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
+    total_weeding_labour_number = weeding_labour_number.get('wl_num', 0) or 0
+    weeding_labour_rate = Decimal(request.GET.get('weeding_labour_rate', 0))
+    weeding_labour = total_weeding_labour_number * weeding_labour_rate
+    weeding_cost = (total_chem_amt * cost_per_lit) + weeding_labour
 
-        # Assuming 'cost_per_lit' is a constant value for all entries
-        first_entry = Weeding.objects.first()
-        cost_per_lit = first_entry.cost_per_lit if first_entry else 0
+    context = {
+        "weeding": data,
+        "cost_per_lit": cost_per_lit,
+        "weeding_chem_amt": weeding_chem_amt,
+        "total_chem_amt": total_chem_amt,
+        "weeding_labour_number": weeding_labour_number.get('wl_num', 0),
+        "total_weeding_labour_number": total_weeding_labour_number,
+        "weeding_labour_rate": weeding_labour_rate,
+        "weeding_labour": weeding_labour,
+        "weeding_cost": weeding_cost,
+    }
 
-        weeding_done = Weeding._meta.get_field('weeding_done').verbose_name
-        chemical_name = request.POST.get('chemical_name', None)
-        block_no = request.POST.get('block_no')
-
-        # Handle block_no as before
-        block_no = handle_block_no(block_no)
-
-        weeding_chem_amt = request.POST.get('weeding_chem_amt', None)
-
-        # Count and sum for weeding_labour_number
-        weeding_labour_number_count = Weeding.objects.aggregate(wl_num=Count('weeding_labour_number'))
-        total_weeding_labour_number_sum = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-
-        # Calculate weeding labour and cost
-        weeding_labour_rate = Decimal(request.GET.get('weeding_labour_rate', 0))
-        weeding_labour_number_sum = total_weeding_labour_number_sum.get('wl_sum', 0)
-        weeding_labour = weeding_labour_number_sum * weeding_labour_rate if weeding_labour_number_sum is not None else 0
-
-        # Sum for weeding_chem_amt
-        total_chem_amt = Decimal(request.GET.get('weeding_chem_amt', 0))
-
-        weeding_cost = F('weeding_chem_amt') * cost_per_lit + weeding_labour
-
-        context = {
-            "weeding": data,
-            "weeding_done": weeding_done,
-            "chemical_name": chemical_name,
-            "block_no": block_no,
-            "cost_per_lit": cost_per_lit,
-            "weeding_chem_amt": weeding_chem_amt,
-            "total_chem_amt": total_chem_amt,
-            "weeding_labour_number": weeding_labour_number_count.get('wl_num', 0),
-            "total_weeding_labour_number": total_weeding_labour_number_sum.get('wl_sum', 0),
-            "weeding_labour_rate": weeding_labour_rate,
-            "weeding_labour": weeding_labour,
-            "weeding_cost": weeding_cost,
-        }
-
-        return render(request, 'mogoon/tea_weeding.html', context)
-
-
-def handle_block_no(block_no):
-    # Check if block_no is not empty before using it
-    if block_no:
-        # Convert block_no to an integer or handle it appropriately
-        try:
-            block_no = int(block_no)
-        except ValueError:
-            # Handle the case where block_no is not a valid number
-            # You might want to return an error response or set a default value
-            block_no = 1
-    else:
-        # Handle the case where block_no is an empty string or not provided
-        # You might want to return an error response or set a default value
-        block_no = 0
-
-    return block_no
+    return render(request, 'mogoon/tea_weeding.html', context)
 
 
 @login_required(login_url='login')
 @never_cache
 def weeding_view_fetch_details(request):
-    # Retrieve the first entry in the table
-    first_entry = Weeding.objects.first()
-
-    weeding_done = Weeding._meta.get_field('weeding_done').verbose_name
-
-    # Check if there's any entry in the table
-    if first_entry:
-        # Assuming 'cost_per_lit' is a constant value for all entries
-        cost_per_lit = first_entry.cost_per_lit or 0
-
-        # Aggregate counts and sums
-        weeding_labour_number = Weeding.objects.aggregate(wl_num=Count('weeding_labour_number'))
-        weeding_chem_amt = Weeding.objects.aggregate(wc_amt=Sum('weeding_chem_amt'))
+    cost_per_lit = models.DecimalField()
+    weeding_labour_number = Weeding.objects.aggregate(wl_num=Count('weeding_labour_number'))
+    weeding_labour_rate = models.DecimalField()
+    weeding_chem_amt = Weeding.objects.aggregate(wc_amt=Count('weeding_chem_amt'))
+    total_chem_amt = Weeding.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
+    if total_chem_amt.get('tc_sum') is None:
+        total_chem_amt['tc_sum'] = 0
+    else:
         total_chem_amt = Weeding.objects.aggregate(tc_sum=Sum('weeding_chem_amt'))
+    total_weeding_labour_number = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
+    if total_weeding_labour_number.get('wl_sum') is None:
+        total_weeding_labour_number['wl_sum'] = 0
+    else:
         total_weeding_labour_number = Weeding.objects.aggregate(wl_sum=Sum('weeding_labour_number'))
-
-        # Set default values for the cases where aggregation results are None
-        weeding_chem_amt = weeding_chem_amt.get('wc_amt', 0)
-        total_chem_amt = total_chem_amt.get('tc_sum', 0)
-        total_weeding_labour_number = total_weeding_labour_number.get('wl_sum', 0)
-
-        # Calculate weeding labour and cost
-        weeding_labour = total_weeding_labour_number * F('weeding_labour_rate')
-        weeding_cost = weeding_chem_amt * cost_per_lit + weeding_labour
+    weeding_labour = weeding_labour_number.get('w_sum') * F('weeding_labour_rate')
+    if weeding_labour is None:
+        weeding_labour = 0
+    else:
+        weeding_labour = weeding_labour_number.get('w_sum') * F('weeding_labour_rate')
+    weeding_cost = (total_chem_amt.get('tc_sum') * F(cost_per_lit)) + weeding_labour
+    if weeding_cost is None:
+        weeding_cost = 0
+    else:
+        weeding_cost = (total_chem_amt.get('tc_sum') * F(cost_per_lit)) + weeding_labour
 
         context = {
-            "weeding_done": weeding_done,
             "weeding_chem_amt": weeding_chem_amt,
             "total_chem_amt": total_chem_amt,
             "cost_per_lit": cost_per_lit,
@@ -854,21 +802,15 @@ def milk_view_create(request):
         return redirect('/milk-retrieve')
 
 
-@never_cache
+@login_required(login_url='login')
 def vetcosts_view_retrieve(request):
     data = VetCosts.objects.all()
-
-    # Assuming calf_down is a DateTimeField
     calf_down = timezone.now()
-
     today = timezone.now()
-
-    # Calculate calf_age for each record
     calf_age = today - calf_down
-
-    calf_numbers = VetCosts.objects.count()
-    vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
-    total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))
+    calf_numbers = VetCosts.objects.aggregate(cf_count=Count('calf_numbers'))['cf_count'] or 0
+    vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))['vt_count'] or 0
+    total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['tl_cost'] or 0
 
     context = {
         "vetcosts": data,
@@ -876,25 +818,35 @@ def vetcosts_view_retrieve(request):
         "today": today,
         "calf_age": calf_age,
         "calf_numbers": calf_numbers,
-        "vet_cost": vet_cost['vt_count'] or 0,
-        "total_vet_cost": total_vet_cost['tl_cost'] or 0,
+        "vet_cost": vet_cost,
+        "total_vet_cost": total_vet_cost,
     }
 
     return render(request, 'mogoon/vetcosts.html', context)
 
 
 @login_required(login_url='login')
-@never_cache
 def vetcosts_view_fetch_details(request):
-    if request.method == "POST":
+    form = VetCostsForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        vetcosts_instance = form.save(commit=False)
         calf_down = timezone.now()
         today = timezone.now()
         calf_age = today - calf_down
-        calf_numbers = VetCosts.objects.count()
-        vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))
-        total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['tl_cost'] or 0
+
+        calf_numbers = VetCosts.objects.aggregate(cf_count=Count('calf_numbers'))['cf_count'] or 0
+
+        vet_cost = VetCosts.objects.aggregate(vt_count=Count('vet_cost'))['vt_count'] or 0
+
+        total_vet_cost = VetCosts.objects.aggregate(tl_cost=Sum('vet_cost'))['total_cost'] or 0
+
+        vetcosts_instance.calf_down = calf_down
+        vetcosts_instance.today = today
+        vetcosts_instance.save()
 
         context = {
+            "form": VetCostsForm(),  # Reset the form after successful submission
             "calf_down": calf_down,
             "calf_age": calf_age,
             "calf_numbers": calf_numbers,
@@ -904,23 +856,26 @@ def vetcosts_view_fetch_details(request):
 
         return render(request, 'mogoon/vetcosts_create.html', context)
 
-    # Handle the case where the request method is not POST
-    return HttpResponse("Invalid request method")
+    # If the form is not valid, or it's a GET request, render the form
+    context = {"form": form}
+    return render(request, 'mogoon/vetcosts_create.html', context)
 
 
+@login_required(login_url='login')
 @never_cache
 def vetcosts_view_create(request):
     if request.method == "POST":
-        form = VetCostsForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('vetcosts-retrieve')
-        else:
-            # If the form is not valid, render the form with errors
-            return render(request, 'mogoon/vetcosts.html', {'form': form})
+        calf_down = request.POST['calf_down']
+        today = request.POST['today']
+        calf_age = request.POST['calf_age']
+        calf_numbers = request.POST['calf_numbers']
+        vet_cost = request.POST['vet_cost']
+        total_vet_cost = request.POST['total_vet_cost']
 
-    # Handle the case where the request method is not POST
-    return HttpResponse("Invalid request method")
+        insert = VetCosts(calf_down=calf_down, today=today, calf_age=calf_age,
+                          calf_numbers=calf_numbers, vet_cost=vet_cost, total_vet_cost=total_vet_cost)
+        insert.save()
+        return redirect('/vetcosts-retrieve')
 
 
 @never_cache
@@ -965,7 +920,7 @@ def fertilizer_view_retrieve(request):
 @login_required(login_url='login')
 @never_cache
 def fertilizer_view_fetch_details(request):
-    form = UpdateFertilizerForm(request.POST or None)
+    form = FertilizerForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         # Assuming your form is based on the Fertilizer model
         fertilizer_instance = form.save(commit=False)
@@ -1129,16 +1084,16 @@ def employee_view_delete(request, pk):
 def update(request, pk):
     data = Green.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateGreenForm(request.POST, instance=data)
+        form = GreenForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/green-retrieve')
 
     else:
-        form = UpdateGreenForm(instance=data)
+        form = GreenForm(instance=data)
 
     context = {
-        'form': form, 'UpdateTaskForm': UpdateGreenForm,
+        'form': form, 'UpdateTaskForm': GreenForm,
 
     }
     return render(request, 'Green/update.html', context)
@@ -1161,16 +1116,16 @@ def delete(request, pk):
 def fertilizer_view_update(request, pk):
     data = Fertilizer.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateFertilizerForm(request.POST, instance=data)
+        form = FertilizerForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/fertilizer-retrieve')
 
     else:
-        form = UpdateFertilizerForm(instance=data)
+        form = FertilizerForm(instance=data)
 
     context = {
-        'form': form, 'UpdateFertilizerForm': UpdateFertilizerForm,
+        'form': form, 'UpdateFertilizerForm': FertilizerForm,
 
     }
     return render(request, 'Fertilizer/update.html', context)
@@ -1257,16 +1212,16 @@ def weeding_view_delete(request, pk):
 def milk_view_update(request, pk):
     data = Milk.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdateMilkForm(request.POST, instance=data)
+        form = MilkForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/milk-retrieve')
 
     else:
-        form = UpdateMilkForm(instance=data)
+        form = MilkForm(instance=data)
 
     context = {
-        'form': form, 'UpdateMilkForm': UpdateMilkForm,
+        'form': form, 'MilkForm': MilkForm,
 
     }
     return render(request, 'Milk/update.html', context)
@@ -1287,14 +1242,14 @@ def milk_view_delete(request, pk):
 
 @login_required(login_url='login')
 def vetcosts_view_update(request, pk):
-    data = get_object_or_404(VetCosts, id=pk)
-    form = VetCostsForm(request.POST or None, instance=data)
-
+    data = VetCosts.objects.get(id=pk)
     if request.method == 'POST':
         form = VetCostsForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/vetcosts-retrieve')
+    else:
+        form = VetCostsForm(instance=data)
 
     context = {
         'form': form,
@@ -1306,11 +1261,10 @@ def vetcosts_view_update(request, pk):
 
 @login_required(login_url='login')
 def vetcosts_view_delete(request, pk):
-    data = get_object_or_404(VetCosts, pk=pk)
-
+    data = VetCosts.objects.get(id=pk)
     if request.method == 'POST':
         data.delete()
-        return redirect('vetcosts-retrieve')
+        return redirect('/vetcosts-retrieve')
 
     context = {
         'item': data,
@@ -1323,16 +1277,16 @@ def vetcosts_view_delete(request, pk):
 def purple_view_update(request, pk):
     data = Purple.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdatePurpleForm(request.POST, instance=data)
+        form = PurpleForm(request.POST, instance=data)
         if form.is_valid():
             form.save()
             return redirect('/purple-retrieve')
 
     else:
-        form = UpdatePurpleForm(instance=data)
+        form = PurpleForm(instance=data)
 
     context = {
-        'form': form, 'UpdatePurpleForm': UpdatePurpleForm,
+        'form': form, 'UpdatePurpleForm': PurpleForm,
 
     }
     return render(request, 'Purple/update.html', context)

@@ -10,7 +10,7 @@ class ReportsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ReportsSerializer
 
 
-class ReportsRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class ReportsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reports.objects.all()
     serializer_class = ReportsSerializer
 
@@ -20,7 +20,7 @@ class EmployeeListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = EmployeeSerializer
 
 
-class EmployeeRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class EmployeeRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
@@ -30,7 +30,7 @@ class GreenListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = GreenSerializer
 
 
-class GreenRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class GreenRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Green.objects.all()
     serializer_class = GreenSerializer
 
@@ -40,7 +40,7 @@ class PurpleListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PurpleSerializer
 
 
-class PurpleRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class PurpleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Purple.objects.all()
     serializer_class = PurpleSerializer
 
@@ -50,7 +50,7 @@ class FertilizerListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = FertilizerSerializer
 
 
-class FertilizerRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class FertilizerRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Fertilizer.objects.all()
     serializer_class = FertilizerSerializer
 
@@ -60,7 +60,7 @@ class PruningListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PruningSerializer
 
 
-class PruningRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class PruningRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pruning.objects.all()
     serializer_class = PruningSerializer
 
@@ -70,7 +70,7 @@ class WeedingListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = WeedingSerializer
 
 
-class WeedingRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class WeedingRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Weeding.objects.all()
     serializer_class = WeedingSerializer
 
@@ -80,7 +80,7 @@ class MilkListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = MilkSerializer
 
 
-class MilkRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class MilkRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Milk.objects.all()
     serializer_class = MilkSerializer
 
@@ -90,6 +90,6 @@ class VetCostsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = VetCostsSerializer
 
 
-class VetCostsRetrtieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+class VetCostsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = VetCosts.objects.all()
     serializer_class = VetCostsSerializer

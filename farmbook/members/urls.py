@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signup/', views.sign_up, name='signup'),
-    # path('user_login/', views.user_login, name='login'),
+
     path('user_login/', auth_views.LoginView.as_view(template_name='authenticate/userlogin.html'), name='login'),
     path('user_logout/', auth_views.LogoutView.as_view(template_name='authenticate/userlogout.html'), name='logout'),
     path('user_password_reset/', auth_views.PasswordResetView.as_view(template_name='authenticate/userpassword_reset'
@@ -20,7 +20,7 @@ urlpatterns = [
                                                                                                    '/userpassword_reset_confirm.html'),
          name='password_reset_confirm'),
     path('profile/', views.user_profile, name='profile'),
-    # path('logout/', views.user_logout, name='logout'),
+
     path('', include('mogoon.urls')),
 ]
 

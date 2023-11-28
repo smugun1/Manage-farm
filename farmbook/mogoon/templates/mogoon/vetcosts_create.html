@@ -5,6 +5,7 @@
 {% block title %}Create Vet Costs Form{% endblock %}
 
 {% block body %}
+
 <div class="col-lg-12 d-none d-lg-flex">
     <div class="container-fluid bg-secondary text-light h-100 d-flex align-items-center justify-content-center"
          style="width: 80rem;">
@@ -16,67 +17,56 @@
                href="{% url 'graph' %}">Go To Graphs</a>
             <form action="{% url 'vetcosts-create' %}" method="POST">
                 {% csrf_token %}
-                {{ form }}
+
 
                 <div class="col-sm col-sm">
-                    <label for="formGroupExampleInput8"
-                           class="form-label"><strong>Calf down Date</strong></label>
+                    <label for="formGroupExampleInput8" class="form-label"><strong>Calf down Date</strong></label>
                     <input style="height:40px;width:700px" type="datetime-local" class="form-control"
-                           id="formGroupExampleInput8"
-                           placeholder="Calf down Date" name="calf_down">
+                           id="formGroupExampleInput8" placeholder="Calf down Date" name="calf_down">
                 </div>
 
                 <div class="col-sm col-sm">
-                    <label for="formGroupExampleInput9"
-                           class="form-label"><strong>Date Today</strong></label>
+                    <label for="formGroupExampleInput9" class="form-label"><strong>Date Today</strong></label>
                     <input style="height:40px;width:700px" type="datetime-local" class="form-control"
-                           id="formGroupExampleInput9"
-                           placeholder="Date Today" name="today"
-                           value="">
+                           id="formGroupExampleInput9" placeholder="Date Today" name="today" value="">
                 </div>
 
                 <div class="col-sm col-sm">
-                    <label for="formGroupExampleInput10"
-                           class="form-label"><strong>Calves age</strong></label>
+                    <label for="formGroupExampleInput10" class="form-label"><strong>Calves age</strong></label>
                     <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput10"
-                           placeholder="Calves age" name="calf_age"
-                           value="{{calf_age.calf_age}}">
+                           placeholder="Calves age" name="calf_age" value="{{calf_age}}">
                 </div>
 
                 <div class="col-sm col-sm">
-                    <label for="formGroupExampleInput11"
-                           class="form-label"><strong>No. of Calves</strong></label>
+                    <label for="formGroupExampleInput11" class="form-label"><strong>No. of Calves</strong></label>
                     <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput11"
-                           placeholder="No. of Calves" name="calf_numbers" value="{{calf_numbers.calf_numbers}}">
-
+                           placeholder="No. of Calves" name="calf_numbers" value="{{calf_numbers.cf_count}}">
                 </div>
+
                 <div class="col-sm col-sm">
-                    <label for="formGroupExampleInput12" class="form-label"><strong>Cost Veterinary
-                        Service</strong></label>
-                    <input style="height:40px;width:700px" type="text" class="form-control"
-                           id="formGroupExampleInput12" placeholder="Cost Veterinary Service"
-                           name="vet_cost"
-                           value="{{vet_cost.vet_cost }}">
-                    <div class="col-sm col-sm">
-                        <label for="formGroupExampleInput13"
-                               class="form-label"><strong>Total cost of Veterinary
-                            Service </strong></label>
-                        <input style="height:40px;width:700px" type="text" class="form-control"
-                               id="formGroupExampleInput13"
-                               placeholder="0" name="Total_vet_cost"
-                               value="{{total_vet_cost.total_vet_cost}}">
-                        <div class="container my-3">
-                            <button class="btn btn-primary" type="submit" value="Update" name="update"
-                                    typeof="hover">
-                                Submit
-                            </button>
-                            <a class="btn btn-light bg-success btn-info block-lg"
-                               href="{% url 'vetcosts-retrieve' %}">Return</a>
-                        </div>
-                    </div>
+                    <label for="formGroupExampleInput12" class="form-label"><strong>Cost Veterinary Service</strong></label>
+                    <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput12"
+                           placeholder="Cost Veterinary Service" name="vet_cost" value="{{vet_cost.vt_count}}">
+                </div>
+
+                <div class="col-sm col-sm">
+                    <label for="formGroupExampleInput13" class="form-label"><strong>Total cost of Veterinary Service</strong></label>
+                    <input style="height:40px;width:700px" type="text" class="form-control" id="formGroupExampleInput13"
+                           placeholder="0" name="total_vet_cost" value="{{total_vet_cost.tl_cost}}">
+                </div>
+
+               <div class="container my-3">
+                    <button class="btn btn-primary" type="submit" value="Update" name="update"
+                            typeof="hover">
+                        Submit
+                    </button>
+
+                    <a class="btn btn-light bg-success btn-info block-lg"
+                       href="{% url 'vetcosts-retrieve' %}">Return</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 {% endblock %}

@@ -1,8 +1,13 @@
 {% extends 'mogoon/base.html' %}
 
+
+
+{% load static %}
+
 {% block title %}Vet Costs Table{% endblock %}
 
 {% block body %}
+
 <div class="row d-none d-lg-flex">
     <div class="col-lg-8">
         <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
@@ -35,19 +40,19 @@
                             <td>{{ data.calf_age }}</td>
                             <td>{{ data.calf_numbers }}</td>
                             <td>{{ data.vet_cost }}</td>
-                            <td>{{ data.total_vet_cost }}</td>
+                            <td>{{ data.vet_cost|add:data.total_vet_cost}}</td>
                             <td><a class="btn btn-info btn-block bg-primary btn btn-info"
-                                href="{% url 'vetcosts-update' data.id %}">Edit</a></td>
+                                href="{% url 'vetcosts-update' pk=data.id %}">Edit</a></td>
                             <td><a class="btn btn-info btn-block bg-danger btn btn-info"
-                                 href="{% url 'vetcosts-delete' data.id %}">Delete</a></td>
+                                 href="{% url 'vetcosts-delete' pk=data.id %}">Delete</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="2">TOTAL</td>
+                            <td colspan="1">TOTAL</td>
                             <td>{% if calf_age_list|length > 0 %}{{ calf_age_list.0.days }}{% endif %}</td>
-                            <td>{{ calf_numbers }}</td>
+                            <td>{{ calf_numbers.cf_count|default:0 }}</td>
                             <td>{{ vet_cost.vt_count|default:0 }}</td>
                             <td>{{ total_vet_cost.tl_cost|default:0 }}</td>
                             <td></td>
@@ -59,71 +64,75 @@
         </div>
     </div>
     <div class="col-lg-4">
-        <div class="bg-white">
-            <canvas id="chartContainer1" style="height: 300px;"></canvas>
-            <script>
-                // Ensure jQuery is noConflict mode to avoid conflicts
-                jQuery.noConflict();
-                jQuery(document).ready(function ($) {
-                    // Function to extract data from the table and generate a chart
-                    function generateChart() {
-                        var labels = [];
-                        var values = [];
-                        // Loop through table rows (skip header and total/average row)
-                        {% for data_entry in vetcosts %}
-                        labels.push('{{ data_entry.today }}');
-                        values.push({{ data_entry.vet_cost }});
-                        {% endfor %}
-                        // Define different colors for each bar
-                        var backgroundColors = [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 205, 86, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 199, 232, 1)',
-                            'rgba(255, 20, 86, 1)',
-                            'rgba(54, 62, 135, 1)',
-                            // Add more colors as needed
-                        ];
-                        // Define border colors for each bar
-                        var borderColors = [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 205, 86, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 199, 232, 1)',
-                            'rgba(255, 20, 86, 1)',
-                            'rgba(54, 62, 135, 1)',
-                            // Add more colors as needed
-                        ];
-                        // Chart.js configuration
-                        var ctx = document.getElementById('chartContainer1').getContext('2d');
-                        var myChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Vet Costs',
-                                    data: values,
-                                    backgroundColor: backgroundColors,
-                                    borderColor: borderColors,
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
+    <div class="bg-white">
+        <canvas id="chartContainer1" style="height: 300px;"></canvas>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Function to extract data from the table and generate a chart
+            function generateChart() {
+                var labels = [];
+                var values = [];
+
+                // Loop through table rows (skip header and total/average row)
+                {% for data_entry in vetcosts %}
+                    labels.push('{{ data_entry.today }}');
+                    values.push({{ data_entry.vet_cost }});
+                {% endfor %}
+
+                // Define different colors for each bar
+                var backgroundColors = [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 199, 232, 1)',
+                    'rgba(255, 20, 86, 1)',
+                    'rgba(54, 62, 135, 1)',
+                    // Add more colors as needed
+                ];
+
+                // Define border colors for each bar
+                var borderColors = [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 199, 232, 1)',
+                    'rgba(255, 20, 86, 1)',
+                    'rgba(54, 62, 135, 1)',
+                    // Add more colors as needed
+                ];
+
+                // Chart.js configuration
+                var ctx = document.getElementById('chartContainer1').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Vet Costs',
+                            data: values,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
                             }
-                        });
+                        }
                     }
-                    // Call the function to generate the chart
-                    generateChart();
                 });
-            </script>
-        </div>
+            }
+
+            // Call the function to generate the chart
+            generateChart();
+        </script>
     </div>
+</div>
+
 </div>
 {% endblock %}

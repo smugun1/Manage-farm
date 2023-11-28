@@ -158,10 +158,6 @@ class VetCosts(models.Model):
     vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
     total_vet_cost = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
-        self.data = None
-
     def __str__(self):
         return f'{self.calf_down}-{self.today}-{self.calf_age}-{self.calf_numbers}-{self.vet_cost}-{self.total_vet_cost}'
 

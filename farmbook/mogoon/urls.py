@@ -1,13 +1,13 @@
 from django.urls import path
 
 from . import views
-from .apiViews import EmployeeListCreateAPIView, EmployeeRetrtieveUpdateDestroyAPIView, ReportsListCreateAPIView, \
-    ReportsRetrtieveUpdateDestroyAPIView, GreenListCreateAPIView, GreenRetrtieveUpdateDestroyAPIView, \
-    PurpleListCreateAPIView, PurpleRetrtieveUpdateDestroyAPIView, \
-    FertilizerListCreateAPIView, FertilizerRetrtieveUpdateDestroyAPIView, WeedingListCreateAPIView, \
-    PruningListCreateAPIView, PruningRetrtieveUpdateDestroyAPIView, \
-    WeedingRetrtieveUpdateDestroyAPIView, MilkListCreateAPIView, \
-    MilkRetrtieveUpdateDestroyAPIView, VetCostsListCreateAPIView, VetCostsRetrtieveUpdateDestroyAPIView
+from .apiViews import EmployeeListCreateAPIView, EmployeeRetrieveUpdateDestroyAPIView, ReportsListCreateAPIView, \
+    ReportsRetrieveUpdateDestroyAPIView, GreenListCreateAPIView, GreenRetrieveUpdateDestroyAPIView, \
+    PurpleListCreateAPIView, PurpleRetrieveUpdateDestroyAPIView, \
+    FertilizerListCreateAPIView, FertilizerRetrieveUpdateDestroyAPIView, WeedingListCreateAPIView, \
+    PruningListCreateAPIView, PruningRetrieveUpdateDestroyAPIView, \
+    WeedingRetrieveUpdateDestroyAPIView, MilkListCreateAPIView, \
+    MilkRetrieveUpdateDestroyAPIView, VetCostsListCreateAPIView, VetCostsRetrieveUpdateDestroyAPIView
 from .views import *
 
 # from django.conf.urls import patterns, url
@@ -29,7 +29,7 @@ urlpatterns = [
     path('green-create/', views.green_view_create, name='green-create'),
 
     path('purple-retrieve/', views.purple_view_retrieve, name='purple-retrieve'),
-    path('purple-update/', views.purple_view_fetch_details, name='purple-details'),
+    path('purple-details/', views.purple_view_fetch_details, name='purple-details'),
     path('purple-create/', views.purple_view_create, name='purple-create'),
 
     path('pruning-retrieve/', views.pruning_view_retrieve, name='pruning-retrieve'),
@@ -53,29 +53,29 @@ urlpatterns = [
     path('vetcosts-details/', views.vetcosts_view_fetch_details, name='vetcosts-details'),
     path('vetcosts-create/', views.vetcosts_view_create, name='vetcosts-create'),
 
-    path('reports_update/<int:pk>/', views.reports_view_update, name='reports-update'),
-    path('reports_delete/<int:pk>/', views.reports_view_delete, name='reports-delete'),
+    path('reports-update/<int:pk>/', views.reports_view_update, name='reports-update'),
+    path('reports-delete/<int:pk>/', views.reports_view_delete, name='reports-delete'),
 
-    path('employee_update/<int:pk>/', views.employee_view_update, name='employee-update'),
-    path('employee_delete/<int:pk>/', views.employee_view_delete, name='employee-delete'),
+    path('employee-update/<int:pk>/', views.employee_view_update, name='employee-update'),
+    path('employee-delete/<int:pk>/', views.employee_view_delete, name='employee-delete'),
 
     path('green-update/<int:pk>/', views.update, name='green-update'),
     path('green-delete/<int:pk>/', views.delete, name='green-delete'),
 
-    path('purple_update/<int:pk>/', views.purple_view_update, name='purple-update'),
-    path('purple_delete/<int:pk>/', views.purple_view_delete, name='purple-delete'),
+    path('purple-update/<int:pk>/', views.purple_view_update, name='purple-update'),
+    path('purple-delete/<int:pk>/', views.purple_view_delete, name='purple-delete'),
 
-    path('fertilizer_update/<int:pk>/', views.fertilizer_view_update, name='fertilizer-update'),
-    path('fertilizer_delete/<int:pk>/', views.fertilizer_view_delete, name='fertilizer-delete'),
+    path('fertilizer-update/<int:pk>/', views.fertilizer_view_update, name='fertilizer-update'),
+    path('fertilizer-delete/<int:pk>/', views.fertilizer_view_delete, name='fertilizer-delete'),
 
-    path('pruning_update/<int:pk>/', views.pruning_view_update, name='pruning-update'),
-    path('pruning_delete/<int:pk>/', views.pruning_view_delete, name='pruning-delete'),
+    path('pruning-update/<int:pk>/', views.pruning_view_update, name='pruning-update'),
+    path('pruning-delete/<int:pk>/', views.pruning_view_delete, name='pruning-delete'),
 
     path('weeding-update/<int:pk>/', views.weeding_view_update, name='weeding-update'),
     path('weeding-delete/<int:pk>/', views.weeding_view_delete, name='weeding-delete'),
 
-    path('milk_update/<int:pk>/', views.milk_view_update, name='milk-update'),
-    path('milk_delete/<int:pk>/', views.milk_view_delete, name='milk-delete'),
+    path('milk-update/<int:pk>/', views.milk_view_update, name='milk-update'),
+    path('milk-delete/<int:pk>/', views.milk_view_delete, name='milk-delete'),
 
     path('vetcosts-update/<int:pk>/', views.vetcosts_view_update, name='vetcosts-update'),
     path('vetcosts-delete/<int:pk>/', views.vetcosts_view_delete, name='vetcosts-delete'),
@@ -101,22 +101,22 @@ urlpatterns = [
     path('vetcosts_create_api/', views.vetcosts_create_view),
 
     path('generics-reports/', ReportsListCreateAPIView.as_view()),
-    path('generics-reports/<int:pk>/', ReportsRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-reports/<int:pk>/', ReportsRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-employee/', EmployeeListCreateAPIView.as_view()),
-    path('generics-employee/<int:pk>/', EmployeeRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-employee/<int:pk>/', EmployeeRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-green/', GreenListCreateAPIView.as_view()),
-    path('generics-green/<int:pk>/', GreenRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-green/<int:pk>/', GreenRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-purple/', PurpleListCreateAPIView.as_view()),
-    path('generics-purple/<int:pk>/', PurpleRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-purple/<int:pk>/', PurpleRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-pruning/', PruningListCreateAPIView.as_view()),
-    path('generics-pruning/<int:pk>/', PruningRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-pruning/<int:pk>/', PruningRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-weeding/', WeedingListCreateAPIView.as_view()),
-    path('generics-weeding/<int:pk>/', WeedingRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-weeding/<int:pk>/', WeedingRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-milk/', MilkListCreateAPIView.as_view()),
-    path('generics-milk/<int:pk>/', MilkRetrtieveUpdateDestroyAPIView.as_view()),
-    path('generics-vet/', VetCostsListCreateAPIView.as_view()),
-    path('generics-vet/<int:pk>/', VetCostsRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-milk/<int:pk>/', MilkRetrieveUpdateDestroyAPIView.as_view()),
+    path('generics-vetcosts/', VetCostsListCreateAPIView.as_view()),
+    path('generics-vetcosts/<int:pk>/', VetCostsRetrieveUpdateDestroyAPIView.as_view()),
     path('generics-fertilizer/', FertilizerListCreateAPIView.as_view()),
-    path('generics-fertilizer/<int:pk>/', FertilizerRetrtieveUpdateDestroyAPIView.as_view()),
+    path('generics-fertilizer/<int:pk>/', FertilizerRetrieveUpdateDestroyAPIView.as_view()),
 
 ]

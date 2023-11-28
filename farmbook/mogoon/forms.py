@@ -23,7 +23,7 @@ class EmployeeForm(forms.ModelForm):
         fields = '__all__'
 
 
-class UpdateGreenForm(forms.ModelForm):
+class GreenForm(forms.ModelForm):
     content = forms.CharField(label='SimKMN', widget=forms.TextInput(
         attrs={'placeholder': 'Add task here...'}))
 
@@ -32,13 +32,13 @@ class UpdateGreenForm(forms.ModelForm):
         fields = '__all__'
 
 
-class UpdatePurpleForm(forms.ModelForm):
+class PurpleForm(forms.ModelForm):
     class Meta:
         model = Purple
         fields = '__all__'
 
 
-class UpdateFertilizerForm(forms.ModelForm):
+class FertilizerForm(forms.ModelForm):
     class Meta:
         model = Fertilizer
         fields = '__all__'
@@ -56,7 +56,7 @@ class WeedingForm(forms.ModelForm):
         fields = '__all__'
 
 
-class UpdateMilkForm(forms.ModelForm):
+class MilkForm(forms.ModelForm):
     class Meta:
         model = Milk
         fields = '__all__'
