@@ -1286,7 +1286,7 @@ def purple_view_update(request, pk):
         form = PurpleForm(instance=data)
 
     context = {
-        'form': form, 'UpdatePurpleForm': PurpleForm,
+        'form': form, 'PurpleForm': PurpleForm,
 
     }
     return render(request, 'Purple/update.html', context)

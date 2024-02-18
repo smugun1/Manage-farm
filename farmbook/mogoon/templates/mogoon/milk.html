@@ -10,18 +10,18 @@
 <title>{% block title %}Milk Table{% endblock %}</title>
 
 
-
 {% block body %}
-<div class=" align-items-center">
-    <div class="row d-none d-lg-flex">
-        <div class="col-lg-8 d-none d-lg-flex">
-            <div class="container-fluid text-right card bg-secondary card-dark mx-4 px-4 my-4 py-4"
-                 style="border-radius: 10px;">
-                <h2 class="text-center bg-dark text-light">Milk Records</h2>
+<div class="container-fluid text-right card bg-light card-dark mx-0 px-0 my-0 py-0" style="border-radius: 10px;">
+    <div class="container-fluid text-right card bg-secondary card-dark mx-2 px-2 my-2 py-2"
+         style="border-radius: 10px;">
+        <div class="row g-8 d-flex align-items-center">
+            <h2 class="text-center bg-dark text-light">Milk Records</h2>
+            <div class="col-lg-8 d-none d-lg-flex">
                 <div class="border p-3">
                     <a class="btn btn-dark bg-primary btn-info block-lg"
                        href="{% url 'milk-details'%}">Add</a>
-                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To Reports</a>
+                    <a class="btn btn-dark bg-primary btn-info block-lg" href="{% url 'reports-retrieve' %}">Go To
+                        Reports</a>
                     <hr>
                     <table class="table align-middle text-dark bg-light">
                         <tr>
@@ -73,11 +73,12 @@
                 <br>
 
             </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="bg-white">
-                <canvas id="chartContainer" style="height: 300px;"></canvas>
-                <script>
+
+
+            <div class="col-lg-4">
+                <div class="bg-white">
+                    <canvas id="chartContainer" style="height: 300px;"></canvas>
+                    <script>
                     // Ensure jQuery is noConflict mode to avoid conflicts
                         jQuery.noConflict();
 
@@ -146,18 +147,10 @@
                         });
 
 
-
-
-
-
-
-
-
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
     </div>
-
-</div>
 </div>
 {% endblock %}

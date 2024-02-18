@@ -113,7 +113,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                 <div class=" col-md-2">
+                                <div class=" col-md-2">
                                     <a class="text-decoration-none text-dark"
                                        href="{% url 'milk-details' %}">
                                         <div class="card my-card shadow text-center p-2">
@@ -127,7 +127,7 @@
                                        href="{% url 'vetcosts-details' %}">
                                         <div class="card my-card shadow text-center p-2">
                                             <h5>Enter Vetcosts <i class="fa fa-calendar-check-o"
-                                                              aria-hidden="true"></i></h5>
+                                                                  aria-hidden="true"></i></h5>
                                             <h4></h4>
                                         </div>
                                     </a>
@@ -143,52 +143,56 @@
                 </div>
             </div>
         </div>
-        <div class="container fluid bg-white text-secondary my-0 px-0 mb-0 mt-0 border" style=" border-radius: 20px;">
-            <h1></h1>
+        <div class="container-fluid fluid bg-white text-secondary my-0 px-0 mb-0 mt-0 border"
+             style="border-radius: 20px;">
             <div class="row my-0">
                 <div class="md-0">
                     <div class="container my-0 mx-0 mt-1">
                         <div class="row mt-0">
-                            <div class=" col-md-12">
+                            <div class="col-md-12">
                                 <div class="card">
-                                    <div class="card-body">
+                                    <div class="card-body bg-secondary" style="border-radius: 10px;">
                                         <div class="row">
                                             <div class="row">
                                                 {% for model_name, data_and_form in data_and_forms.items %}
                                                 <div class="col-md-6">
-                                                    <div class="bg-white">
-                                                        <canvas id="{{ model_name|lower }}Chart"
-                                                                style="height: 500px;"></canvas>
-                                                        <script>
-                                                            // Ensure jQuery is noConflict mode to avoid conflicts
-                                                            jQuery.noConflict();
+                                                    <br>
+                                                    <div class="container my-0 px-0 mb-0 mt-0 border"
+                                                         style="border-radius: 10px;">
+                                                        <div class="bg-white">
+                                                            <canvas id="{{ model_name|lower }}Chart"
+                                                                    style="height: 500px;"></canvas>
+                                                            <br>
+                                                            <script>
+                                                                    // Ensure jQuery is noConflict mode to avoid conflicts
+                                                                    jQuery.noConflict();
 
-                                                            jQuery(document).ready(function ($) {
-                                                                // Function to extract data from the table and generate a chart
-                                                                function generateChart() {
-                                                                    var labels = [{% for data in data_and_form.data %}
-                                                                    '{{ data.department }}',
-                                                                    '{{ data.plucking_date }}',
-                                                                    '{{ data.plucking_date }}',
-                                                                    '{{ data.pruning_done }}',
-                                                                    '{{ data.weeding_done }}',
-                                                                    '{{ data.fertilizer_applied }}',
-                                                                    '{{ data.milking_done }}',
-                                                                    '{{ data.calf_down }}',
-                                                                    {% endfor %}];
+                                                                    jQuery(document).ready(function ($) {
+                                                                        // Function to extract data from the table and generate charts
+                                                                        function generateCharts() {
+                                                                            var labels = [{% for data in data_and_form.data %}
+                                                                                '{{ data.department }}',
+                                                                                '{{ data.plucking_date }}',
+                                                                                '{{ data.plucking_date }}',
+                                                                                '{{ data.pruning_done }}',
+                                                                                '{{ data.weeding_done }}',
+                                                                                '{{ data.fertilizer_applied }}',
+                                                                                '{{ data.milking_done }}',
+                                                                                '{{ data.calf_down }}',
+                                                                            {% endfor %}];
 
-                                                                    var values = [{% for data in data_and_form.data %}
-                                                                    {{ data.salary_total }},
-                                                                    {{ data.green_today }},
-                                                                    {{ data.purple_today }},
-                                                                    {{ data.pruned_bushes }},
-                                                                    {{ data.weeding_cost }},
-                                                                    {{ data.fertilizer_amt }},
-                                                                    {{ data.milk_today }},
-                                                                    {{ data.vet_cost }},
-                                                                    {% endfor %}];
+                                                                            var values1 = [{% for data in data_and_form.data %}
+                                                                                {{ data.salary_total }},
+                                                                                {{ data.green_today }},
+                                                                                {{ data.purple_today }},
+                                                                                {{ data.pruned_bushes }},
+                                                                                {{ data.weeding_cost }},
+                                                                                {{ data.fertilizer_amt }},
+                                                                                {{ data.milk_today }},
+                                                                                {{ data.vet_cost }},
+                                                                            {% endfor %}];
 
-                                                                    // Define different colors for each bar
+                                                                            // Define different colors for each bar
                                                                             var backgroundColors = [
                                                                                 'rgba(75, 192, 192, 1)',
                                                                                 'rgba(255, 99, 132, 1)',
@@ -200,7 +204,6 @@
                                                                                 // Add more colors as needed
                                                                             ];
 
-                                                                            // Define border colors for each bar
                                                                             var borderColors = [
                                                                                 'rgba(75, 192, 192, 1)',
                                                                                 'rgba(255, 99, 132, 1)',
@@ -212,42 +215,102 @@
                                                                                 // Add more colors as needed
                                                                             ];
 
-                                                                    // Chart.js configuration
-                                                                    var ctx = document.getElementById('{{ model_name|lower }}Chart').getContext('2d');
-                                                                    var myChart = new Chart(ctx, {
-                                                                        type: 'bar',
-                                                                        data: {
-                                                                            labels: labels,
-                                                                            datasets: [{
-                                                                                label: '{{ model_name }}',
-                                                                                data: values,
-                                                                                backgroundColor: backgroundColors,
-                                                                                borderColor: borderColors,
-                                                                                borderWidth: 1
-                                                                            }]
-                                                                        },
-                                                                        options: {
-                                                                            scales: {
-                                                                                y: {
-                                                                                    beginAtZero: true
+                                                                            var values2 = [{% for data in data_and_form.data %}
+                                                                                {{ data.salary_total }},
+                                                                                {{ data.green_todate }},
+                                                                                {{ data.purple_todte }},
+                                                                                {{ data.pruned_bushes }},
+                                                                                {{ data.weeding_cost }},
+                                                                                {{ data.fertilizer_amt }},
+                                                                                {{ data.milk_todate }},
+                                                                                {{ data.total_vet_cost }},
+                                                                                // Add more values for the second dataset
+                                                                            {% endfor %}];
+
+                                                                            // Chart.js configuration
+                                                                            var ctx = document.getElementById('{{ model_name|lower }}Chart').getContext('2d');
+
+                                                                            // Line chart configuration
+                                                                            var lineChart = new Chart(ctx, {
+                                                                                type: 'doughnut',
+                                                                                data: {
+                                                                                    labels: labels,
+                                                                                    datasets: [{
+                                                                                        label: '{{ model_name }}',
+                                                                                        data: values1,
+                                                                                        backgroundColor: backgroundColors,
+                                                                                        borderColor: borderColors,
+                                                                                        borderWidth: 1,
+                                                                                        fill: false // Disable filling area under the line
+                                                                                    }]
+                                                                                },
+                                                                                options: {
+                                                                                    scales: {
+                                                                                        y: {
+                                                                                            beginAtZero: true
+                                                                                        }
+                                                                                    }
                                                                                 }
-                                                                            }
+                                                                            });
+
+                                                                            // Bar chart configuration
+                                                                            var barChart = new Chart(ctx, {
+                                                                                type: 'radar',
+                                                                                data: {
+                                                                                    labels: labels,
+                                                                                    datasets: [{
+                                                                                        label: 'Second Dataset',
+                                                                                        data: values2,
+                                                                                        backgroundColor: backgroundColors,
+                                                                                        borderColor: borderColors,
+                                                                                        borderWidth: 1
+                                                                                    }]
+                                                                                },
+                                                                                options: {
+                                                                                    scales: {
+                                                                                        y: {
+                                                                                            beginAtZero: true
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
                                                                         }
+
+                                                                        // Call the function to generate the charts
+                                                                        generateCharts();
                                                                     });
-                                                                }
 
-                                                                // Call the function to generate the chart
-                                                                generateChart();
-                                                            });
-
-                                                        </script>
+                                                            </script>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 {% endfor %}
                                             </div>
-
-
                                         </div>
+                                        <!--                                                <div class="container">-->
+                                        <!--                                                    <div class=" col-md-12">-->
+                                        <!--                                                        <div class="col-md-6 text-danger">-->
+                                        <!--                                                            <canvas id="image1"></canvas>-->
+                                        <!--                                                            <div class="bg-secondary">-->
+                                        <!--                                                                <br>-->
+                                        <!--                                                                <h3 class="card card">Image</h3>-->
+                                        <!--                                                                <img src="/static/images/slide 34.jpg/"-->
+                                        <!--                                                                     class="w-100 H-45 "-->
+                                        <!--                                                                     alt="..."/>-->
+                                        <!--                                                            </div>-->
+                                        <!--                                                        </div>-->
+                                        <!--                                                        <div class="col-md-6 text-danger">-->
+                                        <!--                                                            <canvas id="image2"></canvas>-->
+                                        <!--                                                            <div class="bg-secondary">-->
+                                        <!--                                                                <br>-->
+                                        <!--                                                                <h3 class="card card">Image</h3>-->
+                                        <!--                                                                <img src="/static/images/slide 2.jpg/"-->
+                                        <!--                                                                     class="w-100 H-45 "-->
+                                        <!--                                                                     alt="..."/>-->
+                                        <!--                                                            </div>-->
+                                        <!--                                                        </div>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
                                     </div>
                                 </div>
                             </div>
@@ -258,9 +321,13 @@
         </div>
     </div>
 </div>
+</div>
+</div>
+</div>
+</div>
 
-                            <!--end-graphs>-->
-                            {% endblock %}
+<!--end-graphs>-->
+{% endblock %}
 
 
 
